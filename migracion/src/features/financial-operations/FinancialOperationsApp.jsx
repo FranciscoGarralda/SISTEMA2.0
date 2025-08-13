@@ -28,7 +28,7 @@ import {
   proveedoresCC,
   specificFieldsConfig
 } from '../../shared/constants';
-import { useMixedPayments, useFormKeyboardNavigation } from '../../shared/hooks';
+import { useMixedPayments } from '../../shared/hooks';
 
 
 /**
@@ -106,12 +106,8 @@ const FinancialOperationsApp = ({ onSaveMovement, initialMovementData, onCancelE
     validateMixedPayments
   } = useMixedPayments(formData, setFormData);
 
-  // AGREGAR navegación por teclado (sin afectar funcionalidad existente)
-  const {
-    createElementRef
-  } = useFormKeyboardNavigation('financial-operations-form', {
-    autoFocus: true
-  });
+  // Navegación por teclado deshabilitada temporalmente
+  const createElementRef = () => undefined;
 
   // Agregar manejador global de teclado para el formulario
   useEffect(() => {
