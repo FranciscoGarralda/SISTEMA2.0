@@ -17,7 +17,7 @@ import { formatAmountWithCurrency } from '../../shared/components/forms';
 import { safeParseFloat } from '../../shared/services/safeOperations';
 
 /** COMPONENTE PRINCIPAL DE PRESTAMISTAS */
-function PrestamistasApp({ clients, movements, onNavigate }) {
+function PrestamistasApp({ clients = [], movements = [], onNavigate = () => {} }) {
   const [currentView, setCurrentView] = useState('summary'); // 'summary' o 'detail'
   const [selectedPrestamista, setSelectedPrestamista] = useState(null);
 
