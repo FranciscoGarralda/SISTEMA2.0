@@ -56,6 +56,13 @@ const nextConfig = {
     ]
   },
   
+  // Redirects iniciales
+  async redirects() {
+    return [
+      { source: '/', destination: '/operaciones', permanent: false },
+    ];
+  },
+  
   // Configuración de webpack para mejor manejo de chunks
   webpack: (config, { isServer }) => {
     // Ignorar warnings de módulos
