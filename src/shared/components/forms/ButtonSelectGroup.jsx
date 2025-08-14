@@ -115,8 +115,8 @@ const ButtonSelectGroup = ({
                   const words = text.split(' ');
                   return (
                     <div className="flex flex-col items-center justify-center h-full">
-                      <span className="text-xl mb-0.5 text-white">{emoji}</span>
-                      <span className="text-xs leading-tight text-center px-2 text-white">
+                      <span className="text-xl mb-0.5">{emoji}</span>
+                      <span className="text-xs leading-tight text-center px-2">
                         {words.map((w, i) => (
                           <React.Fragment key={i}>
                             {w}{i < words.length - 1 ? <br /> : null}
