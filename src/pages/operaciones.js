@@ -5,7 +5,7 @@ import { useClients } from '../shared/contexts/ClientsContext';
 const FinancialOperationsApp = lazy(() => import('../features/financial-operations/FinancialOperationsApp'));
 
 export default function OperacionesPage() {
-  const { clients, saveClient } = useClients();
+  const { clients, saveClient, loadClients } = useClients();
   return (
     <MainLayout>
       <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-gray-600">Cargando módulo...</div>}>
@@ -14,6 +14,7 @@ export default function OperacionesPage() {
           onCancelEdit={() => {}}
           clients={clients}
           onSaveClient={saveClient}
+          reloadClients={loadClients}
         />
       </Suspense>
     </MainLayout>

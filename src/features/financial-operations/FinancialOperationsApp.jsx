@@ -50,7 +50,7 @@ function DynamicFormFieldGroups({ groups, formData, onFieldChange, onSaveClient 
   );
 }
 
-const FinancialOperationsApp = ({ onSaveMovement, initialMovementData, onCancelEdit, clients, onSaveClient }) => {
+const FinancialOperationsApp = ({ onSaveMovement, initialMovementData, onCancelEdit, clients, onSaveClient, reloadClients }) => {
   const [formData, setFormData] = useState({
     cliente: '',
     fecha: getTodayLocalDate(), // Fecha actual por defecto
@@ -800,8 +800,9 @@ const FinancialOperationsApp = ({ onSaveMovement, initialMovementData, onCancelE
                         const savedClient = await onSaveClient(newClient);
                         if (savedClient && savedClient.id) {
                           setTimeout(() => {
+                            reloadClients && reloadClients();
                             handleInputChange('cliente', savedClient.id);
-                          }, 100);
+                          }, 50);
                           return savedClient;
                         }
                       }
