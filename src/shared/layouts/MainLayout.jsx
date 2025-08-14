@@ -1,4 +1,4 @@
-import React, { Suspense, useState, useMemo, useCallback } from 'react';
+import React, { Suspense, useState, useMemo, useCallback, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 
@@ -11,7 +11,19 @@ export default function MainLayout({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const router = useRouter();
 
-  const toggleSidebar = () => setIsSidebarOpen(prev => !prev);
+  // Cargar y persistir estado de sidebar
+  useEffect(() => {
+    try {
+      const stored = sessionStorage.getItem('sidebarOpen');
+      if (stored != null) setIsSidebarOpen(stored === '1');
+    } catch {}
+  }, []);
+
+  const toggleSidebar = () => setIsSidebarOpen(prev => {
+    const next = !prev;
+    try { sessionStorage.setItem('sidebarOpen', next ? '1' : '0'); } catch {}
+    return next;
+  });
 
   const pathToPageId = useMemo(() => ({
     '/': 'inicio',
