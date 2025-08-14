@@ -71,6 +71,31 @@ const MainMenu = memo(({ onNavigate, activeItem, isSidebarOpen, toggleSidebar, i
   const menuRef = useRef(null);
   const [focusedIndex, setFocusedIndex] = useState(-1);
   
+  // Ref para el contenedor con scroll
+  const navScrollRef = useRef(null);
+
+  // Persistir scroll en desktop
+  useEffect(() => {
+    if (isMobile) return;
+    const el = navScrollRef.current;
+    if (!el) return;
+
+    const stored = sessionStorage.getItem('sidebarScrollTop');
+    if (stored) {
+      const val = parseInt(stored, 10);
+      if (!Number.isNaN(val)) {
+        el.scrollTop = val;
+      }
+    }
+
+    const onScroll = () => {
+      sessionStorage.setItem('sidebarScrollTop', String(el.scrollTop));
+    };
+
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => el.removeEventListener('scroll', onScroll);
+  }, [isMobile]);
+
   const menuItems = useMemo(() => [
     // OPERACIONES PRINCIPALES (arriba - más usadas)
     { id: 'inicio', icon: Home, title: 'Inicio', category: 'main' },
@@ -277,7 +302,7 @@ const MainMenu = memo(({ onNavigate, activeItem, isSidebarOpen, toggleSidebar, i
       )}
       
       {/* Menú de navegación - ocupa todo el espacio */}
-      <nav className={`flex-1 ${isSidebarOpen || isMobile ? 'px-3 py-4' : 'p-2'} overflow-y-auto ${isMobile ? '' : 'pt-4'}`}>
+      <nav ref={navScrollRef} className={`flex-1 ${isSidebarOpen || isMobile ? 'px-3 py-4' : 'p-2'} overflow-y-auto ${isMobile ? '' : 'pt-4'}`}>
         {/* Renderizar items por categoría */}
         {visibleMenuItems && visibleMenuItems.length > 0 && ['main', 'operations', 'management', 'reports', 'config'].map((category, categoryIndex) => {
           // Filtrar "inicio" solo cuando está abierto (ya está en el header)
@@ -382,6 +407,7 @@ const NavigationApp = memo(({ children, currentPage, onNavigate, currentUser, on
         setInternalIsSidebarOpen(false);
       }
     }
+    // En escritorio: NO cerrar automáticamente
   }, [onNavigate, isMobile, propToggleSidebar, propIsSidebarOpen]);
 
   // Close sidebar on escape key
