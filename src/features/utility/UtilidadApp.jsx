@@ -21,7 +21,7 @@ import { getTodayLocalDate, getCurrentYearMonth, isCurrentMonth, isToday } from 
 // import { handleBusinessLogicError } from '../../shared/services/errorHandler';
 
 /** COMPONENTE PRINCIPAL DE ANÁLISIS DE UTILIDAD */
-function UtilidadApp({ movements, onNavigate }) {
+function UtilidadApp({ movements = [], onNavigate = () => {} }) {
   const [selectedDate, setSelectedDate] = useState('');
 
   // Procesar movimientos para calcular WAC histórico y utilidad
