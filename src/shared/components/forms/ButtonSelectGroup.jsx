@@ -23,7 +23,7 @@ const ButtonSelectGroup = ({
     const baseClasses = isMoneda
       ? 'px-1 py-1 text-xs font-medium flex items-center justify-center rounded-md border transition-all min-w-[40px]'
       : isOperacion
-        ? 'px-2.5 py-3 text-xs sm:text-sm font-medium flex items-center justify-center rounded-lg border transition-none min-h-[72px]'
+        ? 'w-full h-24 px-2.5 py-3 text-xs sm:text-sm font-medium flex items-center justify-center rounded-lg border transition-none'
         : 'px-4 py-2.5 text-sm font-medium flex items-center justify-center rounded-lg border transition-all';
     
     return `${baseClasses} ${
@@ -115,8 +115,8 @@ const ButtonSelectGroup = ({
                   const words = text.split(' ');
                   return (
                     <div className="flex flex-col items-center justify-center h-full">
-                      <span className="text-xl mb-0.5">{emoji}</span>
-                      <span className="text-xs leading-tight text-center px-2">
+                      <span className="text-xl mb-0.5 text-white">{emoji}</span>
+                      <span className="text-xs leading-tight text-center px-2 text-white">
                         {words.map((w, i) => (
                           <React.Fragment key={i}>
                             {w}{i < words.length - 1 ? <br /> : null}
