@@ -115,7 +115,7 @@ const ButtonSelectGroup = ({
                   return (
                     <div className="flex flex-col items-center justify-center h-full">
                                              <span className="text-xl mb-0.5">{emoji}</span>
-                       <span className="text-xs leading-tight text-center break-words hyphens-auto px-2 text-gray-800">
+                       <span className="text-xs leading-tight text-center break-words hyphens-auto px-2">
                          {text}
                        </span>
                     </div>
