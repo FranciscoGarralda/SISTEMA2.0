@@ -23,7 +23,7 @@ const ButtonSelectGroup = ({
     const baseClasses = isMoneda
       ? 'px-1 py-1 text-xs font-medium flex items-center justify-center rounded-md border transition-all min-w-[40px]'
       : isOperacion
-        ? 'w-full h-24 px-2.5 py-3 text-xs sm:text-sm font-medium flex items-center justify-center rounded-lg border transition-none'
+        ? 'w-full h-16 px-1 py-2 text-sm font-medium flex items-center justify-center rounded-lg border transition-none'
         : 'px-4 py-2.5 text-sm font-medium flex items-center justify-center rounded-lg border transition-all';
     
     return `${baseClasses} ${
@@ -110,13 +110,13 @@ const ButtonSelectGroup = ({
                 // Para operaciones principales, separar emoji y texto
                 (() => {
                   const parts = optionLabel.split(' ');
-                  const emoji = parts[0];
+                  // const emoji = parts[0]; // Emoji removido
                   const text = parts.slice(1).join(' ').replace('_', ' ');
                   const words = text.split(' ');
                   return (
                     <div className="flex flex-col items-center justify-center h-full">
-                      <span className="text-xl mb-0.5">{emoji}</span>
-                      <span className="text-xs leading-tight text-center px-2">
+                      {/* Emoji removido */}
+                      <span className="text-sm leading-tight text-center px-2">
                         {words.map((w, i) => (
                           <React.Fragment key={i}>
                             {w}{i < words.length - 1 ? <br /> : null}
