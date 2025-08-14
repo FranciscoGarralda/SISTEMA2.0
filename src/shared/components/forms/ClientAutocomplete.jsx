@@ -171,12 +171,12 @@ const ClientAutocomplete = forwardRef(({
         });
       }
 
-      focusManager.openMenu(dropdownRef.current, menuItems, {
-        onClose: () => {
-          setIsOpen(false);
-          setSelectedIndex(-1);
-        }
-      });
+      // focusManager.openMenu(dropdownRef.current, menuItems, {
+      //   onClose: () => {
+      //     setIsOpen(false);
+      //     setSelectedIndex(-1);
+      //   }
+      // });
     }, 50); // Pequeño delay para que el DOM se actualice
   };
 
@@ -207,33 +207,21 @@ const ClientAutocomplete = forwardRef(({
         <div className="flex-1 relative">
           <div className="relative">
             <input
-              ref={(el) => {
-                inputRef.current = el;
-                if (ref) {
-                  if (typeof ref === 'function') {
-                    // Pasar el elemento con método openDropdown
-                    const elementWithMethods = el ? {
-                      ...el,
-                      openDropdown: openDropdownWithKeyboard
-                    } : el;
-                    ref(elementWithMethods);
-                  } else {
-                    ref.current = el;
-                  }
-                }
-              }}
+              ref={inputRef}
+              id={`${label || 'cliente'}-input`}
               type="text"
               value={inputValue}
               onChange={handleInputChange}
-              onFocus={handleInputFocus}
               onKeyDown={handleKeyDown}
               placeholder={placeholder}
-              className={`w-full px-3 py-2 pr-12 text-base border rounded-lg transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-transparent placeholder:text-gray-800 sm:px-4 sm:py-2.5 sm:text-sm ${
+              className={`w-full px-3 py-2 pr-12 text-base border rounded-lg focus:outline-none placeholder:text-gray-800 sm:px-4 sm:py-2.5 sm:text-sm ${
                 error 
-                  ? 'border-error-500 focus:ring-error-500' 
-                  : 'bg-white text-gray-900 border-gray-300 hover:border-gray-400'
-              } ${className}`}
-              {...rest}
+                  ? 'border-error-500' 
+                  : 'bg-white text-gray-900 border-gray-300'
+              }`}
+              aria-autocomplete="list"
+              aria-expanded={isOpen}
+              aria-controls={`${label || 'cliente'}-dropdown`}
             />
             
             {/* Botón limpiar */}
@@ -241,23 +229,25 @@ const ClientAutocomplete = forwardRef(({
               <button
                 type="button"
                 onClick={clearSelection}
-                className="absolute right-8 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600"
+                className="absolute right-8 top-1/2 -translate-y-1/2 p-1 text-gray-400"
               >
                 <X size={16} />
               </button>
             )}
             
             {/* Icono dropdown */}
-            <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">
-              <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${
-                isOpen ? 'rotate-180' : ''
-              } text-gray-500`} />
-            </div>
+            <button
+              type="button"
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400"
+              aria-label="Desplegar"
+            >
+              <ChevronDown className="w-4 h-4" />
+            </button>
           </div>
 
           {/* Dropdown de opciones */}
           {isOpen && (
-            <div className="absolute z-50 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+            <div className="absolute z-50 w-full bg-white border border-gray-200 rounded-lg max-h-60 overflow-y-auto">
               {filteredClients.length > 0 ? (
                 <>
                   {filteredClients.map((client, index) => (
@@ -265,10 +255,10 @@ const ClientAutocomplete = forwardRef(({
                       key={client.id || client.nombre || index}
                       type="button"
                       onClick={() => handleClientSelect(client)}
-                      className={`client-item w-full px-2 py-2 text-left focus:outline-none border-b border-gray-100 transition-colors duration-150 ${
-                        index === selectedIndex 
-                          ? 'bg-gray-50 text-gray-900' 
-                          : 'hover:bg-gray-50 focus:bg-gray-50'
+                      className={`client-item w-full px-2 py-2 text-left focus:outline-none border-b border-gray-100 ${
+                        selectedIndex === index
+                          ? 'bg-gray-50'
+                          : ''
                       }`}
                     >
                       <div className="flex items-center space-x-3">
@@ -293,7 +283,7 @@ const ClientAutocomplete = forwardRef(({
                   <button
                     type="button"
                     onClick={handleCreateClient}
-                    className="create-client-item w-full px-2 py-2 text-left focus:outline-none border-t border-gray-200 bg-gray-50 hover:bg-gray-100 transition-colors duration-150"
+                    className="create-client-item w-full px-2 py-2 text-left focus:outline-none border-t border-gray-200 bg-gray-50"
                   >
                     <div className="flex items-center space-x-3">
                       <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
@@ -317,7 +307,7 @@ const ClientAutocomplete = forwardRef(({
                   <button
                     type="button"
                     onClick={handleCreateClient}
-                    className="create-client-item w-full px-2 py-2 text-left focus:outline-none bg-gray-50 hover:bg-gray-100 transition-colors duration-150"
+                    className="create-client-item w-full px-2 py-2 text-left focus:outline-none bg-gray-50"
                   >
                     <div className="flex items-center space-x-3">
                       <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
@@ -341,8 +331,7 @@ const ClientAutocomplete = forwardRef(({
           ref={(el) => onRegisterCreateButton && onRegisterCreateButton(el)}
           type="button"
           onClick={handleCreateClient}
-
-          className="flex-shrink-0 px-3 py-2 sm:px-3.5 sm:py-2.5 bg-gray-900 hover:bg-slate-800 text-white rounded-lg flex items-center justify-center transition-all duration-200 shadow-soft hover:shadow-medium focus:ring-1 focus:ring-gray-500 focus:ring-offset-2"
+          className="flex-shrink-0 px-3 py-2 sm:px-3.5 sm:py-2.5 bg-gray-900 text-white rounded-lg flex items-center justify-center"
           title="Crear nuevo cliente"
           aria-label="Crear nuevo cliente"
         >

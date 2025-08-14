@@ -940,3 +940,15 @@
     --color-scheme: dark;
   }
 }
+
+/* Global effect cleanup: remove animations, transitions, shadows and focus rings */
+* {
+	transition: none !important;
+	animation: none !important;
+	box-shadow: none !important;
+}
+
+*:focus {
+	outline: none !important;
+	box-shadow: none !important;
+}
