@@ -23,7 +23,7 @@ const ButtonSelectGroup = ({
     const baseClasses = isMoneda
       ? 'px-1 py-1 text-xs font-medium flex items-center justify-center rounded-md border transition-all min-w-[40px]'
       : isOperacion
-        ? 'px-2 py-3 text-sm font-medium flex items-center justify-center rounded-lg border transition-all min-h-[80px]'
+        ? 'px-3 py-4 text-sm font-medium flex items-center justify-center rounded-xl border transition-all min-h-[100px] shadow-soft hover:shadow-medium hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-gray-400/20 active:translate-y-0'
         : 'px-4 py-2.5 text-sm font-medium flex items-center justify-center rounded-lg border transition-all';
     
     return `${baseClasses} ${
@@ -55,7 +55,7 @@ const ButtonSelectGroup = ({
       return 'grid-cols-4 gap-1';
     }
     // Para operaciones principales (6 opciones), usar 3x2
-    if (isOperacion && optLength === 6) return 'grid-cols-3 gap-2';
+    if (isOperacion && optLength === 6) return 'grid-cols-3 gap-3 sm:gap-4';
     // Para operaciones normales (6 opciones), usar 3 columnas
     if (optLength === 6) return 'grid-cols-2 sm:grid-cols-3';
     // Para 2 opciones, mostrar lado a lado
@@ -114,10 +114,10 @@ const ButtonSelectGroup = ({
                   const text = parts.slice(1).join(' ').replace('_', ' ');
                   return (
                     <div className="flex flex-col items-center justify-center h-full">
-                      <span className="text-xl mb-1">{emoji}</span>
-                      <span className="text-[8px] leading-tight text-center break-words hyphens-auto px-1" style={{ wordBreak: 'break-word' }}>
-                        {text}
-                      </span>
+                                             <span className="text-2xl mb-1">{emoji}</span>
+                       <span className="text-xs leading-tight text-center break-words hyphens-auto px-2 text-gray-800">
+                         {text}
+                       </span>
                     </div>
                   );
                 })()
