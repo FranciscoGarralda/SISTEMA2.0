@@ -371,6 +371,15 @@ const ClientAutocomplete = forwardRef(({
               const result = await onClientCreated(newClient);
               // Solo cerrar el modal si se retornó un resultado exitoso
               if (result) {
+                // Autoseleccionar el cliente creado
+                const idValue = result.id || result.nombre;
+                let displayName = result.nombre || '';
+                if (result.apellido && !displayName.includes(result.apellido)) {
+                  displayName = `${displayName} ${result.apellido}`.trim();
+                }
+                setInputValue(displayName);
+                onChange(idValue);
+                setIsOpen(false);
                 setShowModal(false);
                 return result;
               }
