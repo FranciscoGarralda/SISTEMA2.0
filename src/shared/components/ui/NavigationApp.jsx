@@ -499,13 +499,13 @@ NavigationApp.displayName = 'NavigationApp';
 const WelcomePage = ({ onNavigate }) => (
   <div className="flex flex-col items-center justify-center min-h-screen text-gray-600 p-4 lg:p-8">
     <div className="text-center w-full px-2 sm:px-3 lg:px-4">
-      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
+      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
         <DollarSign size={32} className="text-gray-800" />
       </div>
-      <h2 className="text-2xl sm:text-3xl font-bold mb-4 text-gray-800 animate-fadeIn">
+      <h2 className="text-2xl sm:text-3xl font-bold mb-4 text-gray-800">
         Bienvenido a Alliance F&R
       </h2>
-      <p className="text-base sm:text-lg text-gray-600 leading-relaxed mb-8 animate-fadeIn">
+      <p className="text-base sm:text-lg text-gray-600 leading-relaxed mb-8">
         Sistema integral de gestión financiera. Accede rápidamente a las funciones principales:
       </p>
       
@@ -513,36 +513,34 @@ const WelcomePage = ({ onNavigate }) => (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         <button
           onClick={() => onNavigate('nuevoMovimiento')}
-          className="text-center p-6 bg-white rounded-lg shadow-soft hover:shadow-medium transition-all duration-200 animate-scaleIn border-2 border-transparent hover:border-gray-200 group"
+          className="text-center p-6 bg-white rounded-lg border border-gray-200"
         >
-          <Plus size={32} className="mx-auto mb-3 text-gray-500 group-hover:scale-110 transition-transform" />
+          <Plus size={32} className="mx-auto mb-3 text-gray-500" />
           <span className="block font-semibold text-gray-800 mb-1">Nuevo Movimiento</span>
           <span className="text-sm text-gray-700">Crear operación financiera</span>
         </button>
         
         <button
           onClick={() => onNavigate('saldos')}
-          className="text-center p-6 bg-white rounded-lg shadow-soft hover:shadow-medium transition-all duration-200 animate-scaleIn border-2 border-transparent hover:border-success-200 group"
-          style={{animationDelay: '0.1s'}}
+          className="text-center p-6 bg-white rounded-lg border border-gray-200"
         >
-          <Wallet size={32} className="mx-auto mb-3 text-success-500 group-hover:scale-110 transition-transform" />
+          <Wallet size={32} className="mx-auto mb-3 text-success-500" />
           <span className="block font-semibold text-gray-800 mb-1">Saldos</span>
           <span className="text-sm text-gray-700">Ver estado de cuentas</span>
         </button>
         
         <button
           onClick={() => onNavigate('movimientos')}
-          className="text-center p-6 bg-white rounded-lg shadow-soft hover:shadow-medium transition-all duration-200 animate-scaleIn border-2 border-transparent hover:border-gray-200 group"
-          style={{animationDelay: '0.2s'}}
+          className="text-center p-6 bg-white rounded-lg border border-gray-200"
         >
-          <List size={32} className="mx-auto mb-3 text-gray-500 group-hover:scale-110 transition-transform" />
+          <List size={32} className="mx-auto mb-3 text-gray-500" />
           <span className="block font-semibold text-gray-800 mb-1">Movimientos</span>
           <span className="text-sm text-gray-700">Ver y gestionar</span>
         </button>
       </div>
       
       {/* Info */}
-      <div className="max-w-3xl mx-auto text-sm text-gray-600 animate-fadeInSlow">
+      <div className="max-w-3xl mx-auto text-sm text-gray-600">
         <p>
           Optimizado para uso diario con accesos rápidos, atajos de teclado y un diseño funcional.
         </p>
