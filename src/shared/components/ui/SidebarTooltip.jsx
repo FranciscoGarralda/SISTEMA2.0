@@ -34,18 +34,16 @@ const SidebarTooltip = ({ children, content, disabled = false }) => {
             top: `${tooltip.y}px`,
             left: `${tooltip.x}px`,
             zIndex: 9999,
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            background: '#111827',
             color: 'white',
-            padding: '8px 14px',
-            borderRadius: '12px',
-            fontSize: '13px',
-            fontWeight: '600',
-            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.25), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+            padding: '6px 10px',
+            borderRadius: '8px',
+            fontSize: '12px',
+            fontWeight: 600,
+            boxShadow: 'none',
             pointerEvents: 'none',
             whiteSpace: 'nowrap',
-            backdropFilter: 'blur(8px)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            letterSpacing: '0.025em'
+            border: 'none'
           }}
         >
           <div
@@ -58,8 +56,7 @@ const SidebarTooltip = ({ children, content, disabled = false }) => {
               height: 0,
               borderTop: '5px solid transparent',
               borderBottom: '5px solid transparent',
-              borderRight: '5px solid #667eea',
-              filter: 'drop-shadow(-1px 0 1px rgba(0, 0, 0, 0.1))'
+              borderRight: '5px solid #111827'
             }}
           />
           {content}
