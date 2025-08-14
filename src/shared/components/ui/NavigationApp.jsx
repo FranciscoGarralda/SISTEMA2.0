@@ -295,8 +295,8 @@ const MainMenu = memo(({ onNavigate, activeItem, isSidebarOpen, toggleSidebar, i
           return (
             <div key={category} className={categoryIndex > 0 ? 'mt-6' : ''}>
               {/* Separador entre categorías */}
-              {categoryIndex > 0 && isSidebarOpen && (
-                <div className="mx-3 mb-3 border-t border-gray-200"></div>
+              {categoryIndex > 0 && (
+                <div className={isSidebarOpen ? 'mx-3 mb-3 border-t border-gray-200' : 'mx-2 my-2 border-t border-gray-200'}></div>
               )}
               
               {/* Items de la categoría */}
