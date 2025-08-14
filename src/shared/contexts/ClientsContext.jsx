@@ -31,11 +31,24 @@ export const ClientsProvider = ({ children }) => {
 		} catch {}
 	};
 
+	const normalizeClient = (data, id) => {
+		const tipoCliente = data.tipoCliente || data.tipo || 'operaciones';
+		return {
+			id,
+			nombre: (data.nombre || '').trim(),
+			apellido: (data.apellido || '').trim(),
+			telefono: (data.telefono || '').trim(),
+			email: (data.email || '').trim(),
+			dni: (data.dni || '').trim(),
+			direccion: (data.direccion || '').trim(),
+			tipoCliente,
+		};
+	};
+
 	const saveClient = async (clientData) => {
-		// Normalize and assign id if missing
 		const isUpdate = !!clientData.id;
 		const id = isUpdate ? clientData.id : Date.now();
-		const newClient = { id, ...clientData };
+		const newClient = normalizeClient(clientData, id);
 		setClients(prev => {
 			const next = [...prev];
 			const idx = next.findIndex(c => c.id === id);
