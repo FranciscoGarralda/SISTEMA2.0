@@ -112,12 +112,17 @@ const ButtonSelectGroup = ({
                   const parts = optionLabel.split(' ');
                   const emoji = parts[0];
                   const text = parts.slice(1).join(' ').replace('_', ' ');
+                  const words = text.split(' ');
                   return (
                     <div className="flex flex-col items-center justify-center h-full">
-                                             <span className="text-xl mb-0.5">{emoji}</span>
-                       <span className="text-xs leading-tight text-center break-words hyphens-auto px-2">
-                         {text}
-                       </span>
+                      <span className="text-xl mb-0.5">{emoji}</span>
+                      <span className="text-xs leading-tight text-center px-2">
+                        {words.map((w, i) => (
+                          <React.Fragment key={i}>
+                            {w}{i < words.length - 1 ? <br /> : null}
+                          </React.Fragment>
+                        ))}
+                      </span>
                     </div>
                   );
                 })()
