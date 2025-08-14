@@ -36,14 +36,14 @@ const MenuItem = memo(({ icon: Icon, title, onClick, isActive, isSidebarOpen, on
         role="menuitem"
         onFocus={() => onFocus && onFocus(index)}
         className={`
-          w-full flex items-center gap-3 p-3 rounded-lg transition-colors duration-200 relative
+          w-full flex items-center gap-3 p-3 rounded-lg relative
           ${!isSidebarOpen ? 'justify-center' : ''}
           ${isActive 
             ? 'bg-gray-900 text-white' 
-            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+            : 'text-gray-600'
           }
           touch-manipulation select-none
-          focus:outline-none focus:ring-2 focus:ring-gray-400/20
+          focus:outline-none
         `}
         onClick={onClick}
         aria-current={isActive ? 'page' : undefined}
@@ -237,7 +237,6 @@ const MainMenu = memo(({ onNavigate, activeItem, isSidebarOpen, toggleSidebar, i
           : `h-full z-30 ${isSidebarOpen ? 'w-64' : 'w-16'}`
         }
         bg-white shadow-xl flex flex-col border-r border-gray-200
-        transition-all duration-300 ease-in-out
       `}
       role="navigation"
       aria-label="Menú principal"
@@ -247,14 +246,14 @@ const MainMenu = memo(({ onNavigate, activeItem, isSidebarOpen, toggleSidebar, i
         <div className="flex items-center justify-between px-3 py-4 border-b border-gray-200">
           <button
             onClick={() => handleItemClick('inicio')}
-            className="flex items-center gap-3 flex-1 p-2 rounded-lg hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-3 flex-1 p-2 rounded-lg"
           >
             <Home size={20} className="text-gray-600" />
             <span className="text-sm font-medium text-gray-900">Inicio</span>
           </button>
           <button
             onClick={toggleSidebar}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="p-2 rounded-lg"
             aria-label="Cerrar menú"
           >
             <ChevronLeft size={20} className="text-gray-500" />
@@ -267,14 +266,14 @@ const MainMenu = memo(({ onNavigate, activeItem, isSidebarOpen, toggleSidebar, i
         <div className="flex items-center justify-between px-3 py-3 border-b border-gray-200">
           <button
             onClick={() => handleItemClick('inicio')}
-            className="flex items-center gap-3 flex-1 p-2 rounded-lg hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-3 flex-1 p-2 rounded-lg"
           >
             <Home size={20} className="text-gray-600" />
             <span className="text-sm font-medium text-gray-900">Inicio</span>
           </button>
           <button
             onClick={toggleSidebar}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="p-2 rounded-lg"
             aria-label="Cerrar menú"
           >
             <ChevronLeft size={18} className="text-gray-500" />
@@ -287,7 +286,7 @@ const MainMenu = memo(({ onNavigate, activeItem, isSidebarOpen, toggleSidebar, i
         <div className="p-2">
           <button
             onClick={toggleSidebar}
-            className="mx-auto p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400/20 flex items-center justify-center"
+            className="mx-auto p-2 rounded-lg focus:outline-none flex items-center justify-center"
             aria-label="Abrir menú"
           >
             <ChevronRight size={18} className="text-gray-500" />
@@ -538,156 +537,18 @@ const WelcomePage = ({ onNavigate }) => (
         >
           <List size={32} className="mx-auto mb-3 text-gray-500 group-hover:scale-110 transition-transform" />
           <span className="block font-semibold text-gray-800 mb-1">Movimientos</span>
-          <span className="text-sm text-gray-700">Historial de transacciones</span>
+          <span className="text-sm text-gray-700">Ver y gestionar</span>
         </button>
       </div>
       
-      {/* Accesos Rápidos Secundarios */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
-        <button
-          onClick={() => onNavigate('utilidad')}
-          className="text-center p-4 bg-white rounded-lg shadow-soft hover:shadow-medium transition-all duration-200 animate-scaleIn border border-gray-100 hover:border-gray-200"
-          style={{animationDelay: '0.3s'}}
-        >
-          <TrendingUp size={20} className="mx-auto mb-2 text-emerald-500" />
-          <span className="block font-medium text-gray-700">Utilidad</span>
-        </button>
-        
-        <button
-          onClick={() => onNavigate('arbitraje')}
-          className="text-center p-4 bg-white rounded-lg shadow-soft hover:shadow-medium transition-all duration-200 animate-scaleIn border border-gray-100 hover:border-gray-200"
-          style={{animationDelay: '0.4s'}}
-        >
-          <ArrowUpDown size={20} className="mx-auto mb-2 text-gray-500" />
-          <span className="block font-medium text-gray-700">Arbitraje</span>
-        </button>
-        
-        <button
-          onClick={() => onNavigate('cuentas')}
-          className="text-center p-4 bg-white rounded-lg shadow-soft hover:shadow-medium transition-all duration-200 animate-scaleIn border border-gray-100 hover:border-gray-200"
-          style={{animationDelay: '0.5s'}}
-        >
-          <Building2 size={20} className="mx-auto mb-2 text-orange-500" />
-          <span className="block font-medium text-gray-700">Cuentas Corrientes</span>
-        </button>
-        
-        <button
-          onClick={() => onNavigate('clientes')}
-          className="text-center p-4 bg-white rounded-lg shadow-soft hover:shadow-medium transition-all duration-200 animate-scaleIn border border-gray-100 hover:border-gray-200"
-          style={{animationDelay: '0.6s'}}
-        >
-          <UserCheck size={20} className="mx-auto mb-2 text-purple-500" />
-          <span className="block font-medium text-gray-700">Clientes</span>
-        </button>
+      {/* Info */}
+      <div className="max-w-3xl mx-auto text-sm text-gray-600 animate-fadeInSlow">
+        <p>
+          Optimizado para uso diario con accesos rápidos, atajos de teclado y un diseño funcional.
+        </p>
       </div>
     </div>
   </div>
 );
 
-/** PÁGINA NO ENCONTRADA */
-const NotFoundPage = ({ onNavigate }) => (
-  <div className="flex flex-col items-center justify-center min-h-screen text-gray-600 p-4">
-    <div className="text-center max-w-md mx-auto">
-      <div className="w-16 h-16 bg-error-100 rounded-full flex items-center justify-center mx-auto mb-6">
-        <span className="text-2xl">🔍</span>
-      </div>
-      <h2 className="text-xl font-bold mb-4 text-gray-800">Página no encontrada</h2>
-      <p className="mb-6 text-gray-600">La página que buscas no existe o está en desarrollo.</p>
-      <button 
-        onClick={() => onNavigate('mainMenu')} 
-        className="btn-primary touch-target"
-      >
-        Volver al menú principal
-      </button>
-    </div>
-  </div>
-);
-
-/** PÁGINA EN DESARROLLO */
-const ModuleInDevelopmentPage = ({ moduleName, onNavigate }) => (
-  <div className="flex flex-col items-center justify-center min-h-screen text-gray-600 p-4">
-    <div className="text-center max-w-md mx-auto">
-      <div className="w-16 h-16 bg-warning-100 rounded-full flex items-center justify-center mx-auto mb-6">
-        <span className="text-2xl">🚧</span>
-      </div>
-      <h2 className="text-xl font-bold mb-4 text-gray-800">Módulo en Desarrollo</h2>
-      <p className="mb-2 text-gray-600">
-        El módulo <strong>{moduleName}</strong> está actualmente en desarrollo.
-      </p>
-      <p className="mb-6 text-sm text-gray-700">
-        Estará disponible en una próxima actualización del sistema.
-      </p>
-      <div className="flex flex-col sm:flex-row gap-3 justify-center">
-        <button 
-          onClick={() => onNavigate('mainMenu')} 
-          className="btn-secondary touch-target"
-        >
-          Menú Principal
-        </button>
-        <button 
-          onClick={() => onNavigate('nuevoMovimiento')} 
-          className="btn-primary touch-target"
-        >
-          Nuevo Movimiento
-        </button>
-      </div>
-    </div>
-  </div>
-);
-
-/** HOOK PERSONALIZADO PARA NAVEGACIÓN */
-const useNavigation = (initialPage = 'mainMenu') => {
-  const [currentPage, setCurrentPage] = useState(initialPage);
-  const [navigationParams, setNavigationParams] = useState(null);
-  const [isClient, setIsClient] = useState(false);
-
-  // Efecto para detectar que estamos en el cliente y restaurar página
-  useEffect(() => {
-    setIsClient(true);
-    
-    try {
-      const savedPage = localStorage.getItem('financial-current-page');
-      if (savedPage) {
-        setCurrentPage(savedPage);
-      }
-      
-      const savedParams = localStorage.getItem('financial-navigation-params');
-      if (savedParams) {
-        setNavigationParams(JSON.parse(savedParams));
-      }
-    } catch (error) {
-      console.error('Error loading current page from localStorage:', error);
-    }
-  }, []);
-
-  const navigateTo = (page, params = null) => {
-    setCurrentPage(page);
-    setNavigationParams(params);
-    
-    // Guardar página actual en localStorage (solo en el cliente)
-    if (isClient) {
-      try {
-        localStorage.setItem('financial-current-page', page);
-        if (params) {
-          localStorage.setItem('financial-navigation-params', JSON.stringify(params));
-        } else {
-          localStorage.removeItem('financial-navigation-params');
-        }
-      } catch (error) {
-        console.error('Error saving current page to localStorage:', error);
-      }
-    }
-  };
-
-  return { currentPage, navigateTo, navigationParams };
-};
-
-export {
-  MenuItem,
-  MainMenu,
-  NavigationApp,
-  WelcomePage,
-  NotFoundPage,
-  ModuleInDevelopmentPage,
-  useNavigation
-};
+export { NavigationApp, WelcomePage };
