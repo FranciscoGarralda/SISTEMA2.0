@@ -139,13 +139,7 @@ const MainMenu = memo(({ onNavigate, activeItem, isSidebarOpen, toggleSidebar, i
 
   const handleItemClick = useCallback((itemId) => {
     onNavigate(itemId);
-    // Siempre cerrar el menú en móvil después de navegar
-    if (isMobile && toggleSidebar) {
-      setTimeout(() => {
-        toggleSidebar();
-      }, 100); // Pequeño delay para asegurar que la navegación se procese primero
-    }
-  }, [onNavigate, isMobile, toggleSidebar]);
+  }, [onNavigate]);
 
   // Filtrar items según el rol del usuario y permisos
   const visibleMenuItems = useMemo(() => {
@@ -399,16 +393,8 @@ const NavigationApp = memo(({ children, currentPage, onNavigate, currentUser, on
   // Optimized navigation handler with useCallback
   const handleNavigate = useCallback((page) => {
     onNavigate(page);
-    // En móvil, cerrar el sidebar después de navegar
-    if (isMobile) {
-      if (propToggleSidebar && propIsSidebarOpen) {
-        propToggleSidebar();
-      } else {
-        setInternalIsSidebarOpen(false);
-      }
-    }
-    // En escritorio: NO cerrar automáticamente
-  }, [onNavigate, isMobile, propToggleSidebar, propIsSidebarOpen]);
+    // No cerrar automáticamente (ni móvil ni escritorio)
+  }, [onNavigate]);
 
   // Close sidebar on escape key
   useEffect(() => {
