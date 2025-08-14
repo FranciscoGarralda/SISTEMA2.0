@@ -14,7 +14,7 @@ import { safeParseFloat } from '../../shared/services/safeOperations';
 import { ccInitialBalanceService } from '../../shared/services';
 
 /** COMPONENTE PRINCIPAL DE CUENTAS CORRIENTES */
-function CuentasCorrientesApp({ movements, onNavigate }) {
+function CuentasCorrientesApp({ movements = [], onNavigate = () => {} }) {
   const [currentView, setCurrentView] = useState('summary'); // 'summary' o 'detail'
   const [selectedProviderForDetail, setSelectedProviderForDetail] = useState(null);
 

@@ -19,7 +19,7 @@ import { safeParseFloat } from '../../shared/services/safeOperations';
 import { getTodayLocalDate, getCurrentYearMonth, isCurrentMonth, isToday } from '../../shared/utils/dateUtils';
 
 /** COMPONENTE PRINCIPAL DE ANÁLISIS DE COMISIONES */
-function ComisionesApp({ movements, onNavigate }) {
+function ComisionesApp({ movements = [], onNavigate = () => {} }) {
   const [selectedDate, setSelectedDate] = useState('');
 
   // Filtrar movimientos que tienen comisión - SOLO COMISIONES (SIN ARBITRAJES)

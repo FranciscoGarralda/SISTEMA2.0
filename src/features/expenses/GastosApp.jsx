@@ -15,7 +15,7 @@ import { safeParseFloat } from '../../shared/services/safeOperations';
 import { getTodayLocalDate, isToday } from '../../shared/utils/dateUtils';
 
 /** COMPONENTE PRINCIPAL DE GASTOS */
-function GastosApp({ movements, onEditMovement, onDeleteMovement, onViewMovementDetail, onNavigate }) {
+function GastosApp({ movements = [], onEditMovement = () => {}, onDeleteMovement = () => {}, onViewMovementDetail = () => {}, onNavigate = () => {} }) {
   const [searchTerm, setSearchTerm] = useState('');
 
   // Filtrar movimientos para mostrar solo gastos

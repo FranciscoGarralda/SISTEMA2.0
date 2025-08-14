@@ -15,7 +15,7 @@ import {
 import { FormInput, FormSelect } from '../../shared/components/forms';
 
 /** COMPONENTE PRINCIPAL DE CLIENTES */
-function ClientesApp({ clientes, onSaveClient, onDeleteClient }) {
+function ClientesApp({ clientes = [], onSaveClient = () => {}, onDeleteClient = () => {} }) {
   const [vista, setVista] = useState('lista'); // 'lista', 'form', 'analytics'
   const [clienteEditando, setClienteEditando] = useState(null);
   const [clienteAnalytics, setClienteAnalytics] = useState(null);
