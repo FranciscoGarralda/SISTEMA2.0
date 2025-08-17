@@ -196,9 +196,9 @@ function CajaApp({ movements = [] }) {
       generadoEn: new Date().toISOString()
     };
     
-    // Por ahora solo console.log, idealmente se exportaría o imprimiría
-    console.log('Reporte de Caja:', report);
-    alert('Reporte generado - Ver consola');
+    // Idealmente se exportaría o imprimiría
+    // Se omite el console.log en producción
+    alert('Reporte generado');
   };
 
   return (

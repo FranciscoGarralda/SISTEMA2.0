@@ -4,7 +4,12 @@ import FormSelect from './FormSelect.jsx';
 import ClientAutocomplete from './ClientAutocomplete.jsx';
 import CurrencyInput from './CurrencyInput.jsx';
 import CommissionField from './CommissionField.jsx';
-import { WalletButtonGroup, WalletTCButtonGroup, CuentaButtonGroup, ButtonSelectGroup, SubOperationButtons, MontoMonedaGroup } from './index.js';
+import WalletButtonGroup from './WalletButtonGroup.jsx';
+import WalletTCButtonGroup from './WalletTCButtonGroup.jsx';
+import CuentaButtonGroup from './CuentaButtonGroup.jsx';
+import ButtonSelectGroup from './ButtonSelectGroup.jsx';
+import SubOperationButtons from './SubOperationButtons.jsx';
+import MontoMonedaGroup from './MontoMonedaGroup.jsx';
 
 /**
  * Form field group component that organizes related fields in responsive layouts

@@ -3,8 +3,6 @@ import { X, User, Phone, Mail, MapPin, Save } from 'lucide-react';
 import FormInput from './FormInput';
 import FormSelect from './FormSelect';
 
-// import { handleValidationError, ERROR_SEVERITY } from '../../services/errorHandler';
-
 const ClientModal = ({
   isOpen,
   onClose,
