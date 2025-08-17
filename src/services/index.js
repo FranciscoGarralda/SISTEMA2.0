@@ -1,19 +1,36 @@
+// API Services
 export { default as apiService } from './api';
-export { default as cacheService } from './cache.js';
-export { default as cajaServiceService } from './cajaService.js';
-export { default as ccInitialBalanceServiceService } from './ccInitialBalanceService.js';
-export { default as clientServiceService } from './clientService.js';
-export { default as errorHandlerService } from './errorHandler.js';
-export { default as formattersService } from './formatters.js';
-export { default as initialBalanceServiceService } from './initialBalanceService.js';
-export { default as lazyLoaderService } from './lazyLoader.js';
-export { default as memoryOptimizerService } from './memoryOptimizer.js';
 export { default as mockApiService } from './mockApi.js';
-export { default as movementServiceService } from './movementService.js';
-export { default as performanceService } from './performance.js';
+export { cacheService } from './cache.js';
+export { serverWakeService } from './server-wake.js';
+
+// Domain Services
+export { default as cajaService } from './cajaService.js';
+export { default as ccInitialBalanceService } from './ccInitialBalanceService.js';
+export { default as clientService } from './clientService.js';
+export { default as initialBalanceService } from './initialBalanceService.js';
+export { default as movementService } from './movementService.js';
+export { default as stockService } from './stockService.js';
+
+// Utility Services
+export { default as errorHandlerService } from './errorHandler.js';
 export { default as preloadService } from './preload.js';
 export { default as productionOptimizerService } from './productionOptimizer.js';
-export { default as safeOperationsService } from './safeOperations.js';
-export { default as serverWakeService } from './server-wake.js';
-export { default as stockServiceService } from './stockService.js';
-export { default as validationService } from './validation.js';
+
+// Export all from formatters
+export * from './formatters.js';
+
+// Export all from validation
+export * from './validation.js';
+
+// Export all from safeOperations
+export * from './safeOperations.js';
+
+// Export all from performance
+export * from './performance.js';
+
+// Export all from lazyLoader
+export * from './lazyLoader.js';
+
+// Export all from memoryOptimizer
+export * from './memoryOptimizer.js';

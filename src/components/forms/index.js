@@ -1,3 +1,4 @@
+// Component exports
 export { default as WalletTCButtonGroup } from './WalletTCButtonGroup.jsx';
 export { default as WalletButtonGroup } from './WalletButtonGroup.jsx';
 export { default as SubOperationButtons } from './SubOperationButtons.jsx';
@@ -13,3 +14,15 @@ export { default as CommissionField } from './CommissionField.jsx';
 export { default as ClientModal } from './ClientModal.jsx';
 export { default as ClientAutocomplete } from './ClientAutocomplete.jsx';
 export { default as ButtonSelectGroup } from './ButtonSelectGroup.jsx';
+
+// Re-export formatters and utilities that components need
+export { 
+  formatAmountWithCurrency,
+  formatCurrencyInput,
+  parseCurrencyInput,
+  CURRENCY_SYMBOLS,
+  CURRENCY_NAMES
+} from '../../services/formatters';
+
+// Re-export constants that components might need
+export { estados, proveedoresCC } from '../../constants/constants';
