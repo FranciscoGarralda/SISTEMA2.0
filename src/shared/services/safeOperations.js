@@ -433,7 +433,7 @@ export const isValidEmail = (email) => {
 };
 
 export const isValidPhone = (phone) => {
-  const phoneRegex = /^[\+]?[0-9\s\-\(\)]{10,}$/;
+  const phoneRegex = /^[+]?[0-9\s\-()\u00A0]{10,}$/;
   return phoneRegex.test(safeString(phone));
 };
 

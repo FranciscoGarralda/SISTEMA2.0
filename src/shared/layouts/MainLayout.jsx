@@ -16,12 +16,18 @@ export default function MainLayout({ children }) {
     try {
       const stored = sessionStorage.getItem('sidebarOpen');
       if (stored != null) setIsSidebarOpen(stored === '1');
-    } catch {}
+    } catch (error) {
+      console.warn('Error accessing sessionStorage:', error);
+    }
   }, []);
 
   const toggleSidebar = () => setIsSidebarOpen(prev => {
     const next = !prev;
-    try { sessionStorage.setItem('sidebarOpen', next ? '1' : '0'); } catch {}
+    try { 
+      sessionStorage.setItem('sidebarOpen', next ? '1' : '0'); 
+    } catch (error) {
+      console.warn('Error saving sidebar state:', error);
+    }
     return next;
   });
 

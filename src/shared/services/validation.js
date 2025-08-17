@@ -24,7 +24,7 @@ export const VALIDATION_TYPES = {
 // Pre-defined validation patterns
 export const VALIDATION_PATTERNS = {
   EMAIL: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-  PHONE: /^[\+]?[0-9\s\-\(\)]{10,}$/,
+  PHONE: /^[+]?[0-9\s\-()\u00A0]{10,}$/,
   NUMERIC: /^\d*\.?\d+$/,
   CURRENCY: /^\d+(\.\d{1,2})?$/,
   DATE: /^\d{4}-\d{2}-\d{2}$/,

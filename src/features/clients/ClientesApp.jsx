@@ -389,9 +389,9 @@ function FormularioCliente({ cliente, onSave, onCancel }) {
   const [guardando, setGuardando] = useState(false);
   
   // Referencia para componente desmontado
-  const isMounted = useRef(true);
+  const isMounted = React.useRef(true);
   
-  useEffect(() => {
+  React.useEffect(() => {
     return () => {
       isMounted.current = false;
     };
@@ -638,7 +638,7 @@ function AnalyticsCliente({ cliente, onBack, calcularFrecuencia }) {
 
               <div className="bg-success-50 rounded-lg p-3 sm:p-4">
                 <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-success-600 truncate">
-                  {formatAmountWithCurrency(cliente.volumenTotal || 0, 'PESO', { showSymbol: false, decimals: 0 })}
+                  {cliente.volumenTotal ? cliente.volumenTotal.toLocaleString('es-AR') : '0'}
                 </div>
                 <div className="text-xs sm:text-sm text-success-600 font-medium">Volumen Total</div>
               </div>

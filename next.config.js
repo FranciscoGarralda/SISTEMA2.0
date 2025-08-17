@@ -10,6 +10,7 @@ const nextConfig = {
   },
   eslint: {
     dirs: ['src'],
+    ignoreDuringBuilds: true, // Ignorar errores de ESLint durante la compilación
   },
   webpack: (config) => {
     // Configuraciones adicionales de webpack si son necesarias

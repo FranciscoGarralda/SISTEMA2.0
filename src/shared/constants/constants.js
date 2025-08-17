@@ -167,7 +167,7 @@ export const validationRules = {
   minAmount: (value, min = 0) => safeParseFloat(value, 0) >= min,
   maxAmount: (value, max = 999999999) => safeParseFloat(value, 0) <= max,
   email: (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),
-  phone: (value) => /^[\d\s\-\+\(\)]+$/.test(value),
+  phone: (value) => /^[\d\s\-+()]+$/.test(value),
 };
 
 /**

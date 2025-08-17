@@ -2,6 +2,7 @@
  * Performance monitoring and optimization utilities
  * Tracks component performance, memory usage, and provides optimization insights
  */
+import React from 'react';
 
 // Performance metrics storage
 const performanceMetrics = {
