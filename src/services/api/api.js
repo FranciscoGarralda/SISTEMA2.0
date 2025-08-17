@@ -1,5 +1,21 @@
 // API Service para conectar con el backend
 import { cacheService } from './cache';
+import mockApiService from '../mockApi';
+
+// Determinar si debemos usar el mock API
+const useMockApi = () => {
+  // Usar mock si está explícitamente configurado o si estamos en desarrollo y no hay API configurada
+  if (process.env.NEXT_PUBLIC_MOCK_API === 'true') return true;
+  
+  // Si estamos en el navegador, intentar detectar si el backend está disponible
+  if (typeof window !== 'undefined') {
+    // Si ya hubo un error de conexión, usar mock
+    const hadConnectionError = sessionStorage.getItem('api_connection_error');
+    if (hadConnectionError === 'true') return true;
+  }
+  
+  return false;
+};
 
 class ApiService {
   constructor() {
@@ -105,6 +121,12 @@ class ApiService {
   // AUTH ENDPOINTS
   async login(username, password) {
     try {
+      // Si debemos usar el mock API, delegar al mockApiService
+      if (useMockApi()) {
+        console.log('Usando Mock API para login');
+        return await mockApiService.login(username, password);
+      }
+      
       // Cancelar cualquier login previo
       if (this.abortControllers.has('login')) {
         this.abortControllers.get('login').abort();
@@ -153,6 +175,21 @@ class ApiService {
       }
       
       if (error.message?.includes('Failed to fetch')) {
+        // Marcar que hubo un error de conexión para usar mock en futuras llamadas
+        if (typeof window !== 'undefined') {
+          try {
+            sessionStorage.setItem('api_connection_error', 'true');
+          } catch (e) {}
+          
+          // Intentar con mock API como fallback
+          console.log('Fallback a Mock API después de error de conexión');
+          try {
+            return await mockApiService.login(username, password);
+          } catch (mockError) {
+            throw mockError;
+          }
+        }
+        
         throw new Error('No se puede conectar al servidor. Verifica tu conexión.');
       }
       
@@ -166,19 +203,41 @@ class ApiService {
   }
 
   async getMe() {
-    const response = await fetch(`${this.baseURL}/api/auth/me`, {
-      method: 'GET',
-      headers: this.getHeaders()
-    });
-    
-    const data = await this.handleResponse(response);
-    
-    // Actualizar token CSRF si está presente en la respuesta
-    if (data.csrfToken) {
-      this.setCsrfToken(data.csrfToken);
+    // Si debemos usar el mock API, delegar al mockApiService
+    if (useMockApi()) {
+      console.log('Usando Mock API para getMe');
+      return await mockApiService.getMe();
     }
     
-    return data;
+    try {
+      const response = await fetch(`${this.baseURL}/api/auth/me`, {
+        method: 'GET',
+        headers: this.getHeaders()
+      });
+      
+      const data = await this.handleResponse(response);
+      
+      // Actualizar token CSRF si está presente en la respuesta
+      if (data.csrfToken) {
+        this.setCsrfToken(data.csrfToken);
+      }
+      
+      return data;
+    } catch (error) {
+      if (error.message?.includes('Failed to fetch')) {
+        // Marcar que hubo un error de conexión para usar mock en futuras llamadas
+        if (typeof window !== 'undefined') {
+          try {
+            sessionStorage.setItem('api_connection_error', 'true');
+          } catch (e) {}
+          
+          // Intentar con mock API como fallback
+          console.log('Fallback a Mock API después de error de conexión');
+          return await mockApiService.getMe();
+        }
+      }
+      throw error;
+    }
   }
   
   // Método para obtener un token CSRF fresco
