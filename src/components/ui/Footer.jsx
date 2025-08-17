@@ -7,7 +7,7 @@ import { Heart } from 'lucide-react';
  */
 const Footer = () => {
   const currentYear = new Date().getFullYear();
-  const version = "V13"; // Versión restaurada con backend local
+  const version = "V14"; // Sistema restaurado con Neon DB
 
   return (
     <footer className="bg-white border-t border-gray-200 flex-shrink-0">
