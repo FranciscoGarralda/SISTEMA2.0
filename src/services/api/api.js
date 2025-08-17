@@ -14,8 +14,8 @@ const useMockApi = () => {
 
 class ApiService {
   constructor() {
-    // En producción, usar la API de Netlify
-    this.baseURL = process.env.NEXT_PUBLIC_API_URL || '/api';
+    // Forzar el uso de la API de Netlify
+    this.baseURL = '/api';
     this.token = null;
     this.csrfToken = null;
     this.abortControllers = new Map();
