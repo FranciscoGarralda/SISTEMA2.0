@@ -20,6 +20,16 @@ function ClientesApp({ clientes = [], onSaveClient = () => {}, onDeleteClient = 
   const [clienteEditando, setClienteEditando] = useState(null);
   const [clienteAnalytics, setClienteAnalytics] = useState(null);
   const [busqueda, setBusqueda] = useState('');
+  const [guardando, setGuardando] = useState(false);
+  
+  // Referencia para evitar actualizar estado en componente desmontado
+  const desmontado = React.useRef(false);
+  
+  React.useEffect(() => {
+    return () => {
+      desmontado.current = true;
+    };
+  }, []);
 
   // Funciones de navegación
   const crearNuevoCliente = () => {
@@ -46,15 +56,27 @@ function ClientesApp({ clientes = [], onSaveClient = () => {}, onDeleteClient = 
 
   const guardarCliente = async (clienteData) => {
     try {
-      const result = await onSaveClient(clienteData);
-      if (result) {
+      // Indicar que se está guardando
+      setGuardando(true);
+      
+      // Crear copia de datos para evitar mutaciones durante la operación
+      const clienteToSave = { ...clienteData };
+      
+      const result = await onSaveClient(clienteToSave);
+      
+      // Solo cambiar vista si la operación fue exitosa y el componente sigue montado
+      if (result && !desmontado.current) {
         // Solo cambiar la vista si se guardó exitosamente
         setVista('lista');
         setClienteEditando(null);
       }
+      
+      return result;
     } catch (error) {
       console.error('Error al guardar cliente:', error);
-      // No cambiar la vista si hay error
+      throw error; // Propagar error para manejo externo
+    } finally {
+      if (!desmontado.current) setGuardando(false);
     }
   };
 
@@ -64,6 +86,8 @@ function ClientesApp({ clientes = [], onSaveClient = () => {}, onDeleteClient = 
   };
 
   const volverALista = () => {
+    if (desmontado.current) return;
+    
     setVista('lista');
     setClienteEditando(null);
     setClienteAnalytics(null);
@@ -96,13 +120,22 @@ function ClientesApp({ clientes = [], onSaveClient = () => {}, onDeleteClient = 
     return { color: 'bg-success-100 text-success-600', texto: 'Activo' };
   };
 
-  // Filtrar clientes por búsqueda
+  // Filtrar clientes por búsqueda (optimizado)
   const clientesFiltrados = useMemo(() => {
-    return clientes.filter(cliente =>
-      `${cliente.nombre} ${cliente.apellido}`.toLowerCase().includes(busqueda.toLowerCase()) ||
-      cliente.telefono.includes(busqueda) ||
-      cliente.dni.includes(busqueda)
-    );
+    const searchTerm = busqueda.toLowerCase();
+    if (!searchTerm) return clientes;
+    
+    return clientes.filter(cliente => {
+      // Comprobar si el cliente tiene todos los campos necesarios
+      const nombre = cliente.nombre || '';
+      const apellido = cliente.apellido || '';
+      const telefono = cliente.telefono || '';
+      const dni = cliente.dni || '';
+      
+      return `${nombre} ${apellido}`.toLowerCase().includes(searchTerm) ||
+             telefono.includes(searchTerm) ||
+             dni.includes(searchTerm);
+    });
   }, [clientes, busqueda]);
 
   // Separar por tipo
@@ -354,6 +387,15 @@ function FormularioCliente({ cliente, onSave, onCancel }) {
 
   const [errores, setErrores] = useState({});
   const [guardando, setGuardando] = useState(false);
+  
+  // Referencia para componente desmontado
+  const isMounted = useRef(true);
+  
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   const validarFormulario = () => {
     const nuevosErrores = {};
@@ -378,7 +420,8 @@ function FormularioCliente({ cliente, onSave, onCancel }) {
     setGuardando(true);
     
     try {
-      await onSave({ 
+      // Crear una copia inmutable de los datos
+      const datosCliente = { 
         ...cliente, 
         ...formData, 
         // NO generar ID en el frontend - PostgreSQL lo hace automáticamente
@@ -389,12 +432,19 @@ function FormularioCliente({ cliente, onSave, onCancel }) {
         volumenTotal: cliente?.volumenTotal || 0,
         createdAt: cliente?.createdAt || new Date().toISOString(),
         updatedAt: new Date().toISOString()
-      });
+      };
+      
+      await onSave(datosCliente);
     } catch (error) {
       console.error('Error al guardar:', error);
-      setErrores({ general: 'Error al guardar el cliente' });
+      if (isMounted.current) {
+        setErrores({ general: 'Error al guardar el cliente' });
+      }
     } finally {
-      setGuardando(false);
+      // Solo actualizar estado si el componente sigue montado
+      if (isMounted.current) {
+        setGuardando(false);
+      }
     }
   };
 

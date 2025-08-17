@@ -5,30 +5,58 @@ class ApiService {
   constructor() {
     this.baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
     this.token = null;
-    this.abortController = null;
+    this.csrfToken = null;
+    this.abortControllers = new Map();
     this.loadToken();
   }
 
   // Cargar token desde localStorage
   loadToken() {
     if (typeof window !== 'undefined') {
-      this.token = localStorage.getItem('authToken');
+      try {
+        this.token = sessionStorage.getItem('authToken') || localStorage.getItem('authToken');
+      } catch (error) {
+        console.warn('Error al cargar token:', error);
+      }
     }
   }
 
   // Guardar token
   setToken(token) {
     this.token = token;
+    this.storeToken(token);
+  }
+  
+  // Almacenar token con seguridad preferente en sessionStorage
+  storeToken(token) {
     if (typeof window !== 'undefined') {
-      localStorage.setItem('authToken', token);
+      try {
+        sessionStorage.setItem('authToken', token);
+        localStorage.setItem('authToken', token); // Fallback por compatibilidad
+      } catch (error) {
+        console.error('Error al guardar token:', error);
+      }
     }
   }
 
   // Limpiar token
   clearToken() {
     this.token = null;
+    
     if (typeof window !== 'undefined') {
-      localStorage.removeItem('authToken');
+      try {
+        sessionStorage.removeItem('authToken');
+        localStorage.removeItem('authToken');
+      } catch (error) {
+        console.warn('Error al eliminar token:', error);
+      }
+    }
+  }
+
+  // Establecer token CSRF
+  setCsrfToken(token) {
+    if (token && typeof token === 'string') {
+      this.csrfToken = token;
     }
   }
 
@@ -40,8 +68,14 @@ class ApiService {
     
     // console.log('API: Token actual:', this.token);
     
-    if (this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`;
+    const token = this.token;
+    if (token && typeof token === 'string' && token.trim().length > 0) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    // Incluir token CSRF si está disponible
+    if (this.csrfToken) {
+      headers['X-CSRF-Token'] = this.csrfToken;
     }
     
     // console.log('API: Headers finales:', headers);
@@ -71,25 +105,43 @@ class ApiService {
   // AUTH ENDPOINTS
   async login(username, password) {
     try {
-      // Aumentar timeout a 30 segundos para Railway
+      // Cancelar cualquier login previo
+      if (this.abortControllers.has('login')) {
+        this.abortControllers.get('login').abort();
+      }
+      
+      // Crear nuevo controller con ID único para esta operación
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000);
+      this.abortControllers.set('login', controller);
+      
+      // Timeout adaptativo según entorno
+      const timeoutMs = process.env.NODE_ENV === 'production' ? 30000 : 10000;
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
       
       // console.log('Intentando login con:', { username, baseURL: this.baseURL });
       
       const response = await fetch(`${this.baseURL}/api/auth/login`, {
         method: 'POST',
         headers: this.getHeaders(),
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ 
+          username: username.trim(), 
+          password 
+        }),
         signal: controller.signal
       });
       
+      // Limpiar recursos
+      this.abortControllers.delete('login');
       clearTimeout(timeoutId);
       
       const data = await this.handleResponse(response);
       
       if (data.token) {
         this.setToken(data.token);
+        
+        if (data.csrfToken) {
+          this.setCsrfToken(data.csrfToken);
+        }
       }
       
       return data;
@@ -119,7 +171,41 @@ class ApiService {
       headers: this.getHeaders()
     });
     
-    return this.handleResponse(response);
+    const data = await this.handleResponse(response);
+    
+    // Actualizar token CSRF si está presente en la respuesta
+    if (data.csrfToken) {
+      this.setCsrfToken(data.csrfToken);
+    }
+    
+    return data;
+  }
+  
+  // Método para obtener un token CSRF fresco
+  async refreshCsrfToken() {
+    try {
+      const response = await fetch(`${this.baseURL}/api/csrf-token`, {
+        method: 'GET',
+        headers: this.getHeaders(),
+        credentials: 'include' // Importante para cookies CSRF
+      });
+      
+      if (!response.ok) {
+        throw new Error('No se pudo obtener token CSRF');
+      }
+      
+      const data = await response.json();
+      
+      if (data.csrfToken) {
+        this.setCsrfToken(data.csrfToken);
+        return true;
+      }
+      
+      return false;
+    } catch (error) {
+      console.error('Error al refrescar token CSRF:', error);
+      return false;
+    }
   }
 
   // MOVEMENTS ENDPOINTS
@@ -137,10 +223,14 @@ class ApiService {
   async createMovement(movementData) {
     // console.log('API: Creando movimiento con datos:', movementData);
     
+    // Asegurar que tenemos token CSRF antes de operación mutante
+    await this._ensureCsrfToken();
+    
     const response = await fetch(`${this.baseURL}/api/movements`, {
       method: 'POST',
       headers: this.getHeaders(),
-      body: JSON.stringify(movementData)
+      body: JSON.stringify(movementData),
+      credentials: 'include' // Importante para cookies CSRF
     });
     
     // console.log('API: Response status:', response.status);
@@ -150,12 +240,23 @@ class ApiService {
     
     return result.data || result;
   }
+  
+  // Método para asegurar que tenemos un token CSRF válido
+  async _ensureCsrfToken() {
+    // Si no tenemos token CSRF, intentar obtenerlo
+    if (!this.csrfToken) {
+      await this.refreshCsrfToken();
+    }
+  }
 
   async updateMovement(id, movementData) {
+    await this._ensureCsrfToken();
+    
     const response = await fetch(`${this.baseURL}/api/movements/${id}`, {
       method: 'PUT',
       headers: this.getHeaders(),
-      body: JSON.stringify(movementData)
+      body: JSON.stringify(movementData),
+      credentials: 'include'
     });
     
     const result = await this.handleResponse(response);
@@ -163,9 +264,12 @@ class ApiService {
   }
 
   async deleteMovement(id) {
+    await this._ensureCsrfToken();
+    
     const response = await fetch(`${this.baseURL}/api/movements/${id}`, {
       method: 'DELETE',
-      headers: this.getHeaders()
+      headers: this.getHeaders(),
+      credentials: 'include'
     });
     
     return this.handleResponse(response);
@@ -184,10 +288,13 @@ class ApiService {
   }
 
   async createClient(clientData) {
+    await this._ensureCsrfToken();
+    
     const response = await fetch(`${this.baseURL}/api/clients`, {
       method: 'POST',
       headers: this.getHeaders(),
-      body: JSON.stringify(clientData)
+      body: JSON.stringify(clientData),
+      credentials: 'include'
     });
     
     const result = await this.handleResponse(response);
@@ -195,10 +302,13 @@ class ApiService {
   }
 
   async updateClient(id, clientData) {
+    await this._ensureCsrfToken();
+    
     const response = await fetch(`${this.baseURL}/api/clients/${id}`, {
       method: 'PUT',
       headers: this.getHeaders(),
-      body: JSON.stringify(clientData)
+      body: JSON.stringify(clientData),
+      credentials: 'include'
     });
     
     const result = await this.handleResponse(response);
@@ -206,9 +316,12 @@ class ApiService {
   }
 
   async deleteClient(id) {
+    await this._ensureCsrfToken();
+    
     const response = await fetch(`${this.baseURL}/api/clients/${id}`, {
       method: 'DELETE',
-      headers: this.getHeaders()
+      headers: this.getHeaders(),
+      credentials: 'include'
     });
     
     return this.handleResponse(response);
@@ -226,29 +339,38 @@ class ApiService {
   }
 
   async createUser(userData) {
+    await this._ensureCsrfToken();
+    
     const response = await fetch(`${this.baseURL}/api/users`, {
       method: 'POST',
       headers: this.getHeaders(),
-      body: JSON.stringify(userData)
+      body: JSON.stringify(userData),
+      credentials: 'include'
     });
     
     return this.handleResponse(response);
   }
 
   async updateUser(id, userData) {
+    await this._ensureCsrfToken();
+    
     const response = await fetch(`${this.baseURL}/api/users/${id}`, {
       method: 'PUT',
       headers: this.getHeaders(),
-      body: JSON.stringify(userData)
+      body: JSON.stringify(userData),
+      credentials: 'include'
     });
     
     return this.handleResponse(response);
   }
 
   async deleteUser(id) {
+    await this._ensureCsrfToken();
+    
     const response = await fetch(`${this.baseURL}/api/users/${id}`, {
       method: 'DELETE',
-      headers: this.getHeaders()
+      headers: this.getHeaders(),
+      credentials: 'include'
     });
     
     return this.handleResponse(response);

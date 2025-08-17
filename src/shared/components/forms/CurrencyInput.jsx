@@ -36,6 +36,9 @@ const CurrencyInput = forwardRef(({
   const handleChange = (e) => {
     let inputValue = e.target.value;
     
+    // Sanitizar entrada
+    inputValue = sanitizeInput(inputValue);
+    
     // Convert comma to dot for decimal input
     inputValue = inputValue.replace(',', '.');
     
@@ -49,6 +52,11 @@ const CurrencyInput = forwardRef(({
     // Remove currency symbols and spaces for processing
     const cleanedInput = inputValue.replace(/[^\d.]/g, '');
     
+    // Validar formato de número
+    if (cleanedInput && !/^\d*\.?\d*$/.test(cleanedInput)) {
+      return;
+    }
+    
     // If focused, allow raw input without immediate formatting
     if (isFocused) {
       setDisplayValue(cleanedInput);
@@ -60,6 +68,12 @@ const CurrencyInput = forwardRef(({
       setDisplayValue(formatted);
       onChange(raw);
     }
+  };
+  
+  // Función para sanitizar entrada de usuario
+  const sanitizeInput = (value) => {
+    if (typeof value !== 'string') return '';
+    return value.replace(/<[^>]*>/g, '');
   };
 
   // Handle focus

@@ -259,48 +259,70 @@ export const formatDateWithDay = (date, options = {}) => {
   const {
     showDay = true,
     format = 'dd/MM/yyyy',
-    locale = 'es-AR'
+    locale = 'es-AR',
+    fallback = ''
   } = options;
   
-  if (!date) return '';
+  if (!date) return fallback;
   
   // Fix timezone issue: parse date as local time instead of UTC
   let dateObj;
-  if (date instanceof Date) {
-    dateObj = date;
-  } else {
-    // If it's a string in YYYY-MM-DD format, parse as local time
-    if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
-      const [year, month, day] = date.split('-').map(Number);
-      dateObj = new Date(year, month - 1, day); // month is 0-indexed
-    } else {
-      dateObj = new Date(date);
+  try {
+    // Validar entrada
+    if (date === null || date === undefined) {
+      return fallback;
     }
+    
+    // Validar si ya es Date
+    if (Object.prototype.toString.call(date) === '[object Date]') {
+      if (isNaN(date.getTime())) {
+        return fallback;
+      }
+      dateObj = date;
+    }
+    if (date instanceof Date) {
+      dateObj = date;
+    } else {
+      // If it's a string in YYYY-MM-DD format, parse as local time
+      if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+        const [year, month, day] = date.split('-').map(Number);
+        dateObj = new Date(year, month - 1, day); // month is 0-indexed
+      } else {
+        dateObj = new Date(date);
+      }
+      
+      if (isNaN(dateObj.getTime())) {
+        return fallback;
+      }
+    }
+  
+    if (isNaN(dateObj.getTime())) return fallback;
+    
+    const dayNames = {
+      'es-AR': ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
+      'en-US': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+    };
+    
+    const day = dateObj.getDate().toString().padStart(2, '0');
+    const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+    const year = dateObj.getFullYear();
+    
+    let formattedDate = format
+      .replace('dd', day)
+      .replace('MM', month)
+      .replace('yyyy', year);
+    
+    if (showDay) {
+      const dayName = dayNames[locale] || dayNames['es-AR'];
+      const weekDay = dayName[dateObj.getDay()];
+      formattedDate = `${weekDay}, ${formattedDate}`;
+    }
+    
+    return formattedDate;
+  } catch (error) {
+    console.error('Error formateando fecha:', error);
+    return fallback;
   }
-  
-  if (isNaN(dateObj.getTime())) return '';
-  
-  const dayNames = {
-    'es-AR': ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
-    'en-US': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-  };
-  
-  const day = dateObj.getDate().toString().padStart(2, '0');
-  const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
-  const year = dateObj.getFullYear();
-  
-  let formattedDate = format
-    .replace('dd', day)
-    .replace('MM', month)
-    .replace('yyyy', year);
-  
-  if (showDay) {
-    const dayName = dayNames[locale] || dayNames['es-AR'];
-    const weekDay = dayName[dateObj.getDay()];
-    formattedDate = `${weekDay}, ${formattedDate}`;
-  }
-  
-  return formattedDate;
 };
 
 /**

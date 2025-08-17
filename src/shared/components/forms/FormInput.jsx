@@ -72,14 +72,30 @@ const FormInput = forwardRef(({
   const handleChange = (e) => {
     let newValue = e.target.value;
     
+    // Sanitizar entrada para prevenir XSS
+    if (type !== 'password') {
+      newValue = sanitizeInput(newValue);
+    }
+    
     // For number inputs, convert comma to dot for decimal separator
     if (type === 'number') {
       // Replace comma with dot for decimal input
       newValue = newValue.replace(',', '.');
+      
+      // Asegurar que sea un número válido
+      if (newValue && !/^-?\d*\.?\d*$/.test(newValue)) return;
+      
       onChange(newValue === '' ? '' : newValue);
     } else {
       onChange(newValue);
     }
+  };
+
+  // Función para sanitizar entrada de usuario
+  const sanitizeInput = (value) => {
+    if (typeof value !== 'string') return '';
+    // Eliminar scripts y caracteres peligrosos
+    return value.replace(/<[^>]*>/g, '');
   };
 
   // Input classes with responsive design and states

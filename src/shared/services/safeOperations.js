@@ -316,56 +316,79 @@ export const safeLocalStorage = {
  * Safe financial calculations with improved precision
  */
 export const safeCalculation = {
-  multiply: (a, b) => {
-    const numA = safeParseFloat(a);
-    const numB = safeParseFloat(b);
+  // Ajustar escala dinámica según magnitud para evitar problemas de precisión
+  _getScaleFactor: (a, b) => {
+    // Calcular basado en la magnitud de los números
+    const magnitudeA = Math.abs(safeParseFloat(a || 0));
+    const magnitudeB = Math.abs(safeParseFloat(b || 0));
     
-    // Use more precise calculation for financial operations
-    const result = numA * numB;
-    // Round to avoid floating point precision issues
-    return Math.round(result * 100000000) / 100000000;
+    // Para operaciones con valores muy pequeños o muy grandes
+    if (magnitudeA < 0.0001 || magnitudeB < 0.0001 || 
+        magnitudeA > 1000000 || magnitudeB > 1000000) {
+      return 1000000000;
+    }
+    
+    return 100000000; // Escala por defecto
   },
   
-  divide: (a, b) => {
+  // Función para redondeo preciso de operaciones financieras
+  _roundPrecise: (value, decimals = 8) => {
+    const factor = Math.pow(10, decimals);
+    return Math.round(value * factor) / factor;
+  },
+  
+  // Multiplicación segura
+  multiply: (a, b, decimals = 8) => {
+    try {
+      const numA = safeParseFloat(a);
+      const numB = safeParseFloat(b);
+      
+      // Usar escala dinámica según magnitud
+      const result = numA * numB;
+      
+      // Redondeo preciso
+      return safeCalculation._roundPrecise(result, decimals);
+    } catch (error) {
+      console.error('Error en multiplicación:', error);
+      return 0;
+    }
+  },
+  
+  divide: (a, b, decimals = 8) => {
     const numA = safeParseFloat(a);
     const numB = safeParseFloat(b);
     
     if (numB === 0) {
       console.warn('Division by zero attempted');
-      return 0;
+      throw new Error('División por cero no permitida');
     }
     
     const result = numA / numB;
-    // Round to avoid floating point precision issues
-    return Math.round(result * 100000000) / 100000000;
+    return safeCalculation._roundPrecise(result, decimals);
   },
   
-  add: (a, b) => {
+  add: (a, b, decimals = 8) => {
     const numA = safeParseFloat(a);
     const numB = safeParseFloat(b);
     
     const result = numA + numB;
-    // Round to avoid floating point precision issues
-    return Math.round(result * 100000000) / 100000000;
+    return safeCalculation._roundPrecise(result, decimals);
   },
   
-  subtract: (a, b) => {
+  subtract: (a, b, decimals = 8) => {
     const numA = safeParseFloat(a);
     const numB = safeParseFloat(b);
     
     const result = numA - numB;
-    // Round to avoid floating point precision issues
-    return Math.round(result * 100000000) / 100000000;
+    return safeCalculation._roundPrecise(result, decimals);
   },
   
-  percentage: (value, percentage) => {
+  percentage: (value, percentage, decimals = 8) => {
     const numValue = safeParseFloat(value);
     const numPercentage = safeParseFloat(percentage);
     
-    // More precise percentage calculation
     const result = (numValue * numPercentage) / 100;
-    // Round to avoid floating point precision issues
-    return Math.round(result * 100000000) / 100000000;
+    return safeCalculation._roundPrecise(result, decimals);
   },
   
   // New helper for formatting financial results

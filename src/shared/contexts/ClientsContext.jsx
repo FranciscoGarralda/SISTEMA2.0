@@ -15,10 +15,14 @@ export const ClientsProvider = ({ children }) => {
 	const loadClients = useCallback(() => {
 		try {
 			if (typeof window === 'undefined') return;
+			
 			const raw = localStorage.getItem(STORAGE_KEY);
 			const parsed = raw ? JSON.parse(raw) : [];
 			setClients(Array.isArray(parsed) ? parsed : []);
-		} catch {}
+		} catch (error) {
+			console.error('Error cargando clientes desde localStorage:', error);
+			setClients([]);
+		}
 	}, []);
 
 	useEffect(() => {
@@ -28,7 +32,11 @@ export const ClientsProvider = ({ children }) => {
 	const persist = (list) => {
 		try {
 			localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-		} catch {}
+			return true;
+		} catch (error) {
+			console.error('Error guardando clientes en localStorage:', error);
+			return false;
+		}
 	};
 
 	const normalizeClient = (data, id) => {
