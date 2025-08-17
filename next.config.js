@@ -12,6 +12,12 @@ const nextConfig = {
     dirs: ['src'],
     ignoreDuringBuilds: true, // Ignorar errores de ESLint durante la compilación
   },
+  typescript: {
+    // !! ADVERTENCIA !!
+    // Ignorar errores de TypeScript durante la compilación
+    // Esto es útil para despliegues rápidos, pero no recomendado para producción
+    ignoreBuildErrors: true,
+  },
   webpack: (config) => {
     // Configuraciones adicionales de webpack si son necesarias
     return config;

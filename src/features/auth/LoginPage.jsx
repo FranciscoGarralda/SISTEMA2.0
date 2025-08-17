@@ -41,11 +41,12 @@ export default function LoginPage({ onLoginSuccess }) {
         setError('');
       }
       
-              const response = await apiService.login(formData.username, formData.password);
-        
-        if (response.success) {
-          onLoginSuccess(response.user);
-        } else {
+      const response = await apiService.login(formData.username, formData.password);
+      
+      // Verificar si la respuesta es exitosa y tiene un usuario
+      if (response && response.user) {
+        onLoginSuccess(response.user);
+      } else if (response && !response.success) {
         // Mensajes de error más específicos
         if (response.message?.includes('credentials')) {
           setError('Usuario o contraseña incorrectos');
@@ -54,6 +55,9 @@ export default function LoginPage({ onLoginSuccess }) {
         } else {
           setError(response.message || 'Error al iniciar sesión. Intenta nuevamente.');
         }
+      } else {
+        // Si la respuesta no tiene la estructura esperada
+        setError('Respuesta del servidor inválida. Intenta nuevamente.');
       }
     } catch (err) {
       console.error('Error de login:', err);

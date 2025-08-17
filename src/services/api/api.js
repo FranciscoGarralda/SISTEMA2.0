@@ -138,7 +138,7 @@ class ApiService {
       
       // console.log('Intentando login con:', { username, baseURL: this.baseURL });
       
-      const response = await fetch(`${this.baseURL}/api/auth/login`, {
+      const response = await fetch(`${this.baseURL}/auth/login`, {
         method: 'POST',
         headers: this.getHeaders(),
         body: JSON.stringify({ 
@@ -206,7 +206,7 @@ class ApiService {
     }
     
     try {
-      const response = await fetch(`${this.baseURL}/api/auth/me`, {
+      const response = await fetch(`${this.baseURL}/auth/me`, {
         method: 'GET',
         headers: this.getHeaders()
       });
@@ -239,7 +239,7 @@ class ApiService {
   // Método para obtener un token CSRF fresco
   async refreshCsrfToken() {
     try {
-      const response = await fetch(`${this.baseURL}/api/csrf-token`, {
+      const response = await fetch(`${this.baseURL}/csrf-token`, {
         method: 'GET',
         headers: this.getHeaders(),
         credentials: 'include' // Importante para cookies CSRF
@@ -266,7 +266,7 @@ class ApiService {
   // MOVEMENTS ENDPOINTS
   async getMovements(filters = {}) {
     const queryString = new URLSearchParams(filters).toString();
-    const response = await fetch(`${this.baseURL}/api/movements?${queryString}`, {
+    const response = await fetch(`${this.baseURL}/movements?${queryString}`, {
       method: 'GET',
       headers: this.getHeaders()
     });
@@ -281,7 +281,7 @@ class ApiService {
     // Asegurar que tenemos token CSRF antes de operación mutante
     await this._ensureCsrfToken();
     
-    const response = await fetch(`${this.baseURL}/api/movements`, {
+    const response = await fetch(`${this.baseURL}/movements`, {
       method: 'POST',
       headers: this.getHeaders(),
       body: JSON.stringify(movementData),
@@ -307,7 +307,7 @@ class ApiService {
   async updateMovement(id, movementData) {
     await this._ensureCsrfToken();
     
-    const response = await fetch(`${this.baseURL}/api/movements/${id}`, {
+    const response = await fetch(`${this.baseURL}/movements/${id}`, {
       method: 'PUT',
       headers: this.getHeaders(),
       body: JSON.stringify(movementData),
@@ -321,7 +321,7 @@ class ApiService {
   async deleteMovement(id) {
     await this._ensureCsrfToken();
     
-    const response = await fetch(`${this.baseURL}/api/movements/${id}`, {
+    const response = await fetch(`${this.baseURL}/movements/${id}`, {
       method: 'DELETE',
       headers: this.getHeaders(),
       credentials: 'include'
@@ -333,7 +333,7 @@ class ApiService {
   // CLIENTS ENDPOINTS
   async getClients(filters = {}) {
     const queryString = new URLSearchParams(filters).toString();
-    const response = await fetch(`${this.baseURL}/api/clients?${queryString}`, {
+    const response = await fetch(`${this.baseURL}/clients?${queryString}`, {
       method: 'GET',
       headers: this.getHeaders()
     });
@@ -345,7 +345,7 @@ class ApiService {
   async createClient(clientData) {
     await this._ensureCsrfToken();
     
-    const response = await fetch(`${this.baseURL}/api/clients`, {
+    const response = await fetch(`${this.baseURL}/clients`, {
       method: 'POST',
       headers: this.getHeaders(),
       body: JSON.stringify(clientData),
@@ -359,7 +359,7 @@ class ApiService {
   async updateClient(id, clientData) {
     await this._ensureCsrfToken();
     
-    const response = await fetch(`${this.baseURL}/api/clients/${id}`, {
+    const response = await fetch(`${this.baseURL}/clients/${id}`, {
       method: 'PUT',
       headers: this.getHeaders(),
       body: JSON.stringify(clientData),
@@ -373,7 +373,7 @@ class ApiService {
   async deleteClient(id) {
     await this._ensureCsrfToken();
     
-    const response = await fetch(`${this.baseURL}/api/clients/${id}`, {
+    const response = await fetch(`${this.baseURL}/clients/${id}`, {
       method: 'DELETE',
       headers: this.getHeaders(),
       credentials: 'include'
@@ -384,7 +384,7 @@ class ApiService {
 
   // USER MANAGEMENT ENDPOINTS
   async getUsers() {
-    const response = await fetch(`${this.baseURL}/api/users`, {
+    const response = await fetch(`${this.baseURL}/users`, {
       method: 'GET',
       headers: this.getHeaders()
     });
@@ -396,7 +396,7 @@ class ApiService {
   async createUser(userData) {
     await this._ensureCsrfToken();
     
-    const response = await fetch(`${this.baseURL}/api/users`, {
+    const response = await fetch(`${this.baseURL}/users`, {
       method: 'POST',
       headers: this.getHeaders(),
       body: JSON.stringify(userData),
@@ -409,7 +409,7 @@ class ApiService {
   async updateUser(id, userData) {
     await this._ensureCsrfToken();
     
-    const response = await fetch(`${this.baseURL}/api/users/${id}`, {
+    const response = await fetch(`${this.baseURL}/users/${id}`, {
       method: 'PUT',
       headers: this.getHeaders(),
       body: JSON.stringify(userData),
@@ -422,7 +422,7 @@ class ApiService {
   async deleteUser(id) {
     await this._ensureCsrfToken();
     
-    const response = await fetch(`${this.baseURL}/api/users/${id}`, {
+    const response = await fetch(`${this.baseURL}/users/${id}`, {
       method: 'DELETE',
       headers: this.getHeaders(),
       credentials: 'include'
