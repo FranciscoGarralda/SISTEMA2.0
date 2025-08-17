@@ -7,7 +7,7 @@ import { Heart } from 'lucide-react';
  */
 const Footer = () => {
   const currentYear = new Date().getFullYear();
-  const version = "V3"; // Actualizar esta versión con cada nuevo despliegue
+  const version = "V13"; // Versión restaurada con backend local
 
   return (
     <footer className="bg-white border-t border-gray-200 flex-shrink-0">

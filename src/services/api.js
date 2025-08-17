@@ -1,6 +1,6 @@
 // API Service para conectar con el backend
 import { cacheService } from './cache';
-import mockApiResponses from './mockData';
+import localStorageBackend from './localStorageBackend';
 
 class ApiService {
   constructor() {
@@ -256,43 +256,45 @@ class ApiService {
 
   // MOVEMENTS ENDPOINTS
   async getMovements(filters = {}) {
-    const queryString = new URLSearchParams(filters).toString();
-    // TODO: Implementar función de Netlify para movements
-    // Por ahora retornar array vacío
-    console.log('getMovements called with filters:', filters);
-    return [];
+    try {
+      // Intentar usar el servidor si está disponible
+      if (this.baseURL.includes('netlify.functions') && false) { // Deshabilitado temporalmente
+        const queryString = new URLSearchParams(filters).toString();
+        const response = await fetch(`${this.baseURL}/movements?${queryString}`, {
+          method: 'GET',
+          headers: this.getHeaders()
+        });
+        const data = await this.handleResponse(response);
+        return data.data || [];
+      }
+    } catch (error) {
+      console.log('Server not available, using local storage');
+    }
     
-    /* const response = await fetch(`${this.baseURL}/movements?${queryString}`, {
-      method: 'GET',
-      headers: this.getHeaders()
-    });
-    
-    const data = await this.handleResponse(response);
-    return data.data || []; */
+    // Usar backend local como fallback
+    return localStorageBackend.getMovements(filters);
   }
 
   async createMovement(movementData) {
-    // TODO: Implementar función de Netlify para movements
-    return mockApiResponses.createMovement(movementData);
+    try {
+      // Intentar usar el servidor si está disponible
+      if (this.baseURL.includes('netlify.functions') && false) { // Deshabilitado temporalmente
+        await this._ensureCsrfToken();
+        const response = await fetch(`${this.baseURL}/movements`, {
+          method: 'POST',
+          headers: this.getHeaders(),
+          body: JSON.stringify(movementData),
+          credentials: 'include'
+        });
+        const result = await this.handleResponse(response);
+        return result.data || result;
+      }
+    } catch (error) {
+      console.log('Server not available, using local storage');
+    }
     
-    /* // console.log('API: Creando movimiento con datos:', movementData);
-    
-    // Asegurar que tenemos token CSRF antes de operación mutante
-    await this._ensureCsrfToken();
-    
-    const response = await fetch(`${this.baseURL}/movements`, {
-      method: 'POST',
-      headers: this.getHeaders(),
-      body: JSON.stringify(movementData),
-      credentials: 'include' // Importante para cookies CSRF
-    });
-    
-    // console.log('API: Response status:', response.status);
-    
-    const result = await this.handleResponse(response);
-    // console.log('API: Resultado:', result);
-    
-    return result.data || result; */
+    // Usar backend local como fallback
+    return localStorageBackend.createMovement(movementData);
   }
   
   // Método para asegurar que tenemos un token CSRF válido
@@ -304,29 +306,41 @@ class ApiService {
   }
 
   async updateMovement(id, movementData) {
-    await this._ensureCsrfToken();
+    try {
+      if (this.baseURL.includes('netlify.functions') && false) { // Deshabilitado temporalmente
+        await this._ensureCsrfToken();
+        const response = await fetch(`${this.baseURL}/movements/${id}`, {
+          method: 'PUT',
+          headers: this.getHeaders(),
+          body: JSON.stringify(movementData),
+          credentials: 'include'
+        });
+        const result = await this.handleResponse(response);
+        return result.data || result;
+      }
+    } catch (error) {
+      console.log('Server not available, using local storage');
+    }
     
-    const response = await fetch(`${this.baseURL}/api/movements/${id}`, {
-      method: 'PUT',
-      headers: this.getHeaders(),
-      body: JSON.stringify(movementData),
-      credentials: 'include'
-    });
-    
-    const result = await this.handleResponse(response);
-    return result.data || result;
+    return localStorageBackend.updateMovement(id, movementData);
   }
 
   async deleteMovement(id) {
-    await this._ensureCsrfToken();
+    try {
+      if (this.baseURL.includes('netlify.functions') && false) { // Deshabilitado temporalmente
+        await this._ensureCsrfToken();
+        const response = await fetch(`${this.baseURL}/movements/${id}`, {
+          method: 'DELETE',
+          headers: this.getHeaders(),
+          credentials: 'include'
+        });
+        return this.handleResponse(response);
+      }
+    } catch (error) {
+      console.log('Server not available, using local storage');
+    }
     
-    const response = await fetch(`${this.baseURL}/api/movements/${id}`, {
-      method: 'DELETE',
-      headers: this.getHeaders(),
-      credentials: 'include'
-    });
-    
-    return this.handleResponse(response);
+    return localStorageBackend.deleteMovement(id);
   }
 
   // CLIENTS ENDPOINTS
@@ -383,18 +397,22 @@ class ApiService {
 
   // USER MANAGEMENT ENDPOINTS
   async getUsers() {
-    // TODO: Implementar función de Netlify para users
-    // Por ahora retornar array vacío
-    console.log('getUsers called');
-    return [];
+    try {
+      // Intentar usar el servidor si está disponible
+      if (this.baseURL.includes('netlify.functions') && false) { // Deshabilitado temporalmente
+        const response = await fetch(`${this.baseURL}/users`, {
+          method: 'GET',
+          headers: this.getHeaders()
+        });
+        const data = await this.handleResponse(response);
+        return data.data || [];
+      }
+    } catch (error) {
+      console.log('Server not available, using local storage');
+    }
     
-    /* const response = await fetch(`${this.baseURL}/users`, {
-      method: 'GET',
-      headers: this.getHeaders()
-    });
-    
-    const data = await this.handleResponse(response);
-    return data.data || []; */
+    // Usar backend local como fallback
+    return localStorageBackend.getUsers();
   }
 
   async createUser(userData) {
