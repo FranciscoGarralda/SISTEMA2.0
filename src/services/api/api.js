@@ -2,15 +2,20 @@
 import { cacheService } from './cache';
 import mockApiService from '../mockApi';
 
-// Determinar si debemos usar el mock API
+// Determinar si debemos usar el mock API o la API real de Netlify
 const useMockApi = () => {
-  // Siempre usar el mock API para evitar errores de conexión
-  return true;
+  // Usar mock API solo si estamos en desarrollo local sin backend
+  // o si está explícitamente configurado
+  if (process.env.NEXT_PUBLIC_MOCK_API === 'true') return true;
+  
+  // En producción, usar la API real de Netlify
+  return false;
 };
 
 class ApiService {
   constructor() {
-    this.baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    // En producción, usar la API de Netlify
+    this.baseURL = process.env.NEXT_PUBLIC_API_URL || '/api';
     this.token = null;
     this.csrfToken = null;
     this.abortControllers = new Map();
