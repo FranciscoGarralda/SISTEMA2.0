@@ -1,4 +1,5 @@
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { X, User, Phone, Mail, MapPin, Save } from 'lucide-react';
 import FormInput from './FormInput';
 import FormSelect from './FormSelect';
@@ -144,9 +145,15 @@ const ClientModal = ({
     setIsLoading(true);
 
     try {
+      // Añadir un ID temporal si no existe (para compatibilidad con localStorage)
+      const clientData = {
+        ...formData,
+        id: formData.id || Date.now()
+      };
+      
       // Llamar a la función onClientCreated que se conecta con onSaveClient
       // Esto guardará el cliente en la base de datos
-      const result = await onClientCreated(formData);
+      const result = await onClientCreated(clientData);
       
       // Si se guardó exitosamente
       if (result) {

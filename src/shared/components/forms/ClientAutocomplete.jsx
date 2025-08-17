@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect, forwardRef, useCallback } from 'react';
+import React from 'react';
+import { useState, useRef, useEffect, forwardRef, useCallback } from 'react';
 import { Plus, User, ChevronDown, X } from 'lucide-react';
 import ClientModal from './ClientModal';
 
@@ -238,7 +239,8 @@ const ClientAutocomplete = forwardRef(({
             {/* Icono dropdown */}
             <button
               type="button"
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400"
+              onClick={() => setIsOpen(!isOpen)}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600"
               aria-label="Desplegar"
             >
               <ChevronDown className="w-4 h-4" />
