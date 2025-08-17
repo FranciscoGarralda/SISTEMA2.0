@@ -1,10 +1,29 @@
-# Frontend Sistema Financiero - Migración Limpia
+# Sistema Financiero Frontend
 
-Este es el frontend limpio del sistema financiero, listo para migrar a un nuevo repositorio.
+Frontend optimizado para el sistema de gestión financiera, construido con Next.js y React.
 
-## ✅ Qué incluye
+## Estructura del Proyecto
 
-### Funcionalidades principales:
+El proyecto sigue una arquitectura optimizada por características (feature-driven architecture) con un énfasis en la separación de responsabilidades:
+
+```
+📁 sistema-financiero-frontend/
+├── 📁 public/                  # Archivos públicos estáticos
+│   └── 📁 assets/              # Activos organizados (iconos, imágenes)
+├── 📁 src/                     # Código fuente
+│   ├── 📁 components/          # Componentes reutilizables globales
+│   ├── 📁 features/            # Módulos específicos organizados por característica
+│   ├── 📁 hooks/               # Custom hooks globales
+│   ├── 📁 pages/               # Páginas de Next.js (routing)
+│   ├── 📁 services/            # Servicios globales (API, utilidades)
+│   ├── 📁 store/               # Estado global (contextos)
+│   ├── 📁 styles/              # Estilos globales
+│   ├── 📁 types/               # Definiciones de tipos
+│   └── 📁 utils/               # Utilidades globales
+└── 📁 tests/                   # Tests
+```
+
+## Características Principales
 
 - **Operaciones Financieras** con todas las sub-operaciones (compra, venta, arbitraje, etc.)
 - **Sistema completo de menús y navegación**
@@ -12,71 +31,52 @@ Este es el frontend limpio del sistema financiero, listo para migrar a un nuevo 
 - **Pago mixto** con múltiples socios
 - **Sistema de permisos** por usuario
 - **Autocompletado de clientes** con creación inline
-- **Todos los módulos:**
-  - Movimientos
-  - Pendientes de Retiro
-  - Gastos
-  - Cuentas Corrientes
-  - Prestamistas
-  - Comisiones
-  - Utilidad
-  - Arbitraje
-  - Saldos
-  - Caja Diaria
-  - Stock
-  - Saldos Iniciales
-  - Gestión de Usuarios
-  - Clientes
 
-### Estética y UX:
+## Módulos
 
-- Diseño responsive con Tailwind CSS
-- Tema oscuro/minimalista
-- Iconos con Lucide React
-- Animaciones suaves
-- Estados de carga y error
+- Movimientos
+- Pendientes de Retiro
+- Gastos
+- Cuentas Corrientes
+- Prestamistas
+- Comisiones
+- Utilidad
+- Arbitraje
+- Saldos
+- Caja Diaria
+- Stock
+- Saldos Iniciales
+- Gestión de Usuarios
+- Clientes
 
-## ❌ Qué se eliminó
+## Configuración de Desarrollo
 
-- Navegación con teclado (flechas, FocusManager)
-- Backend (para empezar limpio)
-- Archivos de configuración duplicados
-- Dependencias no usadas
-
-## 🚀 Cómo usar
-
-1. Crea un nuevo repositorio en GitHub
-2. Clona este contenido
-3. Instala dependencias: `npm install`
-4. Configura las variables de entorno:
+1. Instalar dependencias:
+   ```bash
+   npm install
    ```
-   NEXT_PUBLIC_API_URL=http://localhost:5000
+
+2. Crear archivo `.env.local` basado en `.env.example`
+
+3. Iniciar el servidor de desarrollo:
+   ```bash
+   npm run dev
    ```
-5. Ejecuta: `npm run dev`
 
-## 📁 Estructura
+4. Abrir [http://localhost:3000](http://localhost:3000)
 
-```
-src/
-├── features/          # Todos los módulos funcionales
-├── shared/
-│   ├── components/   # Componentes reutilizables
-│   ├── services/     # Lógica de negocio y API
-│   ├── utils/        # Utilidades
-│   └── constants/    # Configuraciones
-├── pages/            # Páginas de Next.js
-└── styles/           # Estilos globales
-```
+## Scripts Disponibles
 
-## 🔧 Próximos pasos
+- `npm run dev` - Ejecuta el servidor de desarrollo
+- `npm run build` - Construye la aplicación para producción
+- `npm run start` - Inicia el servidor de producción
+- `npm run lint` - Ejecuta el linter para verificar el código
+- `npm run test` - Ejecuta los tests unitarios
 
-1. Crear nuevo backend o conectar con uno existente
-2. Configurar autenticación
-3. Ajustar validaciones de formularios
-4. Configurar despliegue
+## Despliegue
 
-## 📝 Notas
+El proyecto está configurado para desplegar automáticamente en Netlify cuando se hace push a la rama principal.
 
-- El frontend espera un backend con endpoints estándar de REST
-- La autenticación usa JWT
-- Los datos se persisten localmente para Stock, Caja y Saldos Iniciales
+## Convenciones de Código
+
+Este proyecto utiliza ESLint y Prettier para asegurar consistencia y calidad del código. Por favor, asegúrate de que tu código pase los linters antes de enviar pull requests.
