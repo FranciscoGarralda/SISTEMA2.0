@@ -1,5 +1,6 @@
 // API Service para conectar con el backend
 import { cacheService } from './cache';
+import mockApiResponses from './mockData';
 
 class ApiService {
   constructor() {
@@ -256,22 +257,30 @@ class ApiService {
   // MOVEMENTS ENDPOINTS
   async getMovements(filters = {}) {
     const queryString = new URLSearchParams(filters).toString();
-    const response = await fetch(`${this.baseURL}/api/movements?${queryString}`, {
+    // TODO: Implementar función de Netlify para movements
+    // Por ahora retornar array vacío
+    console.log('getMovements called with filters:', filters);
+    return [];
+    
+    /* const response = await fetch(`${this.baseURL}/movements?${queryString}`, {
       method: 'GET',
       headers: this.getHeaders()
     });
     
     const data = await this.handleResponse(response);
-    return data.data || [];
+    return data.data || []; */
   }
 
   async createMovement(movementData) {
-    // console.log('API: Creando movimiento con datos:', movementData);
+    // TODO: Implementar función de Netlify para movements
+    return mockApiResponses.createMovement(movementData);
+    
+    /* // console.log('API: Creando movimiento con datos:', movementData);
     
     // Asegurar que tenemos token CSRF antes de operación mutante
     await this._ensureCsrfToken();
     
-    const response = await fetch(`${this.baseURL}/api/movements`, {
+    const response = await fetch(`${this.baseURL}/movements`, {
       method: 'POST',
       headers: this.getHeaders(),
       body: JSON.stringify(movementData),
@@ -283,7 +292,7 @@ class ApiService {
     const result = await this.handleResponse(response);
     // console.log('API: Resultado:', result);
     
-    return result.data || result;
+    return result.data || result; */
   }
   
   // Método para asegurar que tenemos un token CSRF válido
@@ -374,13 +383,18 @@ class ApiService {
 
   // USER MANAGEMENT ENDPOINTS
   async getUsers() {
-    const response = await fetch(`${this.baseURL}/api/users`, {
+    // TODO: Implementar función de Netlify para users
+    // Por ahora retornar array vacío
+    console.log('getUsers called');
+    return [];
+    
+    /* const response = await fetch(`${this.baseURL}/users`, {
       method: 'GET',
       headers: this.getHeaders()
     });
     
     const data = await this.handleResponse(response);
-    return data.data || [];
+    return data.data || []; */
   }
 
   async createUser(userData) {
