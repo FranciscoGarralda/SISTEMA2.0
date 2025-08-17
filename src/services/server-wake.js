@@ -4,10 +4,20 @@ class ServerWakeService {
     // Detectar si estamos en producción o desarrollo
     if (typeof window !== 'undefined') {
       const currentHost = window.location.origin;
-      this.baseURL = currentHost.includes('netlify') || currentHost.includes('localhost:3000')
-        ? '/.netlify/functions'
-        : '/api';
+      
+      // Si estamos en Netlify o en producción, usar Netlify Functions
+      if (currentHost.includes('netlify.app') || 
+          currentHost.includes('casadecambio') ||
+          process.env.NODE_ENV === 'production') {
+        this.baseURL = '/.netlify/functions';
+      } else {
+        // En desarrollo local
+        this.baseURL = '/api';
+      }
+      
+      console.log('ServerWake Service initialized with baseURL:', this.baseURL);
     } else {
+      // Servidor - siempre usar Netlify Functions
       this.baseURL = '/.netlify/functions';
     }
     

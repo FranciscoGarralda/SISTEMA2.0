@@ -5,17 +5,26 @@ class ApiService {
   constructor() {
     // En producción usar Netlify Functions, en desarrollo usar localhost
     const isProduction = process.env.NODE_ENV === 'production';
-    const isDevelopment = process.env.NODE_ENV === 'development';
     
     if (typeof window !== 'undefined') {
       // Cliente - usar la URL actual para Netlify Functions
       const currentHost = window.location.origin;
-      this.baseURL = isProduction || currentHost.includes('netlify') 
-        ? '/.netlify/functions' 
-        : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      
+      // Si estamos en Netlify (cualquier dominio .netlify.app o el dominio personalizado)
+      // O si estamos en producción, usar Netlify Functions
+      if (currentHost.includes('netlify.app') || 
+          currentHost.includes('casadecambio') || 
+          isProduction) {
+        this.baseURL = '/.netlify/functions';
+      } else {
+        // En desarrollo local
+        this.baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      }
+      
+      console.log('API Service initialized with baseURL:', this.baseURL);
     } else {
-      // Servidor
-      this.baseURL = process.env.NEXT_PUBLIC_API_URL || '/.netlify/functions';
+      // Servidor - siempre usar Netlify Functions en SSR
+      this.baseURL = '/.netlify/functions';
     }
     
     this.token = null;

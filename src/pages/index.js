@@ -75,6 +75,16 @@ export default function Home() {
 
   const checkAuthStatus = async () => {
     try {
+      // Primero verificar si hay un token almacenado
+      const hasToken = sessionStorage.getItem('authToken') || localStorage.getItem('authToken');
+      
+      if (!hasToken) {
+        // No hay token, no intentar verificar autenticación
+        console.log('No auth token found, skipping auth check');
+        setIsAuthenticated(false);
+        return;
+      }
+      
       // Agregar timeout para evitar que se quede colgado
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 segundos timeout
