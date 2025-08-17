@@ -1,8 +1,16 @@
 // Server Wake Service - Mantiene el servidor activo
 class ServerWakeService {
   constructor() {
-    // Forzar el uso de la API de Netlify
-    this.baseURL = '/api';
+    // Detectar si estamos en producción o desarrollo
+    if (typeof window !== 'undefined') {
+      const currentHost = window.location.origin;
+      this.baseURL = currentHost.includes('netlify') || currentHost.includes('localhost:3000')
+        ? '/.netlify/functions'
+        : '/api';
+    } else {
+      this.baseURL = '/.netlify/functions';
+    }
+    
     this.isWaking = false;
     this.retryCount = 0;
     this.maxRetries = 3;

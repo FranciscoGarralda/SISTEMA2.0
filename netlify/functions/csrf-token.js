@@ -1,7 +1,7 @@
 import { authMiddleware } from './utils/auth';
 import { success } from './utils/response';
 
-async function handler(event, context) {
+async function csrfHandler(event, context) {
   // Generar token CSRF
   const csrfToken = Math.random().toString(36).substring(2);
   
@@ -9,4 +9,4 @@ async function handler(event, context) {
 }
 
 // Aplicar middleware de autenticación
-export const handler = authMiddleware(handler);
+export const handler = authMiddleware(csrfHandler);

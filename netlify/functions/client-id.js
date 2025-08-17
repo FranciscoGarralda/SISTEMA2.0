@@ -2,7 +2,7 @@ import { sql } from './utils/db';
 import { authMiddleware } from './utils/auth';
 import { success, error } from './utils/response';
 
-async function handler(event, context) {
+async function clientIdHandler(event, context) {
   // Obtener método HTTP y ID del cliente
   const httpMethod = event.httpMethod;
   const clientId = event.path.split('/').pop();
@@ -106,4 +106,4 @@ async function deleteClient(clientId) {
 }
 
 // Aplicar middleware de autenticación
-export const handler = authMiddleware(handler);
+export const handler = authMiddleware(clientIdHandler);

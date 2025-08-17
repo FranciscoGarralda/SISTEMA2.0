@@ -2,7 +2,7 @@ import { sql } from './utils/db';
 import { authMiddleware } from './utils/auth';
 import { success, error } from './utils/response';
 
-async function handler(event, context) {
+async function authMeHandler(event, context) {
   try {
     // El usuario ya está disponible gracias al middleware de autenticación
     const { user } = context;
@@ -22,4 +22,4 @@ async function handler(event, context) {
 }
 
 // Aplicar middleware de autenticación
-export const handler = authMiddleware(handler);
+export const handler = authMiddleware(authMeHandler);

@@ -3,7 +3,21 @@ import { cacheService } from './cache';
 
 class ApiService {
   constructor() {
-    this.baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    // En producción usar Netlify Functions, en desarrollo usar localhost
+    const isProduction = process.env.NODE_ENV === 'production';
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    
+    if (typeof window !== 'undefined') {
+      // Cliente - usar la URL actual para Netlify Functions
+      const currentHost = window.location.origin;
+      this.baseURL = isProduction || currentHost.includes('netlify') 
+        ? '/.netlify/functions' 
+        : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    } else {
+      // Servidor
+      this.baseURL = process.env.NEXT_PUBLIC_API_URL || '/.netlify/functions';
+    }
+    
     this.token = null;
     this.csrfToken = null;
     this.abortControllers = new Map();
@@ -120,7 +134,7 @@ class ApiService {
       
       // console.log('Intentando login con:', { username, baseURL: this.baseURL });
       
-      const response = await fetch(`${this.baseURL}/api/auth/login`, {
+      const response = await fetch(`${this.baseURL}/auth-login`, {
         method: 'POST',
         headers: this.getHeaders(),
         body: JSON.stringify({ 
@@ -166,7 +180,7 @@ class ApiService {
   }
 
   async getMe() {
-    const response = await fetch(`${this.baseURL}/api/auth/me`, {
+    const response = await fetch(`${this.baseURL}/auth-me`, {
       method: 'GET',
       headers: this.getHeaders()
     });
@@ -184,7 +198,7 @@ class ApiService {
   // Método para obtener un token CSRF fresco
   async refreshCsrfToken() {
     try {
-      const response = await fetch(`${this.baseURL}/api/csrf-token`, {
+      const response = await fetch(`${this.baseURL}/csrf-token`, {
         method: 'GET',
         headers: this.getHeaders(),
         credentials: 'include' // Importante para cookies CSRF
@@ -278,7 +292,7 @@ class ApiService {
   // CLIENTS ENDPOINTS
   async getClients(filters = {}) {
     const queryString = new URLSearchParams(filters).toString();
-    const response = await fetch(`${this.baseURL}/api/clients?${queryString}`, {
+    const response = await fetch(`${this.baseURL}/clients?${queryString}`, {
       method: 'GET',
       headers: this.getHeaders()
     });
@@ -290,7 +304,7 @@ class ApiService {
   async createClient(clientData) {
     await this._ensureCsrfToken();
     
-    const response = await fetch(`${this.baseURL}/api/clients`, {
+    const response = await fetch(`${this.baseURL}/clients`, {
       method: 'POST',
       headers: this.getHeaders(),
       body: JSON.stringify(clientData),
@@ -304,7 +318,7 @@ class ApiService {
   async updateClient(id, clientData) {
     await this._ensureCsrfToken();
     
-    const response = await fetch(`${this.baseURL}/api/clients/${id}`, {
+    const response = await fetch(`${this.baseURL}/client-id/${id}`, {
       method: 'PUT',
       headers: this.getHeaders(),
       body: JSON.stringify(clientData),
@@ -318,7 +332,7 @@ class ApiService {
   async deleteClient(id) {
     await this._ensureCsrfToken();
     
-    const response = await fetch(`${this.baseURL}/api/clients/${id}`, {
+    const response = await fetch(`${this.baseURL}/client-id/${id}`, {
       method: 'DELETE',
       headers: this.getHeaders(),
       credentials: 'include'
