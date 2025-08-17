@@ -110,13 +110,35 @@ class ApiService {
   async handleResponse(response) {
     let data;
     try {
-      data = await response.json();
+      const text = await response.text();
+      console.log('Response text:', text);
+      
+      // Intentar parsear como JSON
+      try {
+        data = JSON.parse(text);
+      } catch (jsonError) {
+        console.error('Error parsing JSON:', jsonError);
+        console.log('Raw response:', text);
+        data = { message: 'Error en el servidor', rawResponse: text };
+      }
     } catch (e) {
-      // Si no hay JSON en la respuesta
+      console.error('Error reading response:', e);
       data = { message: 'Error en el servidor' };
     }
     
     if (!response.ok) {
+      const error = new Error(data.message || 'Error en la petición');
+      error.response = { data, status: response.status };
+      throw error;
+    }
+    
+    // Para funciones de Netlify, la respuesta exitosa viene envuelta en { success: true, data: {...} }
+    if (data && data.success === true && data.data) {
+      return data.data;
+    }
+    
+    // Si es un error con success: false
+    if (data && data.success === false) {
       const error = new Error(data.message || 'Error en la petición');
       error.response = { data, status: response.status };
       throw error;

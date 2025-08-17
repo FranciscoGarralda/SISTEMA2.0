@@ -43,12 +43,15 @@ export default function LoginPage({ onLoginSuccess }) {
       
       const response = await apiService.login(formData.username, formData.password);
       
+      console.log('Login response:', response);
+      
       // Verificar si la respuesta es exitosa y tiene un usuario
       if (response && response.user) {
+        console.log('Login exitoso, usuario:', response.user);
         onLoginSuccess(response.user);
-      } else if (response && !response.success) {
+      } else if (response && response.success === false) {
         // Mensajes de error más específicos
-        if (response.message?.includes('credentials')) {
+        if (response.message?.includes('credentials') || response.message?.includes('Credenciales')) {
           setError('Usuario o contraseña incorrectos');
         } else if (response.message?.includes('not found')) {
           setError('Usuario no encontrado');
@@ -57,7 +60,8 @@ export default function LoginPage({ onLoginSuccess }) {
         }
       } else {
         // Si la respuesta no tiene la estructura esperada
-        setError('Respuesta del servidor inválida. Intenta nuevamente.');
+        console.error('Respuesta inesperada:', response);
+        setError('Error al procesar la respuesta del servidor. Intenta nuevamente.');
       }
     } catch (err) {
       console.error('Error de login:', err);

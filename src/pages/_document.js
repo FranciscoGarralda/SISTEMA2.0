@@ -4,6 +4,12 @@ export default function Document() {
   return (
     <Html lang="es">
       <Head>
+        {/* Meta tags SEO */}
+        <meta name="description" content="Sistema Financiero - Casa de Cambio Alliance F&R. Gestión de operaciones financieras, clientes y movimientos." />
+        <meta name="keywords" content="casa de cambio, finanzas, divisas, alliance, sistema financiero" />
+        <meta name="author" content="Alliance F&R" />
+        <meta name="theme-color" content="#1e40af" />
+        
         {/* Favicon principal */}
         <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/FranciscoGarralda/ALL/main/favicon2.png" />
         <link rel="shortcut icon" type="image/png" href="https://raw.githubusercontent.com/FranciscoGarralda/ALL/main/favicon2.png" />
