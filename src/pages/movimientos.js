@@ -1,5 +1,5 @@
 import React, { lazy, Suspense } from 'react';
-import MainLayout from '../shared/layouts/MainLayout';
+import MainLayout from '../components/layouts/MainLayout';
 
 const MovimientosApp = lazy(() => import('../features/movements/MovimientosApp'));
 

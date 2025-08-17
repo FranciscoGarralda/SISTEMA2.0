@@ -15,10 +15,10 @@ import {
   Clock
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer } from 'recharts';
-import { FormInput, formatAmountWithCurrency } from '../../shared/components/forms';
-import { safeParseFloat } from '../../shared/services/safeOperations';
-import { getTodayLocalDate, getCurrentYearMonth, isCurrentMonth, isToday } from '../../shared/utils/dateUtils';
-// import { handleBusinessLogicError } from '../../shared/services/errorHandler';
+import { FormInput, formatAmountWithCurrency } from '../../components/forms';
+import { safeParseFloat } from '../../services/safeOperations';
+import { getTodayLocalDate, getCurrentYearMonth, isCurrentMonth, isToday } from '../../utils/dateUtils';
+// import { handleBusinessLogicError } from '../../services/errorHandler';
 
 /** COMPONENTE PRINCIPAL DE ANÁLISIS DE UTILIDAD */
 function UtilidadApp({ movements = [], onNavigate = () => {} }) {

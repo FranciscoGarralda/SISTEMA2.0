@@ -12,7 +12,7 @@ import {
   CreditCard,
   Bell
 } from 'lucide-react';
-import { FormInput, FormSelect } from '../../shared/components/forms';
+import { FormInput, FormSelect } from '../../components/forms';
 
 /** COMPONENTE PRINCIPAL DE CLIENTES */
 function ClientesApp({ clientes = [], onSaveClient = () => {}, onDeleteClient = () => {} }) {

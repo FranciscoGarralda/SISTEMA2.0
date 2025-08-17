@@ -1,6 +1,6 @@
 import '../styles/globals.css';
-import ErrorBoundary from '../shared/components/ui/ErrorBoundary';
-import { ClientsProvider } from '../shared/contexts/ClientsContext';
+import ErrorBoundary from '../components/ui/ErrorBoundary';
+import { ClientsProvider } from '../store/ClientsContext';
 
 function MyApp({ Component, pageProps }) {
   return (

@@ -11,7 +11,7 @@ import {
   Edit,
   Trash2
 } from 'lucide-react';
-import { getClientName, formatAmountWithCurrency } from '../../shared/services/formatters';
+import { getClientName, formatAmountWithCurrency } from '../../services/formatters';
 
 /**
  * Módulo para gestionar operaciones pendientes de retiro

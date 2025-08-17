@@ -148,7 +148,7 @@ const FormFieldGroup = ({
           />
         );
 
-      case 'select':
+      case 'select': {
         // Usar SubOperationButtons para sub-operaciones
         const isSubOperation = name === 'subOperacion';
         
@@ -184,6 +184,7 @@ const FormFieldGroup = ({
             placeholder={placeholder || `Elegir`}
           />
         );
+      }
       
       case 'date':
         return fieldWrapper(

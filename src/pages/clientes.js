@@ -1,6 +1,6 @@
 import React, { lazy, Suspense } from 'react';
-import MainLayout from '../shared/layouts/MainLayout';
-import { useClients } from '../shared/contexts/ClientsContext';
+import MainLayout from '../components/layouts/MainLayout';
+import { useClients } from '../store/ClientsContext';
 
 const ClientesApp = lazy(() => import('../features/clients/ClientesApp'));
 

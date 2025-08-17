@@ -12,7 +12,7 @@ import {
   Check,
   AlertCircle
 } from 'lucide-react';
-import { apiService } from '../../shared/services';
+import { apiService } from '../../services';
 
 // Módulos disponibles en el sistema
 const SYSTEM_MODULES = [

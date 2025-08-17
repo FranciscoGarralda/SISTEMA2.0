@@ -10,9 +10,9 @@ import {
   TrendingDown,
   Eye
 } from 'lucide-react';
-import { formatAmountWithCurrency } from '../../shared/components/forms';
-import { safeParseFloat } from '../../shared/services/safeOperations';
-import { getTodayLocalDate, isToday } from '../../shared/utils/dateUtils';
+import { formatAmountWithCurrency } from '../../components/forms';
+import { safeParseFloat } from '../../services/safeOperations';
+import { getTodayLocalDate, isToday } from '../../utils/dateUtils';
 
 /** COMPONENTE PRINCIPAL DE GASTOS */
 function GastosApp({ movements = [], onEditMovement = () => {}, onDeleteMovement = () => {}, onViewMovementDetail = () => {}, onNavigate = () => {} }) {

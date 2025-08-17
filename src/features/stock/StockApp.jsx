@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Package, TrendingUp, RefreshCw } from 'lucide-react';
-import { formatAmountWithCurrency } from '../../shared/components/forms';
-import { stockService } from '../../shared/services';
-import { monedas } from '../../shared/constants';
+import { formatAmountWithCurrency } from '../../components/forms';
+import { stockService } from '../../services';
+import { monedas } from '../../constants';
 
 function StockApp() {
   const [stock, setStock] = useState({});

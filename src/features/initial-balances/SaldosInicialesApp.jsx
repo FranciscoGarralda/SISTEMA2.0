@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Wallet, Save, RefreshCw, AlertCircle, Building2, Users } from 'lucide-react';
-import { formatAmountWithCurrency, proveedoresCC } from '../../shared/components/forms';
-import { initialBalanceService, ccInitialBalanceService } from '../../shared/services';
-import { walletTypes, walletTypesTC, monedas } from '../../shared/constants';
-import { safeParseFloat } from '../../shared/services/safeOperations';
+import { formatAmountWithCurrency, proveedoresCC } from '../../components/forms';
+import { initialBalanceService, ccInitialBalanceService } from '../../services';
+import { walletTypes, walletTypesTC, monedas } from '../../constants';
+import { safeParseFloat } from '../../services/safeOperations';
 
 function SaldosInicialesApp() {
   const [activeTab, setActiveTab] = useState('cuentas'); // 'cuentas' o 'cc'

@@ -14,9 +14,9 @@ import {
   ArrowUpDown
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer } from 'recharts';
-import { FormInput, formatAmountWithCurrency } from '../../shared/components/forms';
-import { safeParseFloat } from '../../shared/services/safeOperations';
-import { getTodayLocalDate, getCurrentYearMonth, isCurrentMonth, isToday } from '../../shared/utils/dateUtils';
+import { FormInput, formatAmountWithCurrency } from '../../components/forms';
+import { safeParseFloat } from '../../services/safeOperations';
+import { getTodayLocalDate, getCurrentYearMonth, isCurrentMonth, isToday } from '../../utils/dateUtils';
 
 /** COMPONENTE PRINCIPAL DE ANÁLISIS DE COMISIONES */
 function ComisionesApp({ movements = [], onNavigate = () => {} }) {

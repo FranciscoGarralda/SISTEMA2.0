@@ -33,9 +33,9 @@ class PreloadService {
     
     // Precargar componentes más usados
     const componentsToPreload = [
-      () => import('../../features/financial-operations/FinancialOperationsApp'),
-      () => import('../../features/movements/MovimientosApp'),
-      () => import('../../features/clients/ClientesApp')
+      () => import('../features/financial-operations/FinancialOperationsApp'),
+      () => import('../features/movements/MovimientosApp'),
+      () => import('../features/clients/ClientesApp')
     ];
     
     // Cargar en segundo plano después de 2 segundos

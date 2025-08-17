@@ -10,11 +10,11 @@ import {
   Search,
   User
 } from 'lucide-react';
-import { formatCurrency, formatNumber } from '../../shared/services/formatters';
+import { formatCurrency, formatNumber } from '../../services/formatters';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer } from 'recharts';
-import { formatAmountWithCurrency } from '../../shared/components/forms';
-import { safeParseFloat } from '../../shared/services/safeOperations';
-import { getTodayLocalDate, getCurrentYearMonth, isCurrentMonth, isToday } from '../../shared/utils/dateUtils';
+import { formatAmountWithCurrency } from '../../components/forms';
+import { safeParseFloat } from '../../services/safeOperations';
+import { getTodayLocalDate, getCurrentYearMonth, isCurrentMonth, isToday } from '../../utils/dateUtils';
 
 /** COMPONENTE PRINCIPAL DE ANÁLISIS DE ARBITRAJE */
 const ArbitrajeApp = ({ movements = [], onNavigate }) => {

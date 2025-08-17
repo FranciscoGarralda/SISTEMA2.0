@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Calculator, Calendar, DollarSign, TrendingUp, TrendingDown, Check, X, Printer, Save, RefreshCw } from 'lucide-react';
-import { formatAmountWithCurrency } from '../../shared/components/forms';
-import { safeParseFloat } from '../../shared/services/safeOperations';
-import { cajaService } from '../../shared/services';
-import { monedas } from '../../shared/constants';
+import { formatAmountWithCurrency } from '../../components/forms';
+import { safeParseFloat } from '../../services/safeOperations';
+import { cajaService } from '../../services';
+import { monedas } from '../../constants';
 
 function CajaApp({ movements = [] }) {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);

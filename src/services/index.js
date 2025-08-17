@@ -14,6 +14,6 @@ export { default as performanceService } from './performance.js';
 export { default as preloadService } from './preload.js';
 export { default as productionOptimizerService } from './productionOptimizer.js';
 export { default as safeOperationsService } from './safeOperations.js';
-export { default as server-wakeService } from './server-wake.js';
+export { default as serverWakeService } from './server-wake.js';
 export { default as stockServiceService } from './stockService.js';
 export { default as validationService } from './validation.js';

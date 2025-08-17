@@ -6,9 +6,9 @@ import {
   validateDate, 
   safeCalculation,
   safeArray 
-} from '../../shared/services/safeOperations';
-import { stockService } from '../../shared/services';
-import { getTodayLocalDate, getDayName } from '../../shared/utils/dateUtils';
+} from '../../services/safeOperations';
+import { stockService } from '../../services';
+import { getTodayLocalDate, getDayName } from '../../utils/dateUtils';
 import {
   FormInput,
   FormSelect,
@@ -18,7 +18,7 @@ import {
   formatAmountWithCurrency,
   SubOperationButtons,
   ButtonSelectGroup
-} from '../../shared/components/forms';
+} from '../../components/forms';
 import {
   monedas,
   cuentas,
@@ -27,8 +27,8 @@ import {
   operaciones,
   proveedoresCC,
   specificFieldsConfig
-} from '../../shared/constants';
-import { useMixedPayments } from '../../shared/hooks';
+} from '../../constants';
+import { useMixedPayments } from '../../hooks';
 
 
 /**

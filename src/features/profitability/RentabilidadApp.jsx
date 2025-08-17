@@ -1,8 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { TrendingUp, Calendar, DollarSign, Percent, BarChart3, ArrowUpRight, ArrowDownRight } from 'lucide-react';
-import { formatAmountWithCurrency } from '../../shared/components/forms';
-import { safeParseFloat } from '../../shared/services/safeOperations';
-import { monedas } from '../../shared/constants';
+import { formatAmountWithCurrency } from '../../components/forms';
+import { safeParseFloat } from '../../services/safeOperations';
+import { monedas } from '../../constants';
 
 function RentabilidadApp({ movements = [] }) {
   const [dateRange, setDateRange] = useState({

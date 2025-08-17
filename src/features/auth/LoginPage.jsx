@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
-import { apiService } from '../../shared/services';
-import { serverWakeService } from '../../shared/services/server-wake';
+import { apiService } from '../../services';
+import { serverWakeService } from '../../services/server-wake';
 
 export default function LoginPage({ onLoginSuccess }) {
   const [formData, setFormData] = useState({

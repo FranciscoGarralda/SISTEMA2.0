@@ -9,9 +9,9 @@ import {
   AlertCircle,
   Eye
 } from 'lucide-react';
-import { formatAmountWithCurrency, proveedoresCC } from '../../shared/components/forms';
-import { safeParseFloat } from '../../shared/services/safeOperations';
-import { ccInitialBalanceService } from '../../shared/services';
+import { formatAmountWithCurrency, proveedoresCC } from '../../components/forms';
+import { safeParseFloat } from '../../services/safeOperations';
+import { ccInitialBalanceService } from '../../services';
 
 /** COMPONENTE PRINCIPAL DE CUENTAS CORRIENTES */
 function CuentasCorrientesApp({ movements = [], onNavigate = () => {} }) {

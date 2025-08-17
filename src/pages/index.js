@@ -1,16 +1,16 @@
 import React, { useState, useEffect, lazy, Suspense, useRef, useCallback, useMemo } from 'react';
 import Head from 'next/head';
-import { apiService } from '../shared/services';
+import { apiService } from '../services';
 import LoginPage from '../features/auth/LoginPage';
 
 // Lazy load components for better performance
 const NavigationApp = lazy(() => 
-  import('../shared/components/ui/NavigationApp').then(module => ({
+  import('../components/ui/NavigationApp').then(module => ({
     default: module.NavigationApp
   }))
 );
 const WelcomePage = lazy(() => 
-  import('../shared/components/ui/NavigationApp').then(module => ({
+  import('../components/ui/NavigationApp').then(module => ({
     default: module.WelcomePage
   }))
 );
