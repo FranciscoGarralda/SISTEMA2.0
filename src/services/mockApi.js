@@ -6,7 +6,8 @@ const mockData = {
   users: [
     {
       id: '1',
-      username: 'admin@example.com',
+      username: 'admin',
+      password: 'admin', // Contraseña en texto plano solo para desarrollo
       name: 'Administrador',
       role: 'admin',
       active: true
@@ -109,7 +110,7 @@ class MockApiService {
     await delay(500); // Simular latencia
     
     // Verificar credenciales (simplificado)
-    if (username === 'admin@example.com' && password === 'admin123') {
+    if (username === 'admin' && password === 'admin') {
       const token = 'mock-jwt-token-' + Date.now();
       this.setToken(token);
       
@@ -118,7 +119,7 @@ class MockApiService {
         csrfToken: this.csrfToken,
         user: {
           id: '1',
-          username: 'admin@example.com',
+          username: 'admin',
           name: 'Administrador',
           role: 'admin'
         }

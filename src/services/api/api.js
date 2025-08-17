@@ -4,17 +4,8 @@ import mockApiService from '../mockApi';
 
 // Determinar si debemos usar el mock API
 const useMockApi = () => {
-  // Usar mock si está explícitamente configurado o si estamos en desarrollo y no hay API configurada
-  if (process.env.NEXT_PUBLIC_MOCK_API === 'true') return true;
-  
-  // Si estamos en el navegador, intentar detectar si el backend está disponible
-  if (typeof window !== 'undefined') {
-    // Si ya hubo un error de conexión, usar mock
-    const hadConnectionError = sessionStorage.getItem('api_connection_error');
-    if (hadConnectionError === 'true') return true;
-  }
-  
-  return false;
+  // Siempre usar el mock API para evitar errores de conexión
+  return true;
 };
 
 class ApiService {
