@@ -1,7 +1,8 @@
 // Preload Service - Optimiza la carga inicial
 class PreloadService {
   constructor() {
-    this.baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    // Forzar el uso de la API de Netlify
+    this.baseURL = '/api';
     this.preloaded = new Set();
   }
 

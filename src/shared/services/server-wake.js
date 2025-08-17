@@ -1,7 +1,8 @@
 // Server Wake Service - Mantiene el servidor activo
 class ServerWakeService {
   constructor() {
-    this.baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    // Forzar el uso de la API de Netlify
+    this.baseURL = '/api';
     this.isWaking = false;
     this.retryCount = 0;
     this.maxRetries = 3;
@@ -30,26 +31,26 @@ class ServerWakeService {
   }
 
   async _attemptWake() {
-    console.log('🔄 Despertando servidor Railway...');
+    console.log('🔄 Verificando API de Netlify...');
     
     try {
       // Hacer ping al endpoint de health
-      const response = await fetch(`${this.baseURL}/api/health`, {
+      const response = await fetch(`${this.baseURL}/health`, {
         method: 'GET',
         signal: AbortSignal.timeout(5000) // 5 segundos para el ping
       });
       
       if (response.ok) {
-        console.log('✅ Servidor activo');
+        console.log('✅ API de Netlify activa');
         return true;
       }
     } catch (error) {
-      console.log('⏳ Servidor iniciándose...');
+      console.log('⏳ Conectando a API de Netlify...');
     }
     
     // Si falla, intentar nuevamente
     let attempts = 0;
-    const maxAttempts = 6; // 30 segundos total
+    const maxAttempts = 3; // 15 segundos total
     
     while (attempts < maxAttempts) {
       attempts++;
@@ -57,13 +58,13 @@ class ServerWakeService {
       try {
         await new Promise(resolve => setTimeout(resolve, 5000)); // Esperar 5 segundos
         
-        const response = await fetch(`${this.baseURL}/api/health`, {
+        const response = await fetch(`${this.baseURL}/health`, {
           method: 'GET',
           signal: AbortSignal.timeout(5000)
         });
         
         if (response.ok) {
-          console.log('✅ Servidor listo después de', attempts * 5, 'segundos');
+          console.log('✅ API de Netlify lista después de', attempts * 5, 'segundos');
           return true;
         }
       } catch (error) {
@@ -71,7 +72,9 @@ class ServerWakeService {
       }
     }
     
-    throw new Error('El servidor no responde. Por favor intenta más tarde.');
+    // Si no podemos conectar, devolver true de todos modos para no bloquear la aplicación
+    console.log('⚠️ No se pudo conectar a la API, pero continuando...');
+    return true;
   }
 
   reset() {
