@@ -13,11 +13,28 @@ export default function LoginPage({ onLoginSuccess }) {
   const [loading, setLoading] = useState(false);
   const [serverAwake, setServerAwake] = useState(false);
   
-  // Despertar servidor al cargar la página
+  // Despertar servidor al cargar la página (solo una vez)
   useEffect(() => {
-    serverWakeService.wakeServer()
-      .then(() => setServerAwake(true))
-      .catch(err => setError('El servidor está iniciándose. Por favor espera unos segundos.'));
+    let isMounted = true;
+    
+    const wakeServer = async () => {
+      try {
+        await serverWakeService.wakeServer();
+        if (isMounted) {
+          setServerAwake(true);
+        }
+      } catch (err) {
+        if (isMounted) {
+          setError('El servidor está iniciándose. Por favor espera unos segundos.');
+        }
+      }
+    };
+    
+    wakeServer();
+    
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleSubmit = async (e) => {
@@ -67,10 +84,12 @@ export default function LoginPage({ onLoginSuccess }) {
       console.error('Error de login:', err);
       
       // Manejo específico de errores
-      if (err.message?.includes('Failed to fetch')) {
+      if (err.message?.includes('Failed to fetch') || err.message?.includes('NetworkError')) {
         setError('Error de conexión. Verifica tu internet.');
-      } else if (err.message?.includes('credentials')) {
+      } else if (err.message?.includes('credentials') || err.message?.includes('Credenciales')) {
         setError('Usuario o contraseña incorrectos');
+      } else if (err.message?.includes('timeout') || err.message?.includes('Timeout')) {
+        setError('Tiempo de espera agotado. Intenta nuevamente.');
       } else {
         setError('Error al iniciar sesión. Intenta nuevamente.');
       }

@@ -31,6 +31,7 @@ export const ClientsProvider = ({ children }) => {
 
 	const persist = (list) => {
 		try {
+			if (typeof window === 'undefined') return false;
 			localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
 			return true;
 		} catch (error) {
