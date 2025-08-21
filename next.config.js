@@ -4,6 +4,8 @@ const path = require('path');
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
+  output: 'export',
+  trailingSlash: true,
   images: {
     domains: ['localhost'],
     // Si tienes imágenes externas, agrégalas aquí
