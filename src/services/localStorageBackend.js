@@ -18,6 +18,9 @@ class LocalStorageBackend {
   }
 
   initializeDefaults() {
+    // Solo en el cliente
+    if (typeof window === 'undefined') return;
+    
     // Inicializar con datos por defecto si no existen
     if (!this.getData('clients')) {
       this.setData('clients', []);
@@ -39,6 +42,7 @@ class LocalStorageBackend {
   }
 
   getData(key) {
+    if (typeof window === 'undefined') return null;
     try {
       const data = localStorage.getItem(this.STORAGE_KEYS[key]);
       return data ? JSON.parse(data) : null;
@@ -49,6 +53,7 @@ class LocalStorageBackend {
   }
 
   setData(key, data) {
+    if (typeof window === 'undefined') return false;
     try {
       localStorage.setItem(this.STORAGE_KEYS[key], JSON.stringify(data));
       return true;
