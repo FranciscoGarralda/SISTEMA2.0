@@ -4,15 +4,16 @@ import { apiService } from '../services';
 import LoginPage from '../features/auth/LoginPage';
 
 // Lazy load components for better performance
-const NavigationApp = lazy(() => 
-  import('../components/ui/NavigationApp').then(module => ({
-    default: module.NavigationApp
-  }))
+const NavigationModule = lazy(() => import('../components/ui/NavigationApp'));
+const NavigationApp = (props) => (
+  <Suspense fallback={<div>Cargando navegación...</div>}>
+    <NavigationModule {...props} />
+  </Suspense>
 );
-const WelcomePage = lazy(() => 
-  import('../components/ui/NavigationApp').then(module => ({
-    default: module.WelcomePage
-  }))
+const WelcomePage = (props) => (
+  <Suspense fallback={<div>Cargando bienvenida...</div>}>
+    <NavigationModule.WelcomePage {...props} />
+  </Suspense>
 );
 
 // Lazy load feature components
@@ -75,6 +76,13 @@ export default function Home() {
 
   const checkAuthStatus = async () => {
     try {
+      // Solo verificar en el cliente (no en servidor)
+      if (typeof window === 'undefined') {
+        setCheckingAuth(false);
+        setIsAuthenticated(false);
+        return;
+      }
+      
       // Primero verificar si hay un token almacenado
       const hasToken = sessionStorage.getItem('authToken') || localStorage.getItem('authToken');
       
