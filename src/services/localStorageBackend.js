@@ -10,7 +10,7 @@ class LocalStorageBackend {
       clients: 'app_clients',
       users: 'app_users',
       currentUser: 'app_current_user',
-      stock: 'app_stock',
+      // stock: 'app_stock', // REMOVIDO - Usar solo financial-stock
       balances: 'app_balances'
     };
     

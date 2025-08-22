@@ -103,10 +103,13 @@ const ClientAutocomplete = forwardRef(({
     setInputValue(clientLabel);
     onChange(clientValue);
     setIsOpen(false);
+    setSelectedIndex(-1);
   }, [onChange]);
 
   const handleCreateClient = useCallback(() => {
     setShowModal(true);
+    setIsOpen(false); // Cerrar dropdown al abrir modal
+    setSelectedIndex(-1);
   }, []);
 
   // Handle basic input events
@@ -124,10 +127,46 @@ const ClientAutocomplete = forwardRef(({
       return;
     }
     
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (isOpen && filteredClients.length > 0 && selectedIndex >= 0) {
+        // Seleccionar cliente actual
+        const selectedClient = filteredClients[selectedIndex];
+        if (selectedClient) {
+          handleClientSelect(selectedClient);
+        }
+      } else if (isOpen) {
+        // Si no hay selección pero el dropdown está abierto, abrir modal
+        handleCreateClient();
+      } else {
+        // Si el dropdown está cerrado, abrirlo
+        setIsOpen(true);
+      }
+      return;
+    }
+    
     // Para teclas de escritura, abrir dropdown
     if (e.key.length === 1) {
       setIsOpen(true);
     }
+  };
+
+  const handleInputFocus = () => {
+    // NO abrir automáticamente el dropdown al recibir foco
+    // Solo abrir cuando el usuario realmente quiera (Enter o escribir)
+  };
+
+  const clearSelection = () => {
+    setInputValue('');
+    onChange('');
+    setIsOpen(false);
+    setSelectedIndex(-1);
+    inputRef.current?.focus();
+  };
+
+  const handleDropdownToggle = () => {
+    setIsOpen(!isOpen);
+    setSelectedIndex(-1);
   };
 
   // Abrir dropdown con navegación por teclado - SIMPLIFIED
@@ -181,17 +220,6 @@ const ClientAutocomplete = forwardRef(({
     }, 50); // Pequeño delay para que el DOM se actualice
   };
 
-  const handleInputFocus = () => {
-    // NO abrir automáticamente el dropdown al recibir foco
-    // Solo abrir cuando el usuario realmente quiera (Enter o escribir)
-  };
-
-  const clearSelection = () => {
-    setInputValue('');
-    onChange('');
-    inputRef.current?.focus();
-  };
-
   return (
     <div className="space-y-3" ref={dropdownRef}>
       {/* Label */}
@@ -214,6 +242,7 @@ const ClientAutocomplete = forwardRef(({
               value={inputValue}
               onChange={handleInputChange}
               onKeyDown={handleKeyDown}
+              onFocus={handleInputFocus}
               placeholder={placeholder}
               className={`w-full px-3 py-2 pr-12 text-base border rounded-lg focus:outline-none placeholder:text-gray-800 sm:px-4 sm:py-2.5 sm:text-sm ${
                 error 
@@ -241,7 +270,7 @@ const ClientAutocomplete = forwardRef(({
             {/* Icono dropdown */}
             <button
               type="button"
-              onClick={() => setIsOpen(!isOpen)}
+              onClick={handleDropdownToggle}
               className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600"
               aria-label="Desplegar"
             >

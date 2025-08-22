@@ -156,7 +156,7 @@ const ClientModal = ({
       const result = await onClientCreated(clientData);
       
       // Si se guardó exitosamente
-      if (result) {
+      if (result && (result.id || result.nombre)) {
         // Resetear formulario
         setFormData({
           nombre: '',
@@ -171,10 +171,26 @@ const ClientModal = ({
         
         // Cerrar el modal
         onClose();
+      } else {
+        // Si no se retornó un resultado válido, mostrar error
+        setErrors({ general: 'No se pudo guardar el cliente. Verifica los datos.' });
       }
     } catch (error) {
       console.error('Error creating client:', error);
-      setErrors({ general: error.message || 'Error al crear el cliente. Verifica los datos ingresados.' });
+      // Manejar errores específicos sin reiniciar el sistema
+      let errorMessage = 'Error al crear el cliente.';
+      
+      if (error.message) {
+        if (error.message.includes('duplicate') || error.message.includes('duplicado')) {
+          errorMessage = 'Ya existe un cliente con ese nombre o teléfono.';
+        } else if (error.message.includes('network') || error.message.includes('conexión')) {
+          errorMessage = 'Error de conexión. Verifica tu internet.';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      setErrors({ general: errorMessage });
     } finally {
       setIsLoading(false);
     }

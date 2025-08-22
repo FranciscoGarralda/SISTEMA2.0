@@ -7,7 +7,7 @@ import { Heart } from 'lucide-react';
  */
 const Footer = () => {
   const currentYear = new Date().getFullYear();
-  const version = "V16"; // Sistema completamente revisado y corregido
+  const version = "V17"; // Corregidos problemas críticos de stock y clientes
 
   return (
     <footer className="bg-white border-t border-gray-200 flex-shrink-0">

@@ -10,6 +10,36 @@ class StockService {
     // Solo cargar datos si estamos en el cliente
     if (typeof window !== 'undefined') {
       this.loadStock();
+      this.cleanupLegacyData();
+    }
+  }
+
+  /**
+   * Limpiar datos legacy que puedan causar conflictos
+   */
+  cleanupLegacyData() {
+    try {
+      // Eliminar datos legacy de app_stock si existen
+      const legacyData = localStorage.getItem('app_stock');
+      if (legacyData) {
+        console.log('Limpiando datos legacy de stock...');
+        localStorage.removeItem('app_stock');
+      }
+      
+      // Verificar que no haya datos duplicados
+      const currentStock = this.getAllStock();
+      const hasValidData = Object.keys(currentStock).some(key => {
+        const item = currentStock[key];
+        return item && (item.cantidad > 0 || item.costoPromedio > 0);
+      });
+      
+      // Si no hay datos válidos, limpiar completamente
+      if (!hasValidData) {
+        console.log('No se encontraron datos válidos de stock, limpiando...');
+        this.clearAllStock();
+      }
+    } catch (error) {
+      console.error('Error limpiando datos legacy:', error);
     }
   }
 
@@ -20,6 +50,23 @@ class StockService {
     try {
       const result = safeLocalStorage.getItem(this.STOCK_KEY);
       this.stock = (result && result.success && result.data) ? result.data : {};
+      
+      // Validar que los datos sean correctos
+      if (this.stock && typeof this.stock === 'object') {
+        Object.keys(this.stock).forEach(moneda => {
+          const item = this.stock[moneda];
+          if (!item || typeof item !== 'object') {
+            delete this.stock[moneda];
+          } else {
+            // Asegurar que tenga las propiedades correctas
+            this.stock[moneda] = {
+              cantidad: safeParseFloat(item.cantidad) || 0,
+              costoPromedio: safeParseFloat(item.costoPromedio) || 0,
+              ultimaActualizacion: item.ultimaActualizacion || null
+            };
+          }
+        });
+      }
     } catch (error) {
       console.error('Error loading stock:', error);
       this.stock = {};
