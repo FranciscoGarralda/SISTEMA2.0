@@ -539,13 +539,13 @@ function UserManagementApp() {
                           <span className="text-sm text-gray-500">Permisos:</span>
                           <div className="flex flex-wrap gap-1 mt-1">
                             {user.permissions.map(perm => {
-                              const module = SYSTEM_MODULES.find(m => m.id === perm);
-                              return module ? (
+                              const moduleItem = SYSTEM_MODULES.find(m => m.id === perm);
+                              return moduleItem ? (
                                 <span
                                   key={perm}
                                   className="inline-flex items-center px-2 py-1 rounded text-xs bg-gray-100 text-gray-700"
                                 >
-                                  {module.icon} {module.name}
+                                  {moduleItem.icon} {moduleItem.name}
                                 </span>
                               ) : null;
                             })}
@@ -616,14 +616,14 @@ function UserManagementApp() {
                         ) : (
                           <div className="flex flex-wrap gap-1">
                             {user.permissions?.slice(0, 3).map(perm => {
-                              const module = SYSTEM_MODULES.find(m => m.id === perm);
-                              return module ? (
+                              const moduleItem = SYSTEM_MODULES.find(m => m.id === perm);
+                              return moduleItem ? (
                                 <span
                                   key={perm}
                                   className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-700"
-                                  title={module.name}
+                                  title={moduleItem.name}
                                 >
-                                  {module.icon}
+                                  {moduleItem.icon}
                                 </span>
                               ) : null;
                             })}

@@ -50,7 +50,7 @@ export const createLazyComponent = (importFunction, componentName, options = {})
   const loadWithRetry = async (attempt = 1) => {
     try {
       const startTime = performance.now();
-      const module = await importFunction();
+      const moduleData = await importFunction();
       const loadTime = performance.now() - startTime;
       
       // Update usage analytics
@@ -58,8 +58,8 @@ export const createLazyComponent = (importFunction, componentName, options = {})
       usage.averageLoadTime = (usage.averageLoadTime * (usage.loadCount - 1) + loadTime) / usage.loadCount;
       componentUsage.set(componentName, usage);
       
-      loadedComponents.set(componentName, module);
-      return module;
+      loadedComponents.set(componentName, moduleData);
+      return moduleData;
     } catch (error) {
       console.warn(`Failed to load ${componentName} (attempt ${attempt}):`, error);
       

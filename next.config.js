@@ -12,7 +12,7 @@ const nextConfig = {
   },
   eslint: {
     dirs: ['src'],
-    ignoreDuringBuilds: true, // Temporalmente deshabilitado para deploy
+    ignoreDuringBuilds: true, // Deshabilitado para deploy - corregir después
   },
   typescript: {
     // Habilitar verificación de tipos para mejor calidad
