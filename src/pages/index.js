@@ -89,7 +89,7 @@ export default function Home() {
       
       if (!hasToken) {
         // No hay token, no intentar verificar autenticación
-        console.log('No auth token found, skipping auth check');
+        // No auth token found, skipping auth check
         setIsAuthenticated(false);
         setCheckingAuth(false);
         return;
@@ -117,18 +117,15 @@ export default function Home() {
       } catch (error) {
         clearTimeout(timeoutId);
         if (error.name === 'AbortError') {
-          console.log('Auth check timeout - using fallback');
-          // Timeout: usar fallback local
-          setIsAuthenticated(false);
-        } else {
-          console.log('Auth check error - using fallback');
-          // Error: usar fallback local
-          setIsAuthenticated(false);
+                  // Auth check timeout - using fallback
+        setIsAuthenticated(false);
+      } else {
+        // Auth check error - using fallback
+        setIsAuthenticated(false);
         }
       }
     } catch (error) {
-      console.log('Auth check failed - using fallback');
-      // Usuario no autenticado - usar fallback
+      // Auth check failed - using fallback
       setIsAuthenticated(false);
     } finally {
       // SIEMPRE setear checkingAuth a false
