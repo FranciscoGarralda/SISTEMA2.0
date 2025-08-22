@@ -80,16 +80,20 @@ const MainMenu = memo(({ onNavigate, activeItem, isSidebarOpen, toggleSidebar, i
     const el = navScrollRef.current;
     if (!el) return;
 
-    const stored = sessionStorage.getItem('sidebarScrollTop');
-    if (stored) {
-      const val = parseInt(stored, 10);
-      if (!Number.isNaN(val)) {
-        el.scrollTop = val;
+    if (typeof window !== 'undefined') {
+      const stored = sessionStorage.getItem('sidebarScrollTop');
+      if (stored) {
+        const val = parseInt(stored, 10);
+        if (!Number.isNaN(val)) {
+          el.scrollTop = val;
+        }
       }
     }
 
     const onScroll = () => {
-      sessionStorage.setItem('sidebarScrollTop', String(el.scrollTop));
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('sidebarScrollTop', String(el.scrollTop));
+      }
     };
 
     el.addEventListener('scroll', onScroll, { passive: true });

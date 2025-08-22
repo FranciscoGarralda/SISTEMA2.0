@@ -3,16 +3,28 @@ import { Menu, X, User, LogOut, Calendar, Clock } from 'lucide-react';
 
 const FixedHeader = ({ toggleSidebar, currentPage, showMenuButton, currentUser, onLogout }) => {
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [currentTime, setCurrentTime] = useState(new Date());
+  const [currentTime, setCurrentTime] = useState(() => {
+    // Solo crear fecha en el cliente
+    if (typeof window === 'undefined') return null;
+    return new Date();
+  });
 
   // Update time every second
   useEffect(() => {
+    // Solo ejecutar en el cliente
+    if (typeof window === 'undefined') return;
+    
+    // Inicializar tiempo si no está definido
+    if (!currentTime) {
+      setCurrentTime(new Date());
+    }
+    
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [currentTime]);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -28,6 +40,8 @@ const FixedHeader = ({ toggleSidebar, currentPage, showMenuButton, currentUser, 
 
   // Format date and time
   const formatDate = (date) => {
+    if (!date) return '';
+    
     const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
     const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
     
@@ -40,6 +54,8 @@ const FixedHeader = ({ toggleSidebar, currentPage, showMenuButton, currentUser, 
   };
 
   const formatTime = (date) => {
+    if (!date) return '';
+    
     return date.toLocaleTimeString('es-AR', { 
       hour: '2-digit', 
       minute: '2-digit',
