@@ -6,14 +6,28 @@
   command = "npm run dev"
   framework = "next"
 
-[[plugins]]
-  package = "@netlify/plugin-nextjs"
-
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
 
+# Configuración para aplicación estática
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Redirecciones para API
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200
+
+# Redirecciones para SPA (solo para rutas que no sean API)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  conditions = {Role = ["admin"]}

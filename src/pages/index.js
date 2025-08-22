@@ -4,16 +4,15 @@ import { apiService } from '../services';
 import LoginPage from '../features/auth/LoginPage';
 
 // Lazy load components for better performance
-const NavigationModule = lazy(() => import('../components/ui/NavigationApp'));
-const NavigationApp = (props) => (
-  <Suspense fallback={<div>Cargando navegación...</div>}>
-    <NavigationModule {...props} />
-  </Suspense>
+const NavigationApp = lazy(() => 
+  import('../components/ui/NavigationApp').then(module => ({
+    default: module.NavigationApp
+  }))
 );
-const WelcomePage = (props) => (
-  <Suspense fallback={<div>Cargando bienvenida...</div>}>
-    <NavigationModule.WelcomePage {...props} />
-  </Suspense>
+const WelcomePage = lazy(() => 
+  import('../components/ui/NavigationApp').then(module => ({
+    default: module.WelcomePage
+  }))
 );
 
 // Lazy load feature components
