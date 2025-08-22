@@ -1,6 +1,7 @@
 // API Service para conectar con el backend
 import { cacheService } from './cache';
 import localStorageBackend from './localStorageBackend';
+import LOCAL_CONFIG from '../config/localConfig';
 
 class ApiService {
   constructor() {
@@ -22,11 +23,11 @@ class ApiService {
         this.baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
       }
       
-      // Forzar modo local si está configurado
-      if (forceLocalMode) {
-        this.baseURL = 'local';
-        console.log('🔧 API Service: Modo local forzado');
-      }
+          // Forzar modo local si está configurado
+    if (forceLocalMode || LOCAL_CONFIG.FORCE_LOCAL_MODE) {
+      this.baseURL = 'local';
+      console.log('🔧 API Service: Modo local forzado');
+    }
       
       console.log('API Service initialized with baseURL:', this.baseURL);
     } else {

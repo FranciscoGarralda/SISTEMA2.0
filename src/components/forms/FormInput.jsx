@@ -47,7 +47,7 @@ const FormInput = forwardRef(({
           {required && <span className="text-red-400 ml-1">*</span>}
         </label>
       )}
-
+      
       {/* Input container */}
       <div className="relative">
         {/* Input principal */}
@@ -66,14 +66,14 @@ const FormInput = forwardRef(({
           aria-describedby={error ? errorId : undefined}
           {...rest}
         />
-
+        
         {/* Iconos especiales */}
         {type === 'date' && (
           <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
             <Calendar size={18} className="text-gray-400" />
           </div>
         )}
-
+        
         {/* Nombre del día para fechas */}
         {showDayName && dayName && (
           <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
@@ -83,7 +83,7 @@ const FormInput = forwardRef(({
           </div>
         )}
       </div>
-
+      
       {/* Error message */}
       {error && (
         <p 
