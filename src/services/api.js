@@ -11,11 +11,8 @@ class ApiService {
       // Cliente - usar la URL actual para Netlify Functions
       const currentHost = window.location.origin;
       
-      // Si estamos en Netlify (cualquier dominio .netlify.app o el dominio personalizado)
-      // O si estamos en producción, usar Netlify Functions
-      if (currentHost.includes('netlify.app') || 
-          currentHost.includes('casadecambio') || 
-          isProduction) {
+      // Siempre usar Netlify Functions en producción
+      if (isProduction || currentHost.includes('netlify.app') || currentHost.includes('casadecambio')) {
         this.baseURL = '/.netlify/functions';
       } else {
         // En desarrollo local

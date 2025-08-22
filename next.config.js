@@ -4,8 +4,9 @@ const path = require('path');
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  // REMOVIDO: output: 'export' - Causa conflicto con API routes
-  // trailingSlash: true, // Removido para compatibilidad con Netlify
+  // Configuración para Netlify Functions
+  output: 'standalone',
+  trailingSlash: false,
   images: {
     domains: ['localhost'],
     unoptimized: true, // Necesario para Netlify
