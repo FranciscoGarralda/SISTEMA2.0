@@ -7,6 +7,9 @@ class ApiService {
     // En producción usar Netlify Functions, en desarrollo usar localhost
     const isProduction = process.env.NODE_ENV === 'production';
     
+    // Forzar modo local en desarrollo si no hay servidor backend
+    const forceLocalMode = process.env.NEXT_PUBLIC_FORCE_LOCAL === 'true';
+    
     if (typeof window !== 'undefined') {
       // Cliente - usar la URL actual para Netlify Functions
       const currentHost = window.location.origin;
@@ -17,6 +20,12 @@ class ApiService {
       } else {
         // En desarrollo local
         this.baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      }
+      
+      // Forzar modo local si está configurado
+      if (forceLocalMode) {
+        this.baseURL = 'local';
+        console.log('🔧 API Service: Modo local forzado');
       }
       
       console.log('API Service initialized with baseURL:', this.baseURL);
@@ -148,6 +157,19 @@ class ApiService {
   // AUTH ENDPOINTS
   async login(username, password) {
     try {
+      // Si estamos en modo local, usar localStorageBackend
+      if (this.baseURL === 'local') {
+        console.log('🔧 Usando localStorageBackend para login');
+        const result = localStorageBackend.login(username, password);
+        
+        if (result.success) {
+          this.setToken('local-token-' + Date.now());
+          return result;
+        } else {
+          throw new Error(result.message || 'Credenciales inválidas');
+        }
+      }
+      
       // Cancelar cualquier login previo
       if (this.abortControllers.has('login')) {
         this.abortControllers.get('login').abort();
@@ -209,6 +231,12 @@ class ApiService {
   }
 
   async getMe() {
+    // Si estamos en modo local, usar localStorageBackend
+    if (this.baseURL === 'local') {
+      console.log('🔧 Usando localStorageBackend para getMe');
+      return localStorageBackend.getCurrentUser();
+    }
+    
     const response = await fetch(`${this.baseURL}/auth-me`, {
       method: 'GET',
       headers: this.getHeaders()
