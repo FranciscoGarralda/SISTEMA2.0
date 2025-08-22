@@ -145,18 +145,19 @@ const ClientModal = ({
     setIsLoading(true);
 
     try {
-      // Añadir un ID temporal si no existe (para compatibilidad con localStorage)
+      // Usar exactamente la misma lógica que el menú de clientes
       const clientData = {
         ...formData,
-        id: formData.id || Date.now()
+        // NO generar ID aquí - el backend lo hará
+        id: formData.id || undefined
       };
       
       // Llamar a la función onClientCreated que se conecta con onSaveClient
-      // Esto guardará el cliente en la base de datos
+      // Esta función usa la misma lógica que handleSaveClient en index.js
       const result = await onClientCreated(clientData);
       
-      // Si se guardó exitosamente
-      if (result && (result.id || result.nombre)) {
+      // Si se guardó exitosamente (misma validación que en index.js)
+      if (result && result.id) {
         // Resetear formulario
         setFormData({
           nombre: '',

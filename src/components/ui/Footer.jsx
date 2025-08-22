@@ -1,27 +1,22 @@
 import React from 'react';
-import { Heart } from 'lucide-react';
 
-/**
- * Footer component for the Alliance F&R application
- * Minimal thin line footer
- */
 const Footer = () => {
   const currentYear = new Date().getFullYear();
-  const version = "V17"; // Corregidos problemas críticos de stock y clientes
+  const version = "V18"; // Nueva paleta de colores Netlify + correcciones
 
   return (
-    <footer className="bg-white border-t border-gray-200 flex-shrink-0">
-      <div className="px-4 py-2">
-        <div className="flex justify-between items-center text-xs text-gray-700">
-          <div className="flex items-center space-x-2">
-            <span>© {currentYear} Alliance F&R</span>
-            <span className="px-1.5 py-0.5 bg-gray-200 rounded-md font-medium">{version}</span>
-          </div>
-          <div className="flex items-center space-x-1">
-            <span>Hecho con</span>
-            <Heart size={10} className="text-red-500" />
-            <span>para optimizar tu gestión</span>
-          </div>
+    <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-4 px-4 sm:px-6 lg:px-8">
+      <div className="flex flex-col sm:flex-row items-center justify-between space-y-2 sm:space-y-0">
+        <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
+          <span>© {currentYear} Sistema Financiero</span>
+          <span className="hidden sm:inline">•</span>
+          <span className="font-mono text-blue-500 dark:text-blue-400">{version}</span>
+        </div>
+        
+        <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
+          <span>Desarrollado con ❤️</span>
+          <span className="hidden sm:inline">•</span>
+          <span>Next.js + Netlify</span>
         </div>
       </div>
     </footer>

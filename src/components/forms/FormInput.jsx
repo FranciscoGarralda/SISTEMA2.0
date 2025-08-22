@@ -1,185 +1,98 @@
 import React, { forwardRef } from 'react';
-import { formatDateWithDay } from '../../services/formatters.js';
+import { Calendar, ChevronDown } from 'lucide-react';
 
-/**
- * Reusable form input component with responsive design and date support
- * @param {Object} props - Component properties
- * @param {string} props.label - Input label text
- * @param {string|number} props.value - Input value
- * @param {Function} props.onChange - Change handler function
- * @param {string} props.placeholder - Placeholder text
- * @param {string} props.type - Input type (text, number, date, email, etc.)
- * @param {string} props.name - Input name attribute
- * @param {boolean} props.showDayName - Whether to show day name for date inputs
- * @param {string} props.dayName - Day name to display
- * @param {boolean} props.readOnly - Whether input is read-only
- * @param {boolean} props.required - Whether input is required
- * @param {string} props.error - Error message to display
- * @param {string} props.className - Additional CSS classes
- * @param {Object} props.inputProps - Additional input properties
- */
 const FormInput = forwardRef(({
   label,
+  name,
+  type = 'text',
   value,
   onChange,
-  placeholder,
-  type = 'text',
-  name,
-  showDayName = false,
-  dayName = '',
-  readOnly = false,
   required = false,
   error = '',
+  placeholder = '',
   className = '',
-  inputProps = {},
+  showDayName = false,
+  dayName = '',
   onKeyDown,
   ...rest
 }, ref) => {
-  
-  // Handle keyboard events
-  const handleKeyDown = (e) => {
-    // Para otros campos, comportamiento normal
-    if (onKeyDown) {
-      onKeyDown(e);
-    }
-  };
-  // Calculate day name for date inputs
-  const calculatedDayName = React.useMemo(() => {
-    if (type === 'date' && value && showDayName) {
-      try {
-        // Handle date string in YYYY-MM-DD format to avoid timezone issues
-        let date;
-        if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
-          const [year, month, day] = value.split('-').map(Number);
-          date = new Date(year, month - 1, day); // month is 0-indexed
-        } else {
-          date = new Date(value);
-        }
-        
-        if (!isNaN(date.getTime())) {
-          // Get day name directly without using formatDateWithDay to avoid formatting issues
-          const dayNames = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-          return dayNames[date.getDay()];
-        }
-      } catch (e) {
-        console.warn('Invalid date for day name calculation:', value);
-      }
-    }
-    return dayName;
-  }, [type, value, showDayName, dayName]);
+  const inputId = `${name}-input`;
+  const errorId = `${name}-error`;
 
-  // Handle change with proper type conversion
-  const handleChange = (e) => {
-    let newValue = e.target.value;
-    
-    // Sanitizar entrada para prevenir XSS
-    if (type !== 'password') {
-      newValue = sanitizeInput(newValue);
-    }
-    
-    // For number inputs, convert comma to dot for decimal separator
-    if (type === 'number') {
-      // Replace comma with dot for decimal input
-      newValue = newValue.replace(',', '.');
-      
-      // Asegurar que sea un número válido
-      if (newValue && !/^-?\d*\.?\d*$/.test(newValue)) return;
-      
-      onChange(newValue === '' ? '' : newValue);
-    } else {
-      onChange(newValue);
-    }
-  };
+  const baseInputClasses = `
+    w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent 
+    bg-white dark:bg-gray-800 text-gray-900 dark:text-white 
+    placeholder-gray-500 dark:placeholder-gray-400 
+    transition-colors duration-200
+  `;
 
-  // Función para sanitizar entrada de usuario
-  const sanitizeInput = (value) => {
-    if (typeof value !== 'string') return '';
-    // Eliminar scripts y caracteres peligrosos
-    return value.replace(/<[^>]*>/g, '');
-  };
-
-  // Input classes with responsive design and states
-  const inputClasses = [
-    // Base classes with improved styling
-    'w-full px-2 py-2 text-sm sm:text-base font-medium',
-    'border rounded-lg transition-all duration-200',
-    'placeholder-gray-500 focus:placeholder-gray-600',
-    'focus:outline-none focus:ring-2 focus:ring-offset-0',
-    // Modern background
-    'bg-white hover:bg-gray-50 focus:bg-white',
-    // Type-specific classes
-    type === 'date' ? 'cursor-pointer' : '',
-    type === 'number' ? 'text-right' : '',
-    // State classes with better visual feedback
-    error 
-      ? 'border-red-400 focus:border-red-500 focus:ring-red-500/20 text-red-900' 
-      : 'border-gray-200 hover:border-gray-300 focus:border-gray-500 focus:ring-gray-500/20 text-gray-900',
-    readOnly 
-      ? 'bg-gray-100 cursor-not-allowed opacity-60 hover:bg-gray-100' 
-      : '',
-    // Padding adjustments for day name
-    showDayName && calculatedDayName 
-      ? 'pr-20 sm:pr-24' 
-      : '',
-    // Additional classes
-    className
-  ].filter(Boolean).join(' ');
+  const inputClasses = `
+    ${baseInputClasses}
+    ${error 
+      ? 'border-red-500 dark:border-red-500' 
+      : 'border-gray-300 dark:border-gray-600'
+    }
+    ${className}
+  `;
 
   return (
-    <div className="space-y-3">
-      {/* Label with better typography */}
+    <div className="space-y-2">
+      {/* Label */}
       {label && (
         <label 
-          htmlFor={name}
-          className="block text-sm font-semibold text-gray-800 transition-colors duration-200"
+          htmlFor={inputId}
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
         >
           {label}
-          {required && <span className="text-red-600 ml-1 font-bold">*</span>}
+          {required && <span className="text-red-500 ml-1">*</span>}
         </label>
       )}
-      
-      {/* Input Container with hover effect */}
-      <div className="relative group">
+
+      {/* Input container */}
+      <div className="relative">
+        {/* Input principal */}
         <input
           ref={ref}
-          id={name}
+          id={inputId}
           name={name}
           type={type}
-          value={value || ''}
-          onChange={handleChange}
-          onKeyDown={handleKeyDown}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onKeyDown={onKeyDown}
           placeholder={placeholder}
-          readOnly={readOnly}
-          required={required}
-          step={type === 'number' ? '0.01' : undefined}
-          inputMode={type === 'number' ? 'decimal' : undefined}
-          lang={type === 'number' ? 'en-US' : undefined}
-          pattern={type === 'number' ? '[0-9]*[.]?[0-9]*' : undefined}
           className={inputClasses}
-          {...inputProps}
+          required={required}
+          aria-invalid={error ? 'true' : 'false'}
+          aria-describedby={error ? errorId : undefined}
           {...rest}
         />
-        
-        {/* Day Name Display with improved styling */}
-        {showDayName && calculatedDayName && (
+
+        {/* Iconos especiales */}
+        {type === 'date' && (
           <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-            <span className="text-xs text-gray-700 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200 font-semibold shadow-sm">
-              {calculatedDayName}
+            <Calendar size={18} className="text-gray-400" />
+          </div>
+        )}
+
+        {/* Nombre del día para fechas */}
+        {showDayName && dayName && (
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
+            <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+              {dayName}
             </span>
           </div>
         )}
-        
-        {/* Read-only indicator with animation */}
-        {readOnly && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-            <div className="w-2.5 h-2.5 bg-gray-500 rounded-full animate-pulse"></div>
-          </div>
-        )}
       </div>
-      
-      {/* Error message with slide animation */}
+
+      {/* Error message */}
       {error && (
-        <p className="text-sm font-medium text-red-600 mt-2 animate-fadeIn">
+        <p 
+          id={errorId}
+          className="text-sm text-red-600 dark:text-red-400 flex items-center"
+        >
+          <svg className="w-4 h-4 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+          </svg>
           {error}
         </p>
       )}
