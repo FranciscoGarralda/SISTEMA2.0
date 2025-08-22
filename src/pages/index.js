@@ -1,6 +1,6 @@
 import React, { useState, useEffect, lazy, Suspense, useRef, useCallback, useMemo, startTransition } from 'react';
 import Head from 'next/head';
-import { apiService } from '../services';
+import { apiService, localStorageBackend } from '../services';
 import LoginPage from '../features/auth/LoginPage';
 
 // Lazy load components for better performance
@@ -179,16 +179,45 @@ export default function Home() {
     try {
       let savedMovement;
       
-      // Solo guardar en backend
-      if (editingMovement) {
-        savedMovement = await apiService.updateMovement(editingMovement.id, movementData);
+      // Verificar si estamos en modo local
+      if (apiService.baseURL === 'local') {
+        console.log('🔧 Guardando movimiento en localStorage');
+        
+        if (editingMovement) {
+          savedMovement = await localStorageBackend.updateMovement(editingMovement.id, movementData);
+        } else {
+          savedMovement = await localStorageBackend.createMovement(movementData);
+        }
+        
+        // Actualizar estado local
+        if (savedMovement) {
+          setMovements(prevMovements => {
+            if (!Array.isArray(prevMovements)) return [savedMovement];
+            
+            const updatedMovements = [...prevMovements];
+            const existingIndex = updatedMovements.findIndex(m => m.id === savedMovement.id);
+            
+            if (existingIndex >= 0) {
+              updatedMovements[existingIndex] = savedMovement;
+            } else {
+              updatedMovements.push(savedMovement);
+            }
+            
+            return updatedMovements;
+          });
+        }
       } else {
-        savedMovement = await apiService.createMovement(movementData);
-      }
-      
-      // Si se guardó en backend exitosamente, recargar datos
-      if (savedMovement) {
-        await loadDataFromBackend();
+        // Modo backend
+        if (editingMovement) {
+          savedMovement = await apiService.updateMovement(editingMovement.id, movementData);
+        } else {
+          savedMovement = await apiService.createMovement(movementData);
+        }
+        
+        // Si se guardó en backend exitosamente, recargar datos
+        if (savedMovement) {
+          await loadDataFromBackend();
+        }
       }
       
       setEditingMovement(null);
