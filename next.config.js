@@ -4,25 +4,45 @@ const path = require('path');
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  output: 'export',
-  trailingSlash: true,
+  // REMOVIDO: output: 'export' - Causa conflicto con API routes
+  // trailingSlash: true, // Removido para compatibilidad con Netlify
   images: {
     domains: ['localhost'],
-    // Si tienes imágenes externas, agrégalas aquí
+    unoptimized: true, // Necesario para Netlify
   },
   eslint: {
     dirs: ['src'],
-    ignoreDuringBuilds: true, // Ignorar errores de ESLint durante la compilación
+    ignoreDuringBuilds: true, // Temporalmente deshabilitado para deploy
   },
   typescript: {
-    // !! ADVERTENCIA !!
-    // Ignorar errores de TypeScript durante la compilación
-    // Esto es útil para despliegues rápidos, pero no recomendado para producción
-    ignoreBuildErrors: true,
+    // Habilitar verificación de tipos para mejor calidad
+    ignoreBuildErrors: false,
   },
   webpack: (config) => {
     // Configuraciones adicionales de webpack si son necesarias
     return config;
+  },
+  // Configuración para Netlify
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          },
+        ],
+      },
+    ];
   },
   async redirects() {
     return [

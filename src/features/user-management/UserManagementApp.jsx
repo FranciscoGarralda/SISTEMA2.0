@@ -47,6 +47,7 @@ function UserManagementApp() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [showFixButton, setShowFixButton] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({

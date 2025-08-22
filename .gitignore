@@ -20,6 +20,9 @@ package-lock.json
 .vercel
 *.tsbuildinfo
 
+# Netlify
+.netlify
+
 # Environment Variables
 .env
 .env.local

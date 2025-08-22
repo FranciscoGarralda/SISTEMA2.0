@@ -3,7 +3,7 @@ import { cacheService } from './cache';
 import mockApiService from '../mockApi';
 
 // Determinar si debemos usar el mock API o la API real de Netlify
-const useMockApi = () => {
+const shouldUseMockApi = () => {
   // Usar mock API solo si estamos en desarrollo local sin backend
   // o si está explícitamente configurado
   if (process.env.NEXT_PUBLIC_MOCK_API === 'true') return true;
@@ -118,7 +118,7 @@ class ApiService {
   async login(username, password) {
     try {
       // Si debemos usar el mock API, delegar al mockApiService
-      if (useMockApi()) {
+      if (shouldUseMockApi()) {
         console.log('Usando Mock API para login');
         return await mockApiService.login(username, password);
       }
@@ -179,11 +179,7 @@ class ApiService {
           
           // Intentar con mock API como fallback
           console.log('Fallback a Mock API después de error de conexión');
-          try {
-            return await mockApiService.login(username, password);
-          } catch (mockError) {
-            throw mockError;
-          }
+          return await mockApiService.login(username, password);
         }
         
         throw new Error('No se puede conectar al servidor. Verifica tu conexión.');
@@ -200,7 +196,7 @@ class ApiService {
 
   async getMe() {
     // Si debemos usar el mock API, delegar al mockApiService
-    if (useMockApi()) {
+    if (shouldUseMockApi()) {
       console.log('Usando Mock API para getMe');
       return await mockApiService.getMe();
     }

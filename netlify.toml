@@ -1,6 +1,6 @@
 [build]
   command = "npm run build"
-  publish = "out"
+  publish = ".next"
 
 [dev]
   command = "npm run dev"
@@ -10,7 +10,7 @@
   directory = "netlify/functions"
   node_bundler = "esbuild"
 
-# Configuración para aplicación estática
+# Configuración de seguridad
 [[headers]]
   for = "/*"
   [headers.values]
@@ -25,9 +25,8 @@
   to = "/.netlify/functions/:splat"
   status = 200
 
-# Redirecciones para SPA (solo para rutas que no sean API)
+# Redirecciones para Next.js
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-  conditions = {Role = ["admin"]}

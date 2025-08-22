@@ -266,11 +266,9 @@ class ApiService {
       return data || [];
     } catch (error) {
       console.error('Error getting movements:', error);
-      // Usar backend local como fallback si falla
-      if (typeof localStorageBackend !== 'undefined') {
-        return localStorageBackend.getMovements(filters);
-      }
-      throw error;
+      // FALLBACK CRÍTICO: Usar localStorage si el backend falla
+      console.log('🔄 Usando fallback localStorage para movimientos');
+      return localStorageBackend.getMovements(filters);
     }
   }
 
@@ -287,11 +285,9 @@ class ApiService {
       return result || result;
     } catch (error) {
       console.error('Error creating movement:', error);
-      // Usar backend local como fallback si falla
-      if (typeof localStorageBackend !== 'undefined') {
-        return localStorageBackend.createMovement(movementData);
-      }
-      throw error;
+      // FALLBACK CRÍTICO: Usar localStorage si el backend falla
+      console.log('🔄 Usando fallback localStorage para crear movimiento');
+      return localStorageBackend.createMovement(movementData);
     }
   }
   
@@ -316,10 +312,9 @@ class ApiService {
       return result || result;
     } catch (error) {
       console.error('Error updating movement:', error);
-      if (typeof localStorageBackend !== 'undefined') {
-        return localStorageBackend.updateMovement(id, movementData);
-      }
-      throw error;
+      // FALLBACK CRÍTICO: Usar localStorage si el backend falla
+      console.log('🔄 Usando fallback localStorage para actualizar movimiento');
+      return localStorageBackend.updateMovement(id, movementData);
     }
   }
 
@@ -334,10 +329,9 @@ class ApiService {
       return this.handleResponse(response);
     } catch (error) {
       console.error('Error deleting movement:', error);
-      if (typeof localStorageBackend !== 'undefined') {
-        return localStorageBackend.deleteMovement(id);
-      }
-      throw error;
+      // FALLBACK CRÍTICO: Usar localStorage si el backend falla
+      console.log('🔄 Usando fallback localStorage para eliminar movimiento');
+      return localStorageBackend.deleteMovement(id);
     }
   }
 
