@@ -2,7 +2,7 @@ import React from 'react';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
-  const version = "V22"; // Modo local forzado con configuración directa
+  const version = "V23"; // Corregido login async en modo local
 
   return (
     <footer className="bg-gray-800 dark:bg-gray-800 border-t border-gray-700 dark:border-gray-700 py-4 px-4 sm:px-6 lg:px-8">

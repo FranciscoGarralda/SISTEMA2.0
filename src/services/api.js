@@ -161,7 +161,7 @@ class ApiService {
       // Si estamos en modo local, usar localStorageBackend
       if (this.baseURL === 'local') {
         console.log('🔧 Usando localStorageBackend para login');
-        const result = localStorageBackend.login(username, password);
+        const result = await localStorageBackend.login(username, password);
         
         if (result.success) {
           this.setToken('local-token-' + Date.now());

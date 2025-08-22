@@ -247,8 +247,11 @@ class LocalStorageBackend {
 
   // AUTH
   async login(username, password) {
+    console.log('🔍 localStorageBackend.login llamado con:', { username, password });
+    
     // Para desarrollo, aceptar admin/admin
     if (username === 'admin' && password === 'admin') {
+      console.log('✅ Credenciales correctas, creando usuario...');
       const user = {
         id: 1,
         username: 'admin',
@@ -257,6 +260,7 @@ class LocalStorageBackend {
       };
       
       this.setData('currentUser', user);
+      console.log('✅ Usuario guardado en localStorage');
       
       return {
         success: true,
@@ -265,6 +269,7 @@ class LocalStorageBackend {
       };
     }
     
+    console.log('❌ Credenciales incorrectas:', { username, password });
     throw new Error('Credenciales inválidas');
   }
 
