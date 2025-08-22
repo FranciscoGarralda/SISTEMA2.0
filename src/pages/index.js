@@ -1,4 +1,4 @@
-import React, { useState, useEffect, lazy, Suspense, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, lazy, Suspense, useRef, useCallback, useMemo, startTransition } from 'react';
 import Head from 'next/head';
 import { apiService } from '../services';
 import LoginPage from '../features/auth/LoginPage';
@@ -103,17 +103,21 @@ export default function Home() {
         const response = await apiService.getMe();
         clearTimeout(timeoutId);
         
-        if (response && response.id) {
+              if (response && response.id) {
+        startTransition(() => {
           setIsAuthenticated(true);
           setCurrentUser(response);
-          // Load data from backend after authentication
-          loadDataFromBackend();
-        } else {
-          // Token inválido, limpiar
-          sessionStorage.removeItem('authToken');
-          localStorage.removeItem('authToken');
+        });
+        // Load data from backend after authentication
+        loadDataFromBackend();
+      } else {
+        // Token inválido, limpiar
+        sessionStorage.removeItem('authToken');
+        localStorage.removeItem('authToken');
+        startTransition(() => {
           setIsAuthenticated(false);
-        }
+        });
+      }
       } catch (error) {
         clearTimeout(timeoutId);
         if (error.name === 'AbortError') {
@@ -141,8 +145,10 @@ export default function Home() {
         apiService.getClients().catch(() => [])
       ]);
       
-      setMovements(Array.isArray(backendMovements) ? backendMovements : []);
-      setClients(Array.isArray(backendClients) ? backendClients : []);
+      startTransition(() => {
+        setMovements(Array.isArray(backendMovements) ? backendMovements : []);
+        setClients(Array.isArray(backendClients) ? backendClients : []);
+      });
     } catch (error) {
       console.error('Error loading data from backend:', error);
     }
@@ -150,18 +156,22 @@ export default function Home() {
 
   // Handle login success
   const handleLoginSuccess = (user) => {
-    setIsAuthenticated(true);
-    setCurrentUser(user);
+    startTransition(() => {
+      setIsAuthenticated(true);
+      setCurrentUser(user);
+    });
     loadDataFromBackend();
   };
 
   // Handle logout
   const handleLogout = async () => {
     await apiService.logout();
-    setIsAuthenticated(false);
-    setCurrentUser(null);
-    setMovements([]);
-    setClients([]);
+    startTransition(() => {
+      setIsAuthenticated(false);
+      setCurrentUser(null);
+      setMovements([]);
+      setClients([]);
+    });
   };
 
   // Movement management functions
