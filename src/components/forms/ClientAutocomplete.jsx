@@ -223,6 +223,8 @@ const ClientAutocomplete = forwardRef(({
               aria-autocomplete="list"
               aria-expanded={isOpen}
               aria-controls={`${label || 'cliente'}-dropdown`}
+              role="combobox"
+              aria-label={`Seleccionar ${label || 'cliente'}`}
             />
             
             {/* Botón limpiar */}
@@ -249,7 +251,12 @@ const ClientAutocomplete = forwardRef(({
 
           {/* Dropdown de opciones */}
           {isOpen && (
-            <div className="absolute z-50 w-full bg-white border border-gray-200 rounded-lg max-h-60 overflow-y-auto">
+            <div 
+              id={`${label || 'cliente'}-dropdown`}
+              className="absolute z-50 w-full bg-white border border-gray-200 rounded-lg max-h-60 overflow-y-auto"
+              role="listbox"
+              aria-label={`Opciones de ${label || 'cliente'}`}
+            >
               {filteredClients.length > 0 ? (
                 <>
                   {filteredClients.map((client, index) => (
@@ -262,6 +269,9 @@ const ClientAutocomplete = forwardRef(({
                           ? 'bg-gray-50'
                           : ''
                       }`}
+                      role="option"
+                      aria-selected={selectedIndex === index}
+                      aria-label={`${client.nombre} ${client.apellido || ''}${client.telefono ? ` - ${client.telefono}` : ''}`}
                     >
                       <div className="flex items-center space-x-3">
                         <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
