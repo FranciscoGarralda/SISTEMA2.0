@@ -273,7 +273,14 @@ class LocalStorageBackend {
   }
 
   async logout() {
-    localStorage.removeItem(this.STORAGE_KEYS.currentUser);
+    if (typeof window === 'undefined') return { success: true };
+    
+    try {
+      localStorage.removeItem(this.STORAGE_KEYS.currentUser);
+    } catch (error) {
+      console.error('Error al eliminar usuario del localStorage:', error);
+    }
+    
     return { success: true };
   }
 }

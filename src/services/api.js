@@ -36,12 +36,12 @@ class ApiService {
 
   // Cargar token desde localStorage
   loadToken() {
-    if (typeof window !== 'undefined') {
-      try {
-        this.token = sessionStorage.getItem('authToken') || localStorage.getItem('authToken');
-      } catch (error) {
-        console.warn('Error al cargar token:', error);
-      }
+    if (typeof window === 'undefined') return;
+    
+    try {
+      this.token = sessionStorage.getItem('authToken') || localStorage.getItem('authToken');
+    } catch (error) {
+      console.warn('Error al cargar token:', error);
     }
   }
 
@@ -53,13 +53,13 @@ class ApiService {
   
   // Almacenar token con seguridad preferente en sessionStorage
   storeToken(token) {
-    if (typeof window !== 'undefined') {
-      try {
-        sessionStorage.setItem('authToken', token);
-        localStorage.setItem('authToken', token); // Fallback por compatibilidad
-      } catch (error) {
-        console.error('Error al guardar token:', error);
-      }
+    if (typeof window === 'undefined') return;
+    
+    try {
+      sessionStorage.setItem('authToken', token);
+      localStorage.setItem('authToken', token); // Fallback por compatibilidad
+    } catch (error) {
+      console.error('Error al guardar token:', error);
     }
   }
 
@@ -67,13 +67,13 @@ class ApiService {
   clearToken() {
     this.token = null;
     
-    if (typeof window !== 'undefined') {
-      try {
-        sessionStorage.removeItem('authToken');
-        localStorage.removeItem('authToken');
-      } catch (error) {
-        console.warn('Error al eliminar token:', error);
-      }
+    if (typeof window === 'undefined') return;
+    
+    try {
+      sessionStorage.removeItem('authToken');
+      localStorage.removeItem('authToken');
+    } catch (error) {
+      console.warn('Error al eliminar token:', error);
     }
   }
 
