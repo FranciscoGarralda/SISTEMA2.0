@@ -15,19 +15,17 @@ class ApiService {
       // Cliente - usar la URL actual para Netlify Functions
       const currentHost = window.location.origin;
       
-      // Siempre usar Netlify Functions en producción
-      if (isProduction || currentHost.includes('netlify.app') || currentHost.includes('casadecambio')) {
+      // Verificar si debemos forzar modo local
+      if (forceLocalMode || LOCAL_CONFIG.FORCE_LOCAL_MODE) {
+        this.baseURL = 'local';
+        console.log('🔧 API Service: Modo local forzado');
+      } else if (isProduction || currentHost.includes('netlify.app') || currentHost.includes('casadecambio')) {
+        // Siempre usar Netlify Functions en producción
         this.baseURL = '/.netlify/functions';
       } else {
         // En desarrollo local
         this.baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
       }
-      
-          // Forzar modo local si está configurado
-    if (forceLocalMode || LOCAL_CONFIG.FORCE_LOCAL_MODE) {
-      this.baseURL = 'local';
-      console.log('🔧 API Service: Modo local forzado');
-    }
       
       console.log('API Service initialized with baseURL:', this.baseURL);
     } else {
@@ -282,6 +280,12 @@ class ApiService {
 
   // MOVEMENTS ENDPOINTS
   async getMovements(filters = {}) {
+    // Si estamos en modo local, usar localStorageBackend directamente
+    if (this.baseURL === 'local') {
+      console.log('🔧 Usando localStorageBackend para getMovements');
+      return localStorageBackend.getMovements(filters);
+    }
+    
     try {
       const queryString = new URLSearchParams(filters).toString();
       const response = await fetch(`${this.baseURL}/movements?${queryString}`, {
@@ -299,6 +303,12 @@ class ApiService {
   }
 
   async createMovement(movementData) {
+    // Si estamos en modo local, usar localStorageBackend directamente
+    if (this.baseURL === 'local') {
+      console.log('🔧 Usando localStorageBackend para createMovement');
+      return localStorageBackend.createMovement(movementData);
+    }
+    
     try {
       await this._ensureCsrfToken();
       const response = await fetch(`${this.baseURL}/movements`, {
@@ -326,6 +336,12 @@ class ApiService {
   }
 
   async updateMovement(id, movementData) {
+    // Si estamos en modo local, usar localStorageBackend directamente
+    if (this.baseURL === 'local') {
+      console.log('🔧 Usando localStorageBackend para updateMovement');
+      return localStorageBackend.updateMovement(id, movementData);
+    }
+    
     try {
       await this._ensureCsrfToken();
       const response = await fetch(`${this.baseURL}/movement-id/${id}`, {
@@ -345,6 +361,12 @@ class ApiService {
   }
 
   async deleteMovement(id) {
+    // Si estamos en modo local, usar localStorageBackend directamente
+    if (this.baseURL === 'local') {
+      console.log('🔧 Usando localStorageBackend para deleteMovement');
+      return localStorageBackend.deleteMovement(id);
+    }
+    
     try {
       await this._ensureCsrfToken();
       const response = await fetch(`${this.baseURL}/movement-id/${id}`, {
@@ -363,6 +385,12 @@ class ApiService {
 
   // CLIENTS ENDPOINTS
   async getClients(filters = {}) {
+    // Si estamos en modo local, usar localStorageBackend directamente
+    if (this.baseURL === 'local') {
+      console.log('🔧 Usando localStorageBackend para getClients');
+      return localStorageBackend.getClients(filters);
+    }
+    
     const queryString = new URLSearchParams(filters).toString();
     const response = await fetch(`${this.baseURL}/clients?${queryString}`, {
       method: 'GET',
@@ -374,6 +402,12 @@ class ApiService {
   }
 
   async createClient(clientData) {
+    // Si estamos en modo local, usar localStorageBackend directamente
+    if (this.baseURL === 'local') {
+      console.log('🔧 Usando localStorageBackend para createClient');
+      return localStorageBackend.createClient(clientData);
+    }
+    
     await this._ensureCsrfToken();
     
     const response = await fetch(`${this.baseURL}/clients`, {
@@ -388,6 +422,12 @@ class ApiService {
   }
 
   async updateClient(id, clientData) {
+    // Si estamos en modo local, usar localStorageBackend directamente
+    if (this.baseURL === 'local') {
+      console.log('🔧 Usando localStorageBackend para updateClient');
+      return localStorageBackend.updateClient(id, clientData);
+    }
+    
     await this._ensureCsrfToken();
     
     const response = await fetch(`${this.baseURL}/client-id/${id}`, {
@@ -402,6 +442,12 @@ class ApiService {
   }
 
   async deleteClient(id) {
+    // Si estamos en modo local, usar localStorageBackend directamente
+    if (this.baseURL === 'local') {
+      console.log('🔧 Usando localStorageBackend para deleteClient');
+      return localStorageBackend.deleteClient(id);
+    }
+    
     await this._ensureCsrfToken();
     
     const response = await fetch(`${this.baseURL}/client-id/${id}`, {
