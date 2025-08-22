@@ -6,7 +6,14 @@ class ApiService {
   constructor() {
     // Detectar si estamos en desarrollo local
     const isDevelopment = process.env.NODE_ENV === 'development';
-    const isLocalhost = typeof window !== 'undefined' && window.location.hostname === 'localhost';
+    const isLocalhost = typeof window !== 'undefined' && (
+      window.location.hostname === 'localhost' || 
+      window.location.hostname === '127.0.0.1' ||
+      window.location.hostname.includes('localhost') ||
+      window.location.port === '3000' ||
+      window.location.port === '3001' ||
+      window.location.port === '3002'
+    );
     
     // En desarrollo local, usar localStorageBackend directamente
     if (isDevelopment && isLocalhost) {
