@@ -10,6 +10,13 @@ export default function Document() {
         <meta name="author" content="Alliance F&R" />
         <meta name="theme-color" content="#1e40af" />
         
+        {/* Mobile optimization */}
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="format-detection" content="telephone=no" />
+        
         {/* Favicon principal */}
         <link rel="icon" type="image/png" href="/favicon.ico" />
         <link rel="shortcut icon" type="image/png" href="/favicon.ico" />

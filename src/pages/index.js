@@ -75,6 +75,8 @@ export default function Home() {
 
   const checkAuthStatus = async () => {
     try {
+      setCheckingAuth(true);
+      
       // Solo verificar en el cliente (no en servidor)
       if (typeof window === 'undefined') {
         setCheckingAuth(false);
@@ -89,12 +91,13 @@ export default function Home() {
         // No hay token, no intentar verificar autenticación
         console.log('No auth token found, skipping auth check');
         setIsAuthenticated(false);
+        setCheckingAuth(false);
         return;
       }
       
-      // Agregar timeout para evitar que se quede colgado
+      // Timeout más corto para mejor UX
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 segundos timeout
+      const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 segundos timeout
       
       try {
         const response = await apiService.getMe();
@@ -105,19 +108,30 @@ export default function Home() {
           setCurrentUser(response.user);
           // Load data from backend after authentication
           loadDataFromBackend();
+        } else {
+          // Token inválido, limpiar
+          sessionStorage.removeItem('authToken');
+          localStorage.removeItem('authToken');
+          setIsAuthenticated(false);
         }
       } catch (error) {
         clearTimeout(timeoutId);
         if (error.name === 'AbortError') {
-          // Timeout al verificar autenticación
+          console.log('Auth check timeout - using fallback');
+          // Timeout: usar fallback local
+          setIsAuthenticated(false);
         } else {
-          // Error verificando autenticación
+          console.log('Auth check error - using fallback');
+          // Error: usar fallback local
+          setIsAuthenticated(false);
         }
       }
     } catch (error) {
-      // Usuario no autenticado - no cargar nada
+      console.log('Auth check failed - using fallback');
+      // Usuario no autenticado - usar fallback
+      setIsAuthenticated(false);
     } finally {
-      // SIEMPRE setear checkingAuth a false para evitar que se quede colgado
+      // SIEMPRE setear checkingAuth a false
       setCheckingAuth(false);
     }
   };
@@ -449,9 +463,14 @@ export default function Home() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-200 border-t-gray-900 mx-auto"></div>
-          <p className="mt-4 text-lg text-gray-700 font-medium">Iniciando sistema...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-200 border-t-blue-600 mx-auto"></div>
+          <p className="mt-4 text-lg text-gray-700 font-medium">Conectando con el servidor...</p>
           <p className="mt-2 text-sm text-gray-500">Verificando autenticación</p>
+          <div className="mt-4">
+            <div className="w-32 h-1 bg-gray-200 rounded-full mx-auto overflow-hidden">
+              <div className="h-full bg-blue-600 rounded-full animate-pulse" style={{width: '60%'}}></div>
+            </div>
+          </div>
         </div>
       </div>
     );
