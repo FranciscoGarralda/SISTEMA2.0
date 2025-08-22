@@ -103,9 +103,9 @@ export default function Home() {
         const response = await apiService.getMe();
         clearTimeout(timeoutId);
         
-        if (response.success && response.user) {
+        if (response && response.id) {
           setIsAuthenticated(true);
-          setCurrentUser(response.user);
+          setCurrentUser(response);
           // Load data from backend after authentication
           loadDataFromBackend();
         } else {

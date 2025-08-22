@@ -11,10 +11,7 @@ async function authMeHandler(event, context) {
     const csrfToken = Math.random().toString(36).substring(2);
 
     // Devolver información del usuario
-    return success({
-      user,
-      csrfToken
-    });
+    return success(user);
   } catch (err) {
     console.error('Error en auth-me:', err);
     return error('Error interno del servidor', 500);
