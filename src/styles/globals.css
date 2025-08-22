@@ -2,74 +2,72 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Paleta de colores inspirada en Netlify */
+/* Paleta de colores exacta de Netlify */
 :root {
-  /* Colores principales */
-  --netlify-blue: #00AD9F;
-  --netlify-blue-dark: #008F85;
-  --netlify-blue-light: #00D4C3;
+  /* Colores principales de Netlify */
+  --netlify-teal: #00AD9F;
+  --netlify-teal-dark: #008F85;
+  --netlify-teal-light: #00D4C3;
   
-  /* Grises modernos */
-  --netlify-gray-50: #F7FAFC;
-  --netlify-gray-100: #EDF2F7;
-  --netlify-gray-200: #E2E8F0;
-  --netlify-gray-300: #CBD5E0;
-  --netlify-gray-400: #A0AEC0;
-  --netlify-gray-500: #718096;
-  --netlify-gray-600: #4A5568;
-  --netlify-gray-700: #2D3748;
-  --netlify-gray-800: #1A202C;
-  --netlify-gray-900: #171923;
+  /* Grises oscuros de Netlify (como en la imagen) */
+  --netlify-dark-blue: #1A1B26;
+  --netlify-dark-purple: #2D2B55;
+  --netlify-dark-gray: #2A2A3C;
+  --netlify-medium-gray: #3A3A4C;
+  --netlify-light-gray: #4A4A5C;
+  
+  /* Colores de texto */
+  --netlify-text-white: #FFFFFF;
+  --netlify-text-light: #E2E8F0;
+  --netlify-text-muted: #A0AEC0;
+  --netlify-text-dark: #2D3748;
   
   /* Colores de estado */
-  --success-green: #48BB78;
-  --warning-yellow: #ECC94B;
-  --error-red: #F56565;
-  --info-blue: #4299E1;
+  --netlify-success: #48BB78;
+  --netlify-warning: #ECC94B;
+  --netlify-error: #F56565;
+  --netlify-info: #4299E1;
+  
+  /* Colores de acento */
+  --netlify-accent-blue: #3182CE;
+  --netlify-accent-purple: #805AD5;
+  --netlify-accent-green: #38A169;
   
   /* Fondos */
-  --bg-primary: #FFFFFF;
-  --bg-secondary: #F7FAFC;
-  --bg-tertiary: #EDF2F7;
-  --bg-dark: #1A202C;
-  --bg-dark-secondary: #2D3748;
-  
-  /* Textos */
-  --text-primary: #1A202C;
-  --text-secondary: #4A5568;
-  --text-muted: #718096;
-  --text-light: #FFFFFF;
+  --netlify-bg-primary: #1A1B26;
+  --netlify-bg-secondary: #2A2A3C;
+  --netlify-bg-tertiary: #3A3A4C;
+  --netlify-bg-card: #2D2B55;
   
   /* Bordes */
-  --border-light: #E2E8F0;
-  --border-medium: #CBD5E0;
-  --border-dark: #A0AEC0;
+  --netlify-border-dark: #4A4A5C;
+  --netlify-border-light: #5A5A6C;
 }
 
-/* Modo oscuro automático */
-@media (prefers-color-scheme: dark) {
+/* Modo claro (opcional) */
+@media (prefers-color-scheme: light) {
   :root {
-    --bg-primary: #1A202C;
-    --bg-secondary: #2D3748;
-    --bg-tertiary: #4A5568;
-    --text-primary: #F7FAFC;
-    --text-secondary: #E2E8F0;
-    --text-muted: #A0AEC0;
-    --border-light: #4A5568;
-    --border-medium: #718096;
-    --border-dark: #A0AEC0;
+    --netlify-bg-primary: #FFFFFF;
+    --netlify-bg-secondary: #F7FAFC;
+    --netlify-bg-tertiary: #EDF2F7;
+    --netlify-bg-card: #FFFFFF;
+    --netlify-text-white: #1A202C;
+    --netlify-text-light: #2D3748;
+    --netlify-text-muted: #718096;
+    --netlify-border-dark: #E2E8F0;
+    --netlify-border-light: #CBD5E0;
   }
 }
 
 /* Clases utilitarias personalizadas */
 @layer components {
-  /* Botones principales */
+  /* Botones principales estilo Netlify */
   .btn-primary {
-    @apply bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50;
+    @apply bg-teal-500 hover:bg-teal-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50;
   }
   
   .btn-secondary {
-    @apply bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-opacity-50;
+    @apply bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50;
   }
   
   .btn-success {
@@ -84,55 +82,65 @@
     @apply bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50;
   }
   
-  /* Cards modernas */
+  /* Cards estilo Netlify */
   .card {
-    @apply bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6;
+    @apply bg-gray-800 dark:bg-gray-800 rounded-lg shadow-sm border border-gray-700 dark:border-gray-700 p-6;
   }
   
   .card-hover {
     @apply card hover:shadow-md transition-shadow duration-200;
   }
   
-  /* Inputs modernos */
+  /* Inputs estilo Netlify */
   .input-modern {
-    @apply w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-colors duration-200;
+    @apply w-full px-4 py-3 border border-gray-600 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-gray-700 dark:bg-gray-700 text-white dark:text-white placeholder-gray-400 dark:placeholder-gray-400 transition-colors duration-200;
   }
   
-  /* Navegación */
+  /* Navegación estilo Netlify */
   .nav-item {
-    @apply px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200;
+    @apply px-4 py-2 text-gray-300 dark:text-gray-300 hover:text-teal-400 dark:hover:text-teal-400 hover:bg-gray-700 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200;
   }
   
   .nav-item-active {
-    @apply px-4 py-2 text-blue-500 dark:text-blue-400 bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 rounded-lg font-medium;
+    @apply px-4 py-2 text-teal-400 dark:text-teal-400 bg-teal-900 dark:bg-teal-900 bg-opacity-20 dark:bg-opacity-20 rounded-lg font-medium;
   }
   
-  /* Badges */
+  /* Badges estilo Netlify */
   .badge {
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
   }
   
   .badge-success {
-    @apply badge bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200;
+    @apply badge bg-green-900 text-green-200 dark:bg-green-900 dark:text-green-200;
   }
   
   .badge-warning {
-    @apply badge bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200;
+    @apply badge bg-yellow-900 text-yellow-200 dark:bg-yellow-900 dark:text-yellow-200;
   }
   
   .badge-error {
-    @apply badge bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200;
+    @apply badge bg-red-900 text-red-200 dark:bg-red-900 dark:text-red-200;
   }
   
   .badge-info {
-    @apply badge bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200;
+    @apply badge bg-blue-900 text-blue-200 dark:bg-blue-900 dark:text-blue-200;
+  }
+  
+  /* Sidebar estilo Netlify */
+  .sidebar-netlify {
+    @apply bg-gray-900 dark:bg-gray-900 border-r border-gray-700 dark:border-gray-700;
+  }
+  
+  /* Header estilo Netlify */
+  .header-netlify {
+    @apply bg-gray-800 dark:bg-gray-800 border-b border-gray-700 dark:border-gray-700;
   }
 }
 
 /* Estilos base */
 body {
-  background-color: var(--bg-secondary);
-  color: var(--text-primary);
+  background-color: var(--netlify-bg-primary);
+  color: var(--netlify-text-white);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
@@ -140,22 +148,22 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Scrollbar personalizada */
+/* Scrollbar personalizada estilo Netlify */
 ::-webkit-scrollbar {
   width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg-secondary);
+  background: var(--netlify-bg-secondary);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--netlify-gray-400);
+  background: var(--netlify-light-gray);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--netlify-gray-500);
+  background: var(--netlify-medium-gray);
 }
 
 /* Animaciones suaves */
@@ -165,6 +173,6 @@ body {
 
 /* Focus visible para accesibilidad */
 *:focus-visible {
-  outline: 2px solid var(--netlify-blue);
+  outline: 2px solid var(--netlify-teal);
   outline-offset: 2px;
 }

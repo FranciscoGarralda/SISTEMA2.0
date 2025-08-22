@@ -145,20 +145,23 @@ const ClientModal = ({
     setIsLoading(true);
 
     try {
-      // Usar exactamente la misma lógica que el menú de clientes
+      // Crear datos del cliente sin ID (el backend lo generará)
       const clientData = {
-        ...formData,
-        // NO generar ID aquí - el backend lo hará
-        id: formData.id || undefined
+        nombre: formData.nombre.trim(),
+        apellido: formData.apellido.trim(),
+        telefono: formData.telefono.trim(),
+        email: formData.email.trim(),
+        dni: formData.dni.trim(),
+        direccion: formData.direccion.trim(),
+        tipoCliente: formData.tipo
       };
       
-      // Llamar a la función onClientCreated que se conecta con onSaveClient
-      // Esta función usa la misma lógica que handleSaveClient en index.js
+      // Llamar directamente a la función de guardado
       const result = await onClientCreated(clientData);
       
-      // Si se guardó exitosamente (misma validación que en index.js)
+      // Verificar si se guardó exitosamente
       if (result && result.id) {
-        // Resetear formulario
+        // Éxito - resetear formulario y cerrar modal
         setFormData({
           nombre: '',
           apellido: '',
@@ -169,16 +172,15 @@ const ClientModal = ({
           tipo: 'operaciones'
         });
         setErrors({});
-        
-        // Cerrar el modal
         onClose();
       } else {
-        // Si no se retornó un resultado válido, mostrar error
+        // Error - mostrar mensaje
         setErrors({ general: 'No se pudo guardar el cliente. Verifica los datos.' });
       }
     } catch (error) {
       console.error('Error creating client:', error);
-      // Manejar errores específicos sin reiniciar el sistema
+      
+      // Manejar errores específicos
       let errorMessage = 'Error al crear el cliente.';
       
       if (error.message) {
