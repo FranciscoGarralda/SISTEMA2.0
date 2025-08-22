@@ -40,12 +40,12 @@ Revisar **TODOS** los archivos del sistema de manera sistemática para encontrar
 - [ ] `src/layouts/` - Layouts y estructuras
 
 ### 🛠️ UTILIDADES
-- [ ] `src/utils/` - Funciones utilitarias
-- [ ] `src/hooks/` - Custom hooks
+- [x] `src/utils/` - Funciones utilitarias ✅ COMPLETADO
+- [x] `src/hooks/` - Custom hooks ✅ COMPLETADO
 
 ### 📱 ESTILOS
-- [ ] `src/styles/` - Archivos CSS/SCSS
-- [ ] `tailwind.config.js` - Configuración de Tailwind
+- [x] `src/styles/` - Archivos CSS/SCSS ✅ COMPLETADO
+- [x] `tailwind.config.js` - Configuración de Tailwind ✅ COMPLETADO
 
 ## 🔍 CRITERIOS DE REVISIÓN
 

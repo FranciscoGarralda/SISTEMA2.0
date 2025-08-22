@@ -7,6 +7,9 @@
  * @returns {string} Fecha en formato YYYY-MM-DD
  */
 export const getTodayLocalDate = () => {
+  // Solo ejecutar en el cliente
+  if (typeof window === 'undefined') return '';
+  
   const today = new Date();
   const year = today.getFullYear();
   const month = String(today.getMonth() + 1).padStart(2, '0');
@@ -19,6 +22,9 @@ export const getTodayLocalDate = () => {
  * @returns {string} Año-mes en formato YYYY-MM
  */
 export const getCurrentYearMonth = () => {
+  // Solo ejecutar en el cliente
+  if (typeof window === 'undefined') return '';
+  
   const today = new Date();
   const year = today.getFullYear();
   const month = String(today.getMonth() + 1).padStart(2, '0');

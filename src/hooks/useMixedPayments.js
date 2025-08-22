@@ -61,7 +61,7 @@ export const useMixedPayments = (formData, setFormData) => {
       // specificFieldsConfig imported at top
       const isWalletMode = specificFieldsConfig[configKey]?.pagoMixtoWalletMode;
       
-      const newPayment = { id: Date.now(), socio: '', tipo: '', monto: '' };
+      const newPayment = { id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, socio: '', tipo: '', monto: '' };
       
       const newPayments = [...prev.mixedPayments, newPayment];
       let newTotal = prev.total;
@@ -92,7 +92,7 @@ export const useMixedPayments = (formData, setFormData) => {
           const sumOfOtherPaymentsExcludingFirst = filteredPayments.slice(1).reduce((sum, p) => sum + safeParseFloat(p.monto, 0), 0);
           filteredPayments[0].monto = (expectedTotal - sumOfOtherPaymentsExcludingFirst).toFixed(2);
         } else {
-          filteredPayments.push({ id: Date.now(), cuenta: '', monto: '' });
+          filteredPayments.push({ id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, cuenta: '', monto: '' });
         }
         newTotal = filteredPayments.reduce((sum, payment) => sum + safeParseFloat(payment.monto, 0), 0).toFixed(2);
       }
