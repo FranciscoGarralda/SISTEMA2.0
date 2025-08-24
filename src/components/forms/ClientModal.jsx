@@ -137,14 +137,21 @@ const ClientModal = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    e.stopPropagation(); // Prevenir propagación del evento
+    
+    console.log('🔧 Formulario enviado, previniendo navegación HTTP');
     
     if (!validateForm()) {
-      return;
+      console.log('❌ Validación fallida');
+      return false; // Prevenir envío
     }
 
     setIsLoading(true);
+    setErrors({}); // Limpiar errores previos
 
     try {
+      console.log('🔧 Iniciando creación de cliente:', formData);
+      
       // Crear datos del cliente sin ID (el backend lo generará)
       const clientData = {
         nombre: formData.nombre.trim(),
@@ -156,11 +163,17 @@ const ClientModal = ({
         tipoCliente: formData.tipo
       };
       
+      console.log('📋 Datos del cliente a guardar:', clientData);
+      
       // Llamar directamente a la función de guardado
       const result = await onClientCreated(clientData);
       
+      console.log('📤 Resultado de guardado:', result);
+      
       // Verificar si se guardó exitosamente
       if (result && result.id) {
+        console.log('✅ Cliente creado exitosamente');
+        
         // Éxito - resetear formulario y cerrar modal
         setFormData({
           nombre: '',
@@ -174,11 +187,12 @@ const ClientModal = ({
         setErrors({});
         onClose();
       } else {
+        console.log('❌ No se pudo guardar el cliente');
         // Error - mostrar mensaje
         setErrors({ general: 'No se pudo guardar el cliente. Verifica los datos.' });
       }
     } catch (error) {
-      console.error('Error creating client:', error);
+      console.error('❌ Error creating client:', error);
       
       // Manejar errores específicos
       let errorMessage = 'Error al crear el cliente.';
@@ -188,6 +202,8 @@ const ClientModal = ({
           errorMessage = 'Ya existe un cliente con ese nombre o teléfono.';
         } else if (error.message.includes('network') || error.message.includes('conexión')) {
           errorMessage = 'Error de conexión. Verifica tu internet.';
+        } else if (error.message.includes('localStorageBackend')) {
+          errorMessage = 'Error interno del sistema. Intenta nuevamente.';
         } else {
           errorMessage = error.message;
         }
@@ -197,6 +213,8 @@ const ClientModal = ({
     } finally {
       setIsLoading(false);
     }
+    
+    return false; // Prevenir envío del formulario
   };
 
   const handleClose = () => {
@@ -229,7 +247,7 @@ const ClientModal = ({
         </div>
 
         {/* Formulario */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <div className="p-6 space-y-4">
           {/* Error general */}
           {errors.general && (
             <div className="p-3 bg-error-50 border border-error-200 rounded-lg">
@@ -242,7 +260,6 @@ const ClientModal = ({
             <FormInput
               ref={(el) => registerField('nombre', el)}
               label="Nombre"
-              name="nombre"
               value={formData.nombre}
               onChange={(value) => handleInputChange('nombre', value)}
               placeholder="Ingresa el nombre"
@@ -252,7 +269,6 @@ const ClientModal = ({
             <FormInput
               ref={(el) => registerField('apellido', el)}
               label="Apellido"
-              name="apellido"
               value={formData.apellido}
               onChange={(value) => handleInputChange('apellido', value)}
               placeholder="Ingresa el apellido"
@@ -264,7 +280,6 @@ const ClientModal = ({
             <FormInput
               ref={(el) => registerField('telefono', el)}
               label="Teléfono"
-              name="telefono"
               type="tel"
               value={formData.telefono}
               onChange={(value) => handleInputChange('telefono', value)}
@@ -275,7 +290,6 @@ const ClientModal = ({
             <FormInput
               ref={(el) => registerField('email', el)}
               label="Email"
-              name="email"
               type="email"
               value={formData.email}
               onChange={(value) => handleInputChange('email', value)}
@@ -287,7 +301,6 @@ const ClientModal = ({
           <FormInput
             ref={(el) => registerField('dni', el)}
             label="DNI"
-            name="dni"
             value={formData.dni}
             onChange={(value) => handleInputChange('dni', value)}
             placeholder="12345678"
@@ -297,7 +310,6 @@ const ClientModal = ({
           <FormSelect
             ref={(el) => registerField('tipo', el)}
             label="Tipo de Cliente"
-            name="tipo"
             value={formData.tipo}
             onChange={(value) => handleInputChange('tipo', value)}
             options={tiposCliente}
@@ -309,7 +321,6 @@ const ClientModal = ({
           <FormInput
             ref={(el) => registerField('direccion', el)}
             label="Dirección"
-            name="direccion"
             value={formData.direccion}
             onChange={(value) => handleInputChange('direccion', value)}
             placeholder="Calle, número, ciudad"
@@ -328,7 +339,8 @@ const ClientModal = ({
             </button>
             <button
               ref={(el) => registerField('guardar', el)}
-              type="submit"
+              type="button"
+              onClick={handleSubmit}
               disabled={isLoading}
               className="px-4 py-2 bg-gray-900 hover:bg-slate-800 text-white rounded-lg transition-colors duration-200 disabled:opacity-50 flex items-center space-x-2"
             >
@@ -345,7 +357,7 @@ const ClientModal = ({
               )}
             </button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );

@@ -32,6 +32,8 @@ const RentabilidadApp = lazy(() => import('../features/profitability/Rentabilida
 const StockApp = lazy(() => import('../features/stock/StockApp'));
 const SaldosInicialesApp = lazy(() => import('../features/initial-balances/SaldosInicialesApp'));
 const UserManagementApp = lazy(() => import('../features/user-management/UserManagementApp'));
+const ColorTest = lazy(() => import('../components/ui/ColorTest'));
+const ColorVerifier = lazy(() => import('../components/ui/ColorVerifier'));
 
 // Component map for dynamic rendering
 const componentMap = {
@@ -50,13 +52,16 @@ const componentMap = {
   'rentabilidad': RentabilidadApp,
   'stock': StockApp,
   'saldos-iniciales': SaldosInicialesApp,
-  'usuarios': UserManagementApp
+  'usuarios': UserManagementApp,
+  'color-test': ColorTest,
+  'color-verifier': ColorVerifier
 };
 
 export default function Home() {
   // Navigation state
   const [currentPage, setCurrentPage] = useState('inicio');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [hasNavigated, setHasNavigated] = useState(false);
   
   // Data state
   const [movements, setMovements] = useState([]);
@@ -71,6 +76,17 @@ export default function Home() {
   // Check authentication status on mount
   useEffect(() => {
     checkAuthStatus();
+    
+      // Ejecutar pruebas del sistema en desarrollo
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🧪 MODO DESARROLLO - Ejecutando pruebas del sistema...');
+    import('../../test-functions.js').catch(() => {
+      console.log('⚠️ No se pudo cargar el script de pruebas');
+    });
+    
+    // Mostrar componente de prueba de colores
+    console.log('🎨 Cargando componente de prueba de colores...');
+  }
   }, []);
 
   const checkAuthStatus = async () => {
@@ -264,27 +280,46 @@ export default function Home() {
   // Client management functions
   const handleSaveClient = async (clientData) => {
     try {
+      console.log('🔧 Guardando cliente:', clientData);
+      
       // Verificar duplicados
       const existingClient = clients.find(c => 
         c.nombre.toLowerCase() === clientData.nombre.toLowerCase() && c.id !== clientData.id
       );
 
       if (existingClient) {
+        console.log('⚠️ Cliente duplicado encontrado:', existingClient);
         alert('Ya existe un cliente con ese nombre');
         return null;
       }
 
       let savedClient;
       
-      // Solo guardar en backend
-      if (clientData.id && typeof clientData.id === 'number') {
-        savedClient = await apiService.updateClient(clientData.id, clientData);
+      // Verificar si estamos en modo local
+      if (apiService.baseURL === 'local') {
+        console.log('🔧 Guardando cliente en localStorage');
+        
+        // Verificar que localStorageBackend esté disponible
+        if (!localStorageBackend) {
+          throw new Error('localStorageBackend no está disponible');
+        }
+        
+        // Guardar en localStorage
+        savedClient = await localStorageBackend.createClient(clientData);
+        console.log('✅ Cliente guardado en localStorage:', savedClient);
       } else {
-        savedClient = await apiService.createClient(clientData);
+        // Guardar en backend
+        if (clientData.id && typeof clientData.id === 'number') {
+          savedClient = await apiService.updateClient(clientData.id, clientData);
+        } else {
+          savedClient = await apiService.createClient(clientData);
+        }
+        console.log('✅ Cliente guardado en backend:', savedClient);
       }
       
-      // Si se guardó en backend exitosamente
+      // Si se guardó exitosamente
       if (savedClient && savedClient.id) {
+        console.log('🔄 Actualizando estado de clientes');
         setClients(prevClients => {
           if (!Array.isArray(prevClients)) return [savedClient];
           
@@ -300,13 +335,16 @@ export default function Home() {
           return updatedClients;
         });
         
+        console.log('✅ Cliente guardado exitosamente');
         return savedClient;
       }
       
+      console.log('❌ No se pudo guardar el cliente');
       return null;
     } catch (error) {
-      console.error('Error saving client:', error);
-      alert(`Error al guardar el cliente: ${error.message}`);
+      console.error('❌ Error saving client:', error);
+      
+      // No mostrar alert aquí, dejar que el modal maneje el error
       throw error;
     }
   };
@@ -351,7 +389,14 @@ export default function Home() {
     };
     
     const mappedPage = pageMap[page] || page;
+    
+    // Evitar navegación duplicada
+    if (currentPage === mappedPage && hasNavigated) {
+      return;
+    }
+    
     setCurrentPage(mappedPage);
+    setHasNavigated(true);
     
     // Close sidebar on mobile after navigation
     if (window.innerWidth < 1024) {
@@ -445,8 +490,8 @@ export default function Home() {
       },
       'movimientos': {
         ...commonProps,
-        onEdit: handleEditMovement,
-        onDelete: handleDeleteMovement,
+        onEditMovement: handleEditMovement,
+        onDeleteMovement: handleDeleteMovement,
         clients
       },
       'pendientes': {
@@ -489,7 +534,8 @@ export default function Home() {
         onNavigate: navigateTo
       },
       'caja': {
-        movements
+        movements,
+        onNavigate: navigateTo
       },
       'rentabilidad': {
         ...commonProps,
@@ -507,6 +553,14 @@ export default function Home() {
         onNavigate: navigateTo
       },
       'usuarios': {
+        ...commonProps,
+        onNavigate: navigateTo
+      },
+      'color-test': {
+        ...commonProps,
+        onNavigate: navigateTo
+      },
+      'color-verifier': {
         ...commonProps,
         onNavigate: navigateTo
       }

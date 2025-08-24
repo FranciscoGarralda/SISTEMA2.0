@@ -51,6 +51,12 @@ class ServerWakeService {
   async _attemptWake() {
     console.log('🔄 Verificando API de Netlify...');
     
+    // En desarrollo local, no intentar conectar a la API
+    if (this.baseURL === '/api') {
+      console.log('✅ Modo desarrollo local - saltando verificación de API');
+      return true;
+    }
+    
     try {
       // Hacer ping al endpoint de health
       const response = await fetch(`${this.baseURL}/health`, {

@@ -1,5 +1,5 @@
 import React, { forwardRef } from 'react';
-import { Calendar, ChevronDown } from 'lucide-react';
+import { Calendar } from 'lucide-react';
 
 const FormInput = forwardRef(({
   label,

@@ -1,20 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, User, LogOut, Calendar, Clock } from 'lucide-react';
+import { Menu, User, LogOut, Calendar, Clock } from 'lucide-react';
+import ThemeToggle from './ThemeToggle';
 
 const FixedHeader = ({ toggleSidebar, currentPage, showMenuButton, currentUser, onLogout }) => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [currentTime, setCurrentTime] = useState(() => {
-    // Solo crear fecha en el cliente
     if (typeof window === 'undefined') return null;
     return new Date();
   });
 
-  // Update time every second
   useEffect(() => {
-    // Solo ejecutar en el cliente
     if (typeof window === 'undefined') return;
     
-    // Inicializar tiempo si no está definido
     if (!currentTime) {
       setCurrentTime(new Date());
     }
@@ -26,7 +23,6 @@ const FixedHeader = ({ toggleSidebar, currentPage, showMenuButton, currentUser, 
     return () => clearInterval(timer);
   }, [currentTime]);
 
-  // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (showUserMenu && !event.target.closest('.user-menu')) {
@@ -38,11 +34,10 @@ const FixedHeader = ({ toggleSidebar, currentPage, showMenuButton, currentUser, 
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showUserMenu]);
 
-  // Format date and time
   const formatDate = (date) => {
     if (!date) return '';
     
-    const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    const days = ['Domingo', 'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
     const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
     
     const dayName = days[date.getDay()];
@@ -66,7 +61,6 @@ const FixedHeader = ({ toggleSidebar, currentPage, showMenuButton, currentUser, 
   return (
     <header className="fixed top-0 left-0 right-0 h-20 bg-white border-b border-gray-200 z-50">
       <div className="h-full px-4 lg:px-6 flex items-center justify-between">
-        {/* Logo y menú hamburguesa */}
         <div className="flex items-center gap-4">
           {showMenuButton && (
             <button
@@ -88,7 +82,6 @@ const FixedHeader = ({ toggleSidebar, currentPage, showMenuButton, currentUser, 
           </div>
         </div>
 
-        {/* Date and Time - Center */}
         <div className="hidden lg:flex items-center gap-4 text-sm text-gray-600 absolute left-1/2 transform -translate-x-1/2">
           <div className="flex items-center gap-2">
             <Calendar className="w-4 h-4" />
@@ -100,39 +93,42 @@ const FixedHeader = ({ toggleSidebar, currentPage, showMenuButton, currentUser, 
           </div>
         </div>
 
-        {/* User menu */}
-        {currentUser && (
-          <div className="relative user-menu">
-            <button
-              onClick={() => setShowUserMenu(!showUserMenu)}
-              className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 transition-colors"
-            >
-              <User className="w-5 h-5 text-gray-600" />
-              <span className="hidden sm:block text-sm font-medium text-gray-700">
-                {currentUser.name}
-              </span>
-            </button>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          
+          {currentUser && (
+            <div className="relative user-menu">
+              <button
+                onClick={() => setShowUserMenu(!showUserMenu)}
+                className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <User className="w-5 h-5 text-gray-600" />
+                <span className="hidden sm:block text-sm font-medium text-gray-700">
+                  {currentUser.name}
+                </span>
+              </button>
 
-            {showUserMenu && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-[100]">
-                <div className="px-4 py-2 border-b border-gray-100">
-                  <p className="text-sm font-medium text-gray-900">{currentUser.name}</p>
-                  <p className="text-xs text-gray-500">{currentUser.role === 'admin' ? 'Administrador' : 'Usuario'}</p>
+              {showUserMenu && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-[100]">
+                  <div className="px-4 py-2 border-b border-gray-100">
+                    <p className="text-sm font-medium text-gray-900">{currentUser.name}</p>
+                    <p className="text-xs text-gray-500">{currentUser.role === 'admin' ? 'Administrador' : 'Usuario'}</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setShowUserMenu(false);
+                      onLogout();
+                    }}
+                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Cerrar Sesion
+                  </button>
                 </div>
-                <button
-                  onClick={() => {
-                    setShowUserMenu(false);
-                    onLogout();
-                  }}
-                  className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                >
-                  <LogOut className="w-4 h-4" />
-                  Cerrar Sesión
-                </button>
-              </div>
-            )}
-          </div>
-        )}
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );

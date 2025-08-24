@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import FormInput from './FormInput.jsx';
 import FormSelect from './FormSelect.jsx';
 import ClientAutocomplete from './ClientAutocomplete.jsx';
@@ -383,7 +383,11 @@ const FormFieldGroup = ({
 
   return (
     <div className={gridClasses} {...rest}>
-      {fields.map((field, index) => renderField(field, index))}
+      {fields.map((field, index) => (
+        <Fragment key={field.name || `field-${index}`}>
+          {renderField(field, index)}
+        </Fragment>
+      ))}
     </div>
   );
 };

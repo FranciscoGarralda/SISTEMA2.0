@@ -83,7 +83,7 @@ function MovimientosApp({ movements = [], clients = [], onEditMovement, onDelete
         clients={clients}
         onBack={handleBackToList}
         onEdit={onEditMovement}
-        onDelete={onDeleteMovement}
+        onDeleteMovement={onDeleteMovement}
       />
     );
   }
@@ -222,7 +222,7 @@ function MovimientosApp({ movements = [], clients = [], onEditMovement, onDelete
                   movement={movement}
                   clients={clients}
                   onEdit={onEditMovement}
-                  onDelete={onDeleteMovement}
+                  onDeleteMovement={onDeleteMovement}
                   onViewDetail={handleViewDetail}
                 />
               ))}
@@ -235,7 +235,7 @@ function MovimientosApp({ movements = [], clients = [], onEditMovement, onDelete
 }
 
 /** COMPONENTE LÍNEA DE MOVIMIENTO - FORMATO COMPACTO */
-function MovimientoCard({ movement, onEdit, onDelete, onViewDetail, clients = [] }) {
+function MovimientoCard({ movement, onEdit, onDeleteMovement, onViewDetail, clients = [] }) {
   const formattedDate = movement.fecha ? 
     new Date(movement.fecha).toLocaleDateString('es-ES', { 
       day: '2-digit', 
@@ -268,11 +268,17 @@ function MovimientoCard({ movement, onEdit, onDelete, onViewDetail, clients = []
   const displayAmount = getDisplayAmount();
 
   const handleDelete = () => {
+    if (!onDeleteMovement || typeof onDeleteMovement !== 'function') {
+      console.error('onDeleteMovement is not a function:', onDeleteMovement);
+      alert('Error: Función de eliminación no disponible');
+      return;
+    }
+    
     const confirmacion = window.confirm(
       `¿Estás seguro de eliminar este movimiento de ${getClientName(movement.cliente, clients)}?`
     );
     if (confirmacion) {
-      onDelete(movement.id);
+      onDeleteMovement(movement.id);
     }
   };
 
@@ -332,14 +338,14 @@ function MovimientoCard({ movement, onEdit, onDelete, onViewDetail, clients = []
           </button>
           <button 
             onClick={() => onEdit(movement)} 
-            className="p-1 text-gray-600 hover:bg-gray-50 rounded transition-colors hidden sm:block"
+            className="p-1 text-gray-600 hover:bg-gray-50 rounded transition-colors"
             title="Editar"
           >
             <Edit3 size={14} />
           </button>
           <button 
             onClick={handleDelete} 
-            className="p-1 text-error-600 hover:bg-error-50 rounded transition-colors hidden sm:block"
+            className="p-1 text-error-600 hover:bg-error-50 rounded transition-colors"
             title="Eliminar"
           >
             <Trash2 size={14} />

@@ -2,7 +2,7 @@ import React from 'react';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
-  const version = "V57"; // Sistema completamente funcional - caché corrupto solucionado definitivamente y sincronizado
+  const version = "V76"; // Botones activos/seleccionados - contraste perfecto
 
   return (
     <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-sm">

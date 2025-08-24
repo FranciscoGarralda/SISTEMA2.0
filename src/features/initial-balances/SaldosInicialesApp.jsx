@@ -210,7 +210,7 @@ function SaldosInicialesApp() {
                             value={balance}
                             onChange={(e) => handleBalanceChange(wallet, selectedMoneda, e.target.value)}
                             placeholder="0.00"
-                            className="w-32 px-3 py-1.5 text-right border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+                            className="w-32 px-3 py-1.5 text-right border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                           />
                           <span className="text-sm text-gray-600 w-12">{selectedMoneda}</span>
                         </div>
@@ -275,7 +275,7 @@ function SaldosInicialesApp() {
                                 value={balance}
                                 onChange={(e) => handleCCBalanceChange(proveedor.value, moneda, e.target.value)}
                                 placeholder="0.00"
-                                className="w-32 px-3 py-1.5 text-right border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+                                className="w-32 px-3 py-1.5 text-right border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                               />
                             </div>
                           );
