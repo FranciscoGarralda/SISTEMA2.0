@@ -27,7 +27,7 @@ function ComisionesApp({ movements = [], onNavigate = () => {} }) {
     return movements.filter(mov => 
       mov.comision && 
       safeParseFloat(mov.comision) > 0 &&
-      !(mov.operacion === 'TRANSACCIONES' && mov.subOperacion === 'ARBITRAJE') // EXCLUIR arbitrajes
+      !(mov.operacion === 'ARBITRAJE') // EXCLUIR arbitrajes
     );
   }, [movements]);
 
@@ -141,14 +141,24 @@ function ComisionesApp({ movements = [], onNavigate = () => {} }) {
   const commissionsByProvider = useMemo(() => {
     const providerTotals = {};
     commissionMovements.forEach(mov => {
-      const provider = mov.proveedorCC || 'Operaciones Directas';
+      let provider = 'Operaciones Directas';
+      
+      // Determinar proveedor basado en tipo de operación
+      if (mov.operacion === 'CUENTAS_CORRIENTES' && mov.proveedorCC) {
+        provider = mov.proveedorCC;
+      } else if (mov.operacion === 'COMPRA' || mov.operacion === 'VENTA') {
+        provider = 'Operaciones Directas';
+      } else if (mov.operacion === 'PRESTAMOS' && mov.prestamista) {
+        provider = mov.prestamista;
+      }
+      
       const currency = mov.monedaComision || mov.moneda;
 
       if (!providerTotals[provider]) {
         providerTotals[provider] = {};
       }
       if (currency) {
-                  providerTotals[provider][currency] = (providerTotals[provider][currency] || 0) + safeParseFloat(mov.comision);
+        providerTotals[provider][currency] = (providerTotals[provider][currency] || 0) + safeParseFloat(mov.comision);
       }
     });
     return providerTotals;
@@ -367,9 +377,15 @@ function ComisionesApp({ movements = [], onNavigate = () => {} }) {
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                       {Object.entries(commissionsByProvider).map(([provider, currencies]) => {
-                        const operationsCount = commissionMovements.filter(mov => 
-                          (mov.proveedorCC || 'Operaciones Directas') === provider
-                        ).length;
+                        const operationsCount = commissionMovements.filter(mov => {
+                          let movProvider = 'Operaciones Directas';
+                          if (mov.operacion === 'CUENTAS_CORRIENTES' && mov.proveedorCC) {
+                            movProvider = mov.proveedorCC;
+                          } else if (mov.operacion === 'PRESTAMOS' && mov.prestamista) {
+                            movProvider = mov.prestamista;
+                          }
+                          return movProvider === provider;
+                        }).length;
                         
                         return (
                           <tr key={provider} className="hover:bg-gray-50">

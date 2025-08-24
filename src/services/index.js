@@ -1,8 +1,9 @@
 // API Services
-export { default as apiService } from './api';
+export { apiService } from './api';
 export { default as mockApiService } from './mockApi.js';
 export { cacheService } from './cache.js';
 export { serverWakeService } from './server-wake.js';
+export { localStorageBackend } from './localStorageBackend.js';
 
 // Domain Services
 export { default as cajaService } from './cajaService.js';

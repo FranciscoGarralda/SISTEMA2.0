@@ -118,7 +118,7 @@ function CuentasCorrientesApp({ movements = [], onNavigate = () => {} }) {
             }
           }
         } else if (mov.subOperacion === 'ARBITRAJE') {
-          // ARBITRAJE: Ahora usa los mismos campos que ARBITRAJE normal
+          // ARBITRAJE: Usa los campos correctos del formulario
           // COMPRA: pagamos monedaTC, recibimos moneda
           if (mov.monedaTC && mov.totalCompra) {
             const keyPagoCompra = `${mov.proveedorCC}-${mov.monedaTC}`;
@@ -140,9 +140,9 @@ function CuentasCorrientesApp({ movements = [], onNavigate = () => {} }) {
               accountReciboCompra.saldo -= montoReciboCompra; // Recibimos, debemos MÁS
             }
           }
-          // VENTA: entregamos monedaVenta (que es monedaTC), recibimos monedaTCVenta (que es moneda)
-          if (mov.monedaVenta && mov.montoVenta) {
-            const keyEntregaVenta = `${mov.proveedorCC}-${mov.monedaVenta}`;
+          // VENTA: entregamos monedaTC, recibimos monedaTCVenta
+          if (mov.monedaTC && mov.montoVenta) {
+            const keyEntregaVenta = `${mov.proveedorCC}-${mov.monedaTC}`;
             const accountEntregaVenta = accountsMap.get(keyEntregaVenta);
             if (accountEntregaVenta) {
               const montoEntregaVenta = safeParseFloat(mov.montoVenta);
@@ -163,8 +163,8 @@ function CuentasCorrientesApp({ movements = [], onNavigate = () => {} }) {
           }
         }
 
-        // Agregar comisiones si existen (para todas las sub-operaciones)
-        if (mov.comision && mov.monedaComision) {
+        // Agregar comisiones si existen (solo una vez por movimiento)
+        if (mov.comision && mov.monedaComision && !mov.comisionProcessed) {
           const comisionAmount = safeParseFloat(mov.comision);
           // La comisión se agrega a la cuenta en la moneda de la comisión
           const comisionKey = `${mov.proveedorCC}-${mov.monedaComision}`;
@@ -172,6 +172,8 @@ function CuentasCorrientesApp({ movements = [], onNavigate = () => {} }) {
           if (comisionAccount) {
             comisionAccount.comisionesGeneradas += comisionAmount;
           }
+          // Marcar como procesada para evitar duplicación
+          mov.comisionProcessed = true;
         }
       }
     });

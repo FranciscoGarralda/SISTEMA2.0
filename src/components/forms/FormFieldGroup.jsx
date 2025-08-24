@@ -88,14 +88,12 @@ const FormFieldGroup = ({
     const fieldValue = formData[name] || '';
     const fieldError = errors[name] || '';
 
-    // Common props for all field types
+    // Common props for all field types (without key)
     const commonProps = {
-      key: name || index,
       name,
       label,
       value: fieldValue,
       onChange: (value) => handleFieldChange(name, value),
-
       required,
       error: fieldError,
       readOnly: readOnly || calculated,
@@ -116,6 +114,7 @@ const FormFieldGroup = ({
         // Para campos de cliente, usar FormSelect normal, no autocompletado
         return fieldWrapper(
           <FormSelect
+            key={name || index}
             {...commonProps}
             options={options}
             placeholder={placeholder || 'Seleccionar cliente'}
@@ -126,6 +125,7 @@ const FormFieldGroup = ({
         // Para campos de cliente con autocompletado
         return fieldWrapper(
           <ClientAutocomplete
+            key={name || index}
             {...commonProps}
             clients={options}
             placeholder={placeholder || 'Buscar cliente...'}
@@ -161,6 +161,7 @@ const FormFieldGroup = ({
         if (isSubOperation) {
           return fieldWrapper(
             <SubOperationButtons
+              key={name || index}
               {...commonProps}
               options={options}
             />
@@ -170,6 +171,7 @@ const FormFieldGroup = ({
         if (useButtons) {
           return fieldWrapper(
             <ButtonSelectGroup
+              key={name || index}
               {...commonProps}
               options={options}
             />
@@ -178,6 +180,7 @@ const FormFieldGroup = ({
         
         return fieldWrapper(
           <FormSelect
+            key={name || index}
             {...commonProps}
             options={options}
             filterOptions={filterOptions}
@@ -189,6 +192,7 @@ const FormFieldGroup = ({
       case 'date':
         return fieldWrapper(
           <FormInput
+            key={name || index}
             {...commonProps}
             type="date"
             showDayName={showDayName}
@@ -199,6 +203,7 @@ const FormFieldGroup = ({
       case 'wallet-buttons':
         return fieldWrapper(
           <WalletButtonGroup
+            key={name || index}
             {...commonProps}
           />
         );
@@ -206,6 +211,7 @@ const FormFieldGroup = ({
       case 'wallet-tc-buttons':
         return fieldWrapper(
           <WalletTCButtonGroup
+            key={name || index}
             {...commonProps}
           />
         );
@@ -213,6 +219,7 @@ const FormFieldGroup = ({
       case 'cuenta-buttons':
         return fieldWrapper(
           <CuentaButtonGroup
+            key={name || index}
             {...commonProps}
             allowEfectivo={fieldProps.allowEfectivo !== false}
           />
@@ -223,6 +230,7 @@ const FormFieldGroup = ({
         if (name && ['lapso', 'interes', 'comisionPorcentaje'].includes(name)) {
           return fieldWrapper(
             <FormInput
+              key={name || index}
               {...commonProps}
               type="number"
               placeholder={placeholder || '0'}
@@ -232,6 +240,7 @@ const FormFieldGroup = ({
         // All other numeric fields get currency formatting
         return fieldWrapper(
           <CurrencyInput
+            key={name || index}
             {...commonProps}
             currency="PESO"
             placeholder={placeholder || '$0'}
@@ -241,6 +250,7 @@ const FormFieldGroup = ({
       case 'currency':
         return fieldWrapper(
           <CurrencyInput
+            key={name || index}
             {...commonProps}
             currency={fieldProps.currency || 'PESO'}
             placeholder={placeholder || '$0'}
@@ -250,6 +260,7 @@ const FormFieldGroup = ({
       case 'commission':
         return fieldWrapper(
           <CommissionField
+            key={name || index}
             {...commonProps}
             commissionType={formData.tipoComision || 'percentage'}
             onCommissionTypeChange={(type) => handleFieldChange('tipoComision', type)}
@@ -259,6 +270,7 @@ const FormFieldGroup = ({
       case 'email':
         return fieldWrapper(
           <FormInput
+            key={name || index}
             {...commonProps}
             type="email"
             placeholder={placeholder || 'ejemplo@correo.com'}
@@ -268,6 +280,7 @@ const FormFieldGroup = ({
       case 'tel':
         return fieldWrapper(
           <FormInput
+            key={name || index}
             {...commonProps}
             type="tel"
             placeholder={placeholder || '+54 11 1234-5678'}
@@ -323,6 +336,7 @@ const FormFieldGroup = ({
       default:
         return fieldWrapper(
           <FormInput
+            key={name || index}
             {...commonProps}
             type={type}
             placeholder={placeholder}

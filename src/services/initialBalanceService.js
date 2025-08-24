@@ -17,17 +17,34 @@ class InitialBalanceService {
    * Cargar saldos desde localStorage
    */
   loadBalances() {
-    const result = safeLocalStorage.getItem(this.BALANCE_KEY);
-    this.balances = (result && result.success) ? result.data : {};
+    try {
+      const result = safeLocalStorage.getItem(this.BALANCE_KEY);
+      this.balances = (result && result.success && result.data) ? result.data : {};
+      // Asegurar que siempre sea un objeto
+      if (!this.balances || typeof this.balances !== 'object') {
+        this.balances = {};
+      }
+    } catch (error) {
+      console.error('Error loading initial balances:', error);
+      this.balances = {};
+    }
   }
 
   /**
    * Guardar saldos en localStorage
    */
   saveBalances() {
-    const result = safeLocalStorage.setItem(this.BALANCE_KEY, this.balances);
-    if (!result.success) {
-      console.error('Error saving initial balances:', result.error);
+    try {
+      // Asegurar que this.balances sea un objeto válido
+      if (!this.balances || typeof this.balances !== 'object') {
+        this.balances = {};
+      }
+      const result = safeLocalStorage.setItem(this.BALANCE_KEY, this.balances);
+      if (!result.success) {
+        console.error('Error saving initial balances:', result.error);
+      }
+    } catch (error) {
+      console.error('Error saving initial balances:', error);
     }
   }
 
@@ -35,6 +52,10 @@ class InitialBalanceService {
    * Obtiene el saldo inicial de una cuenta específica
    */
   getBalance(cuenta, moneda) {
+    // Asegurar que this.balances sea un objeto válido
+    if (!this.balances || typeof this.balances !== 'object') {
+      this.balances = {};
+    }
     const key = `${cuenta}-${moneda}`;
     return safeParseFloat(this.balances[key], 0);
   }
@@ -47,6 +68,11 @@ class InitialBalanceService {
     if (!cuenta || !moneda || typeof cuenta !== 'string' || typeof moneda !== 'string') {
       console.warn('setBalance: parámetros inválidos', { cuenta, moneda });
       return;
+    }
+    
+    // Asegurar que this.balances sea un objeto válido
+    if (!this.balances || typeof this.balances !== 'object') {
+      this.balances = {};
     }
     
     const key = `${cuenta}-${moneda}`;
@@ -67,7 +93,9 @@ class InitialBalanceService {
   getAllBalancesByCuenta() {
     const result = {};
     
+    // Asegurar que this.balances sea un objeto válido
     if (!this.balances || typeof this.balances !== 'object') {
+      this.balances = {};
       return result;
     }
     
@@ -91,7 +119,11 @@ class InitialBalanceService {
    * Obtiene todos los saldos iniciales
    */
   getAllBalances() {
-    return this.balances || {};
+    // Asegurar que this.balances sea un objeto válido
+    if (!this.balances || typeof this.balances !== 'object') {
+      this.balances = {};
+    }
+    return this.balances;
   }
 
   /**

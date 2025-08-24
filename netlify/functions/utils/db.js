@@ -1,11 +1,65 @@
 import { neon } from '@netlify/neon';
 
+// Configuración de base de datos
+let sql;
+
 // Inicializar la conexión a la base de datos
-export const sql = neon();
+try {
+  // Intentar conectar a Neon
+  sql = neon();
+  console.log('✅ Conectado a Neon Database');
+} catch (error) {
+  console.log('⚠️  No se pudo conectar a Neon, usando modo local');
+  // En modo local, simular la base de datos
+  sql = {
+    // Simular consultas para desarrollo local
+    async query(strings, ...values) {
+      console.log('🔧 Modo local: Simulando consulta SQL');
+      return [];
+    },
+    // Agregar método para template literals
+    async template(strings, ...values) {
+      console.log('🔧 Modo local: Simulando consulta SQL template');
+      return [];
+    }
+  };
+  
+  // Hacer que sql sea callable como función
+  const sqlFunction = async (...args) => {
+    if (args.length === 1 && Array.isArray(args[0])) {
+      return sqlFunction.template(args[0], ...args.slice(1));
+    }
+    return sqlFunction.query(args[0], ...args.slice(1));
+  };
+  
+  // Copiar métodos
+  sqlFunction.query = sql.query;
+  sqlFunction.template = sql.template;
+  
+  // Agregar método para template literals (neon style)
+  sqlFunction.template = async (strings, ...values) => {
+    console.log('🔧 Modo local: Simulando consulta SQL template');
+    // Simular respuesta para verificar admin
+    if (strings[0]?.includes('SELECT COUNT(*) FROM users WHERE username = \'admin\'')) {
+      return [{ count: '1' }];
+    }
+    return [];
+  };
+  
+  sql = sqlFunction;
+}
+
+export { sql };
 
 // Función para inicializar la base de datos
 export async function initializeDatabase() {
   try {
+    // Si estamos en modo local, no hacer nada
+    if (!process.env.NETLIFY_DATABASE_URL && !process.env.DATABASE_URL) {
+      console.log('🔧 Modo local: Saltando inicialización de base de datos');
+      return true;
+    }
+
     // Crear tabla de usuarios si no existe
     await sql`
       CREATE TABLE IF NOT EXISTS users (

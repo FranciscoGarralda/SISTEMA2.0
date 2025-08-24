@@ -183,6 +183,11 @@ export default function Home() {
       if (apiService.baseURL === 'local') {
         console.log('🔧 Guardando movimiento en localStorage');
         
+        // Verificar que localStorageBackend esté disponible
+        if (!localStorageBackend) {
+          throw new Error('localStorageBackend no está disponible');
+        }
+        
         if (editingMovement) {
           savedMovement = await localStorageBackend.updateMovement(editingMovement.id, movementData);
         } else {
@@ -457,35 +462,53 @@ export default function Home() {
         onViewMovementDetail: null // Add if needed
       },
       'cuentas-corrientes': {
-        ...commonProps
+        ...commonProps,
+        onNavigate: navigateTo
       },
       'prestamistas': {
         ...commonProps,
-        clients
+        clients,
+        onNavigate: navigateTo
       },
       'comisiones': {
-        ...commonProps
+        ...commonProps,
+        onNavigate: navigateTo
       },
       'utilidad': {
-        ...commonProps
+        ...commonProps,
+        onNavigate: navigateTo
       },
       'arbitraje': {
-        ...commonProps
+        ...commonProps,
+        movements,
+        onNavigate: navigateTo
       },
       'saldos': {
-        movements
+        ...commonProps,
+        movements,
+        onNavigate: navigateTo
       },
       'caja': {
         movements
       },
       'rentabilidad': {
-        movements
+        ...commonProps,
+        movements,
+        onNavigate: navigateTo
       },
       'stock': {
-        // StockApp no necesita props
+        ...commonProps,
+        movements,
+        onNavigate: navigateTo
       },
       'saldos-iniciales': {
-        // SaldosInicialesApp no necesita props
+        ...commonProps,
+        movements,
+        onNavigate: navigateTo
+      },
+      'usuarios': {
+        ...commonProps,
+        onNavigate: navigateTo
       }
     };
 
@@ -497,14 +520,14 @@ export default function Home() {
   // Show loading while checking auth
   if (checkingAuth) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-200 border-t-blue-600 mx-auto"></div>
-          <p className="mt-4 text-lg text-gray-700 font-medium">Conectando con el servidor...</p>
-          <p className="mt-2 text-sm text-gray-500">Verificando autenticación</p>
-          <div className="mt-4">
-            <div className="w-32 h-1 bg-gray-200 rounded-full mx-auto overflow-hidden">
-              <div className="h-full bg-blue-600 rounded-full animate-pulse" style={{width: '60%'}}></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-200 border-t-blue-600 mx-auto shadow-lg"></div>
+          <p className="mt-6 text-lg text-gray-700 dark:text-gray-200 font-semibold">Conectando con el servidor...</p>
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Verificando autenticación</p>
+          <div className="mt-6">
+            <div className="w-32 h-2 bg-gray-200 dark:bg-gray-700 rounded-full mx-auto overflow-hidden shadow-inner">
+              <div className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full animate-pulse" style={{width: '60%'}}></div>
             </div>
           </div>
         </div>
@@ -520,28 +543,35 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Sistema Financiero</title>
-        <meta name="description" content="Sistema de gestión financiera" />
+        <title>Sistema Financiero - Alliance F&R</title>
+        <meta name="description" content="Sistema de gestión financiera para casa de cambio" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <NavigationApp 
-        currentPage={currentPage} 
-        onNavigate={navigateTo}
-        currentUser={currentUser}
-        onLogout={handleLogout}
-        isSidebarOpen={isSidebarOpen}
-        toggleSidebar={toggleSidebar}
-      >
-        <Suspense fallback={
-          <div className="flex items-center justify-center min-h-screen">
-            <div className="text-gray-600">Cargando módulo...</div>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <NavigationApp 
+          currentPage={currentPage} 
+          onNavigate={navigateTo}
+          currentUser={currentUser}
+          onLogout={handleLogout}
+          isSidebarOpen={isSidebarOpen}
+          toggleSidebar={toggleSidebar}
+        >
+          <div className="p-6">
+            <Suspense fallback={
+              <div className="flex items-center justify-center min-h-[60vh]">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-blue-600 mx-auto mb-4"></div>
+                  <p className="text-gray-600 dark:text-gray-400 font-medium">Cargando módulo...</p>
+                </div>
+              </div>
+            }>
+              {renderCurrentPage()}
+            </Suspense>
           </div>
-        }>
-          {renderCurrentPage()}
-        </Suspense>
-      </NavigationApp>
+        </NavigationApp>
+      </div>
     </>
   );
 }

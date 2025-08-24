@@ -4,3 +4,4 @@ export { default as NavigationApp } from './NavigationApp.jsx';
 export { default as Footer } from './Footer.jsx';
 export { default as FixedHeader } from './FixedHeader.jsx';
 export { default as ErrorBoundary } from './ErrorBoundary.jsx';
+export { default as ErrorPage } from './ErrorPage.jsx';

@@ -23,8 +23,7 @@ const ArbitrajeApp = ({ movements = [], onNavigate }) => {
   // Filtrar movimientos para mostrar solo arbitraje
   const arbitrageMovements = useMemo(() => {
     return movements.filter(mov =>
-      mov.operacion === 'TRANSACCIONES' &&
-      mov.subOperacion === 'ARBITRAJE'
+      mov.operacion === 'ARBITRAJE'
     );
   }, [movements]);
 

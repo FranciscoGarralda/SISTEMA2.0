@@ -63,18 +63,28 @@ function UtilidadApp({ movements = [], onNavigate = () => {} }) {
         } else if (mov.subOperacion === 'VENTA') {
           if (amount > tempStockData[currency].cantidad) {
             console.warn(`Stock insuficiente para vender ${amount} de ${currency} en ${mov.fecha}`);
-            // Continue processing but flag as problematic
+            // Usar solo el stock disponible
+            const stockDisponible = tempStockData[currency].cantidad;
+            const costoUnitarioEnMonedaTC = tempStockData[currency].costoPromedio;
+            const costoTotalVenta = stockDisponible * costoUnitarioEnMonedaTC;
+            
+            // Calcular utilidad proporcional
+            const factorProporcional = stockDisponible / amount;
+            const ingresoProporcional = total * factorProporcional;
+            gananciaCalculada = ingresoProporcional - costoTotalVenta;
+          } else {
+            const costoUnitarioEnMonedaTC = tempStockData[currency].costoPromedio;
+            const costoTotalVenta = amount * costoUnitarioEnMonedaTC;
+
+            // Utilidad = Ingreso - Costo
+            gananciaCalculada = total - costoTotalVenta;
           }
 
-          const costoUnitarioEnMonedaTC = tempStockData[currency].costoPromedio;
-          const costoTotalVenta = amount * costoUnitarioEnMonedaTC;
-
-          // Utilidad = Ingreso - Costo
-          gananciaCalculada = total - costoTotalVenta;
-
           // Actualizar stock
-          tempStockData[currency].cantidad -= amount;
-          tempStockData[currency].totalCostoEnMonedaTC -= costoTotalVenta;
+          const cantidadAVender = amount > tempStockData[currency].cantidad ? tempStockData[currency].cantidad : amount;
+          const costoTotalVentaStock = cantidadAVender * tempStockData[currency].costoPromedio;
+          tempStockData[currency].cantidad -= cantidadAVender;
+          tempStockData[currency].totalCostoEnMonedaTC -= costoTotalVentaStock;
           
           if (tempStockData[currency].cantidad <= 0) {
             tempStockData[currency].cantidad = 0;

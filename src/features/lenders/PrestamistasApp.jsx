@@ -23,7 +23,7 @@ function PrestamistasApp({ clients = [], movements = [], onNavigate = () => {} }
 
   // Filtrar clientes prestamistas
   const prestamistaClients = useMemo(() => {
-    return clients.filter(client => client.tipoCliente === 'prestamistas');
+    return clients.filter(client => client.tipo === 'prestamistas');
   }, [clients]);
 
   // Función para calcular balances de un prestamista específico
@@ -73,7 +73,11 @@ function PrestamistasApp({ clients = [], movements = [], onNavigate = () => {} }
       if (mov.subOperacion === 'PRESTAMO') {
         const amount = safeParseFloat(mov.monto, 0);
         currentBalance.principal += amount;
-        currentBalance.effectiveRate = safeParseFloat(mov.interes, currentBalance.effectiveRate);
+        // Actualizar tasa solo si es mayor a 0
+        const newRate = safeParseFloat(mov.interes, 0);
+        if (newRate > 0) {
+          currentBalance.effectiveRate = newRate;
+        }
       } else if (mov.subOperacion === 'RETIRO') {
         const amount = safeParseFloat(mov.monto, 0);
         // Aplicar retiro: primero a intereses, luego a principal

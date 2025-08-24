@@ -73,16 +73,14 @@ const FormInput = forwardRef(({
             <Calendar size={18} className="text-gray-400" />
           </div>
         )}
-        
-        {/* Nombre del día para fechas */}
-        {showDayName && dayName && (
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
-            <span className="text-sm text-gray-400 dark:text-gray-400 font-medium">
-              {dayName}
-            </span>
-          </div>
-        )}
       </div>
+      
+      {/* Nombre del día para fechas - fuera del input */}
+      {showDayName && dayName && type === 'date' && (
+        <div className="text-sm text-gray-400 dark:text-gray-400 font-medium mt-1">
+          {dayName}
+        </div>
+      )}
       
       {/* Error message */}
       {error && (

@@ -18,17 +18,34 @@ class CCInitialBalanceService {
    * Cargar saldos desde localStorage
    */
   loadBalances() {
-    const result = safeLocalStorage.getItem(this.STORAGE_KEY);
-    this.balances = (result && result.success) ? result.data : {};
+    try {
+      const result = safeLocalStorage.getItem(this.STORAGE_KEY);
+      this.balances = (result && result.success && result.data) ? result.data : {};
+      // Asegurar que siempre sea un objeto
+      if (!this.balances || typeof this.balances !== 'object') {
+        this.balances = {};
+      }
+    } catch (error) {
+      console.error('Error loading CC initial balances:', error);
+      this.balances = {};
+    }
   }
 
   /**
    * Guardar saldos en localStorage
    */
   saveBalances() {
-    const result = safeLocalStorage.setItem(this.STORAGE_KEY, this.balances);
-    if (!result.success) {
-      console.error('Error guardando saldos CC:', result.error);
+    try {
+      // Asegurar que this.balances sea un objeto válido
+      if (!this.balances || typeof this.balances !== 'object') {
+        this.balances = {};
+      }
+      const result = safeLocalStorage.setItem(this.STORAGE_KEY, this.balances);
+      if (!result.success) {
+        console.error('Error guardando saldos CC:', result.error);
+      }
+    } catch (error) {
+      console.error('Error saving CC initial balances:', error);
     }
   }
 
@@ -36,8 +53,9 @@ class CCInitialBalanceService {
    * Obtener saldo inicial de un proveedor y moneda
    */
   getBalance(proveedor, moneda) {
+    // Asegurar que this.balances sea un objeto válido
     if (!this.balances || typeof this.balances !== 'object') {
-      return 0;
+      this.balances = {};
     }
     const key = `${proveedor}-${moneda}`;
     return safeParseFloat(this.balances[key], 0);
@@ -52,6 +70,11 @@ class CCInitialBalanceService {
     if (!proveedor || !moneda || typeof proveedor !== 'string' || typeof moneda !== 'string') {
       console.warn('setBalance: parámetros inválidos', { proveedor, moneda });
       return;
+    }
+    
+    // Asegurar que this.balances sea un objeto válido
+    if (!this.balances || typeof this.balances !== 'object') {
+      this.balances = {};
     }
     
     const key = `${proveedor}-${moneda}`;
@@ -72,7 +95,9 @@ class CCInitialBalanceService {
   getAllBalancesByProveedor() {
     const grouped = {};
     
+    // Asegurar que this.balances sea un objeto válido
     if (!this.balances || typeof this.balances !== 'object') {
+      this.balances = {};
       return grouped;
     }
     
@@ -96,6 +121,10 @@ class CCInitialBalanceService {
    * Obtener todos los saldos
    */
   getAllBalances() {
+    // Asegurar que this.balances sea un objeto válido
+    if (!this.balances || typeof this.balances !== 'object') {
+      this.balances = {};
+    }
     return { ...this.balances };
   }
 

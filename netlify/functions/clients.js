@@ -34,36 +34,77 @@ async function clientsHandler(event, context) {
 
 // Obtener todos los clientes
 async function getClients(event, context) {
-  const clients = await sql`
-    SELECT * FROM clients ORDER BY apellido, nombre
-  `;
-  
-  return success(clients);
+  try {
+    // Si estamos en modo local, devolver datos simulados
+    if (!process.env.NETLIFY_DATABASE_URL && !process.env.DATABASE_URL) {
+      console.log('🔧 Modo local: Devolviendo clientes simulados');
+      return success([
+        {
+          id: 1,
+          nombre: 'Cliente',
+          apellido: 'Demo',
+          email: 'demo@test.com',
+          telefono: '+54 11 1234-5678',
+          tipoCliente: 'regular',
+          created_at: new Date().toISOString()
+        }
+      ]);
+    }
+
+    const clients = await sql`
+      SELECT * FROM clients ORDER BY apellido, nombre
+    `;
+    
+    return success(clients);
+  } catch (err) {
+    console.error('Error obteniendo clientes:', err);
+    return error('Error al obtener clientes', 500);
+  }
 }
 
 // Crear un nuevo cliente
 async function createClient(event, context) {
-  const clientData = JSON.parse(event.body);
-  
-  // Validar datos requeridos
-  if (!clientData.nombre || !clientData.apellido) {
-    return error('Nombre y apellido son requeridos', 400);
+  try {
+    const clientData = JSON.parse(event.body);
+    
+    // Validar datos requeridos
+    if (!clientData.nombre || !clientData.apellido) {
+      return error('Nombre y apellido son requeridos', 400);
+    }
+    
+    // Si estamos en modo local, simular creación
+    if (!process.env.NETLIFY_DATABASE_URL && !process.env.DATABASE_URL) {
+      console.log('🔧 Modo local: Creando cliente simulado');
+      const newClient = {
+        id: Date.now(),
+        nombre: clientData.nombre,
+        apellido: clientData.apellido,
+        email: clientData.email || null,
+        telefono: clientData.telefono || null,
+        tipoCliente: clientData.tipoCliente || 'regular',
+        created_at: new Date().toISOString()
+      };
+      return success(newClient, 201);
+    }
+    
+    // Insertar cliente en la base de datos
+    const result = await sql`
+      INSERT INTO clients (nombre, apellido, email, telefono, tipoCliente)
+      VALUES (
+        ${clientData.nombre},
+        ${clientData.apellido},
+        ${clientData.email || null},
+        ${clientData.telefono || null},
+        ${clientData.tipoCliente || 'regular'}
+      )
+      RETURNING *
+    `;
+    
+    return success(result[0], 201);
+  } catch (err) {
+    console.error('Error creando cliente:', err);
+    return error('Error al crear cliente', 500);
   }
-  
-  // Insertar cliente en la base de datos
-  const result = await sql`
-    INSERT INTO clients (nombre, apellido, email, telefono, tipoCliente)
-    VALUES (
-      ${clientData.nombre},
-      ${clientData.apellido},
-      ${clientData.email || null},
-      ${clientData.telefono || null},
-      ${clientData.tipoCliente || 'regular'}
-    )
-    RETURNING *
-  `;
-  
-  return success(result[0], 201);
 }
 
 // Aplicar middleware de autenticación

@@ -36,14 +36,15 @@ const MenuItem = memo(({ icon: Icon, title, onClick, isActive, isSidebarOpen, on
         role="menuitem"
         onFocus={() => onFocus && onFocus(index)}
         className={`
-          w-full flex items-center gap-3 p-3 rounded-lg relative
+          w-full flex items-center gap-3 p-3 rounded-xl relative
           ${!isSidebarOpen ? 'justify-center' : ''}
           ${isActive 
-            ? 'bg-gray-900 text-white' 
-            : 'text-gray-600'
+            ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/25' 
+            : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20'
           }
           touch-manipulation select-none
-          focus:outline-none
+          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+          transition-all duration-200 ease-in-out
         `}
         onClick={onClick}
         aria-current={isActive ? 'page' : undefined}
@@ -55,9 +56,9 @@ const MenuItem = memo(({ icon: Icon, title, onClick, isActive, isSidebarOpen, on
           </span>
         )}
         
-        {/* Indicador activo sutil */}
+        {/* Indicador activo moderno */}
         {isActive && isSidebarOpen && (
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gray-900 rounded-r-full"></div>
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-white rounded-r-full shadow-sm"></div>
         )}
       </button>
     </SidebarTooltip>
