@@ -1,4 +1,4 @@
-import React, { useState, lazy, Suspense, useCallback, useMemo } from 'react';
+import React, { useState, lazy, Suspense, useCallback, useMemo, startTransition } from 'react';
 import Head from 'next/head';
 import { useAuth } from '../hooks/useAuth';
 import { useData } from '../hooks/useData';
@@ -140,7 +140,11 @@ export default function Home() {
     };
     
     const mappedPage = pageMap[page] || page;
-    setCurrentPage(mappedPage);
+    
+    // Use startTransition to avoid Suspense errors
+    startTransition(() => {
+      setCurrentPage(mappedPage);
+    });
     
     // Close sidebar on mobile after navigation
     if (window.innerWidth < 1024) {
@@ -316,6 +320,23 @@ export default function Home() {
     }
     
     const props = componentProps[currentPage] || commonProps;
+    
+    // Wrap lazy components with Suspense
+    if (Component.displayName === 'Lazy' || Component.$$typeof === Symbol.for('react.lazy')) {
+      return (
+        <Suspense fallback={
+          <div className="flex items-center justify-center min-h-[60vh]">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-blue-600 mx-auto mb-4"></div>
+              <p className="description-text dark:text-gray-400 font-medium">Cargando módulo...</p>
+            </div>
+          </div>
+        }>
+          <Component {...props} />
+        </Suspense>
+      );
+    }
+    
     return <Component {...props} />;
   };
 
@@ -365,16 +386,7 @@ export default function Home() {
           toggleSidebar={toggleSidebar}
         >
           <div className="p-6">
-            <Suspense fallback={
-              <div className="flex items-center justify-center min-h-[60vh]">
-                <div className="text-center">
-                  <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-blue-600 mx-auto mb-4"></div>
-                  <p className="description-text dark:text-gray-400 font-medium">Cargando módulo...</p>
-                </div>
-              </div>
-            }>
-              {renderCurrentPage()}
-            </Suspense>
+            {renderCurrentPage()}
           </div>
         </NavigationApp>
       </div>
