@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { specificFieldsConfig } from '../constants/fieldConfigs';
-import { safeParseFloat } from '../services/safeOperations';
+import { safeParseFloat } from '../services/utilityService';
 
 /**
  * Custom hook for managing mixed payments functionality

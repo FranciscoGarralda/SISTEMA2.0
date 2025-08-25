@@ -8,7 +8,7 @@ export default function ClientesPage() {
   const { clients, saveClient, deleteClient } = useClients();
   return (
     <MainLayout>
-      <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-gray-600">Cargando módulo...</div>}>
+      <Suspense fallback={<div className="min-h-screen flex items-center justify-center description-text">Cargando módulo...</div>}>
         <ClientesApp 
           clientes={clients}
           onSaveClient={saveClient}

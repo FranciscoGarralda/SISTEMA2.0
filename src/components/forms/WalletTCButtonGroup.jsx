@@ -64,7 +64,7 @@ export const WalletTCButtonGroup = React.forwardRef(({
 
   return (
     <div className="space-y-3">
-      <label className="block text-sm font-medium text-gray-700">
+      <label className="block text-sm font-medium empty-state-text">
         {label} {required && <span className="text-red-500">*</span>}
       </label>
       <div className="space-y-2">
@@ -79,7 +79,7 @@ export const WalletTCButtonGroup = React.forwardRef(({
                 ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-50'
                 : isActive('socio1', 'socio')
                   ? 'bg-gray-900 text-white border-gray-900'
-                  : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+                  : 'bg-white description-text border-gray-200 hover:table-header hover:border-gray-300'
             }`}
           >
             Socio 1
@@ -92,7 +92,7 @@ export const WalletTCButtonGroup = React.forwardRef(({
                 ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-50'
                 : isActive('socio2', 'socio')
                   ? 'bg-gray-900 text-white border-gray-900'
-                  : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+                  : 'bg-white description-text border-gray-200 hover:table-header hover:border-gray-300'
             }`}
           >
             Socio 2
@@ -105,7 +105,7 @@ export const WalletTCButtonGroup = React.forwardRef(({
                 ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-50'
                 : isActive('all', 'socio')
                   ? 'bg-gray-900 text-white border-gray-900'
-                  : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+                  : 'bg-white description-text border-gray-200 hover:table-header hover:border-gray-300'
             }`}
           >
             ALL
@@ -122,7 +122,7 @@ export const WalletTCButtonGroup = React.forwardRef(({
                 ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-50'
                 : isActive('efectivo', 'type')
                   ? 'bg-gray-900 text-white border-gray-900'
-                  : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+                  : 'bg-white description-text border-gray-200 hover:table-header hover:border-gray-300'
             }`}
           >
             Efectivo
@@ -135,7 +135,7 @@ export const WalletTCButtonGroup = React.forwardRef(({
                 ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-50'
                 : isActive('digital', 'type')
                   ? 'bg-gray-900 text-white border-gray-900'
-                  : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+                  : 'bg-white description-text border-gray-200 hover:table-header hover:border-gray-300'
             }`}
           >
             Digital
@@ -150,7 +150,7 @@ export const WalletTCButtonGroup = React.forwardRef(({
             className={`px-4 py-2.5 text-sm font-medium flex items-center justify-center rounded-lg border transition-colors ${
               isActive('pago_mixto', 'special')
                 ? 'bg-gray-900 text-white border-gray-900'
-                : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+                : 'bg-white description-text border-gray-200 hover:table-header hover:border-gray-300'
             }`}
           >
             Pago Mixto

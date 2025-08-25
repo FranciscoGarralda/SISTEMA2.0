@@ -244,18 +244,18 @@ function UserManagementApp() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 lg:p-6">
+    <div className="main-container p-4 lg:p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="bg-white rounded-xl shadow-soft p-6 mb-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                <Users className="w-6 h-6 text-gray-800" />
+                <Users className="w-6 h-6 description-text" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Gestión de Usuarios</h1>
-                <p className="text-sm text-gray-600">Administra usuarios y permisos del sistema</p>
+                <h1 className="main-title">Gestión de Usuarios</h1>
+                <p className="text-sm description-text">Administra usuarios y permisos del sistema</p>
               </div>
             </div>
             {!showForm && (
@@ -307,7 +307,7 @@ function UserManagementApp() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium empty-state-text mb-1">
                     Nombre
                   </label>
                   <input
@@ -320,7 +320,7 @@ function UserManagementApp() {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium empty-state-text mb-1">
                     Email
                   </label>
                   <input
@@ -333,7 +333,7 @@ function UserManagementApp() {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium empty-state-text mb-1">
                     Contraseña {editingUser && '(dejar vacío para mantener actual)'}
                   </label>
                   <input
@@ -346,7 +346,7 @@ function UserManagementApp() {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium empty-state-text mb-1">
                     Rol
                   </label>
                   <select
@@ -367,7 +367,7 @@ function UserManagementApp() {
               {formData.role !== 'admin' && (
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <label className="block text-sm font-medium text-gray-700">
+                    <label className="block text-sm font-medium empty-state-text">
                       Permisos de Acceso
                     </label>
                     <div className="flex gap-2">
@@ -389,7 +389,7 @@ function UserManagementApp() {
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-4 bg-gray-50 rounded-lg max-h-96 overflow-y-auto">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-4 table-header rounded-lg max-h-96 overflow-y-auto">
                     {SYSTEM_MODULES.map(module => (
                       <label
                         key={module.id}
@@ -402,7 +402,7 @@ function UserManagementApp() {
                           className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 flex-shrink-0"
                         />
                         <span className="text-sm flex-shrink-0">{module.icon}</span>
-                        <span className="text-sm text-gray-700 truncate">{module.name}</span>
+                        <span className="text-sm empty-state-text truncate">{module.name}</span>
                       </label>
                     ))}
                   </div>
@@ -418,7 +418,7 @@ function UserManagementApp() {
                   onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
                   className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
-                <label htmlFor="active" className="text-sm text-gray-700">
+                <label htmlFor="active" className="text-sm empty-state-text">
                   Usuario activo
                 </label>
               </div>
@@ -477,26 +477,26 @@ function UserManagementApp() {
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                          <span className="text-sm font-medium text-gray-600">
+                          <span className="text-sm font-medium description-text">
                             {user.name.charAt(0).toUpperCase()}
                           </span>
                         </div>
                         <div>
-                          <h3 className="font-medium text-gray-900">{user.name}</h3>
-                          <p className="text-sm text-gray-600">{user.email}</p>
+                          <h3 className="font-medium table-cell">{user.name}</h3>
+                          <p className="text-sm description-text">{user.email}</p>
                         </div>
                       </div>
                       <div className="flex gap-2">
                         <button
                           onClick={() => handleEdit(user)}
-                          className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          className="p-2 description-text hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                           title="Editar"
                         >
                           <Edit3 size={18} />
                         </button>
                         <button
                           onClick={() => handleDelete(user.id)}
-                          className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          className="p-2 description-text hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                           title="Eliminar"
                         >
                           <Trash2 size={18} />
@@ -512,7 +512,7 @@ function UserManagementApp() {
                             ? 'bg-purple-100 text-purple-800'
                             : user.role === 'operator'
                             ? 'bg-blue-100 text-blue-800'
-                            : 'bg-gray-100 text-gray-800'
+                            : 'bg-gray-100 description-text'
                         }`}>
                           <Shield size={12} className="mr-1" />
                           {ROLES.find(r => r.id === user.role)?.name || user.role}
@@ -543,7 +543,7 @@ function UserManagementApp() {
                               return moduleItem ? (
                                 <span
                                   key={perm}
-                                  className="inline-flex items-center px-2 py-1 rounded text-xs bg-gray-100 text-gray-700"
+                                  className="inline-flex items-center px-2 py-1 rounded text-xs bg-gray-100 empty-state-text"
                                 >
                                   {moduleItem.icon} {moduleItem.name}
                                 </span>
@@ -560,7 +560,7 @@ function UserManagementApp() {
               {/* Vista desktop */}
               <div className="hidden lg:block overflow-x-auto">
                 <table className="w-full">
-                <thead className="bg-gray-50 border-b border-gray-200">
+                <thead className="table-header border-b border-gray-200">
                   <tr>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Usuario
@@ -584,18 +584,18 @@ function UserManagementApp() {
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {users.map(user => (
-                    <tr key={user.id} className="hover:bg-gray-50">
+                    <tr key={user.id} className="hover:table-header">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
                           <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                            <span className="text-sm font-medium text-gray-600">
+                            <span className="text-sm font-medium description-text">
                               {user.name.charAt(0).toUpperCase()}
                             </span>
                           </div>
-                          <span className="font-medium text-gray-900">{user.name}</span>
+                          <span className="font-medium table-cell">{user.name}</span>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">
+                      <td className="px-4 py-3 text-sm description-text">
                         {user.email}
                       </td>
                       <td className="px-4 py-3">
@@ -604,7 +604,7 @@ function UserManagementApp() {
                             ? 'bg-purple-100 text-purple-800'
                             : user.role === 'operator'
                             ? 'bg-blue-100 text-blue-800'
-                            : 'bg-gray-100 text-gray-800'
+                            : 'bg-gray-100 description-text'
                         }`}>
                           <Shield size={12} className="mr-1" />
                           {ROLES.find(r => r.id === user.role)?.name || user.role}
@@ -620,7 +620,7 @@ function UserManagementApp() {
                               return moduleItem ? (
                                 <span
                                   key={perm}
-                                  className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-700"
+                                  className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-gray-100 empty-state-text"
                                   title={moduleItem.name}
                                 >
                                   {moduleItem.icon}
@@ -628,7 +628,7 @@ function UserManagementApp() {
                               ) : null;
                             })}
                             {user.permissions && Array.isArray(user.permissions) && user.permissions.length > 3 && (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-700">
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-gray-100 empty-state-text">
                                 +{user.permissions.length - 3}
                               </span>
                             )}
@@ -652,14 +652,14 @@ function UserManagementApp() {
                         <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => handleEdit(user)}
-                            className="p-1.5 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            className="p-1.5 description-text hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                             title="Editar"
                           >
                             <Edit3 size={16} />
                           </button>
                           <button
                             onClick={() => handleDelete(user.id)}
-                            className="p-1.5 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            className="p-1.5 description-text hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                             title="Eliminar"
                           >
                             <Trash2 size={16} />

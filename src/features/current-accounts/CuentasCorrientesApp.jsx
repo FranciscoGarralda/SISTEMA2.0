@@ -10,8 +10,8 @@ import {
   Eye
 } from 'lucide-react';
 import { formatAmountWithCurrency, proveedoresCC } from '../../components/forms';
-import { safeParseFloat } from '../../services/safeOperations';
-import { ccInitialBalanceService } from '../../services';
+import { safeParseFloat } from '../../services/utilityService';
+import { balanceService } from '../../services';
 
 /** COMPONENTE PRINCIPAL DE CUENTAS CORRIENTES */
 function CuentasCorrientesApp({ movements = [], onNavigate = () => {} }) {
@@ -27,7 +27,7 @@ function CuentasCorrientesApp({ movements = [], onNavigate = () => {} }) {
       if (p.value !== '') {
         p.allowedCurrencies.forEach(currency => {
           const key = `${p.value}-${currency}`;
-          const saldoInicial = ccInitialBalanceService.getBalance(p.value, currency);
+          const saldoInicial = balanceService.getCCBalance(p.value, currency);
           
           accountsMap.set(key, {
             proveedor: p.value,
@@ -285,21 +285,21 @@ function CuentasCorrientesApp({ movements = [], onNavigate = () => {} }) {
   // Vista de resumen
   if (currentView === 'summary') {
     return (
-      <div className="min-h-screen bg-gray-50 p-1 sm:p-2 lg:p-3 safe-top safe-bottom pt-24">
+      <div className="main-container p-1 sm:p-2 lg:p-3 safe-top safe-bottom pt-24">
         <div className="w-full px-2 sm:px-3 lg:px-4">
           {/* Header */}
           <div className="">
-            <div className="p-3 sm:p-4 lg:p-6 border-b border-gray-100">
+            <div className="section-header">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Building2 size={20} className="sm:w-6 sm:h-6 text-gray-800" />
+                    <Building2 size={20} className="sm:w-6 sm:h-6 description-text" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h1 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
+                    <h1 className="text-lg sm:text-xl font-semibold table-cell truncate">
                       Cuentas Corrientes
                     </h1>
-                    <p className="text-xs sm:text-sm text-gray-700">
+                    <p className="description-text">
                       Resumen por proveedor • {summaryTotals.length} proveedor{summaryTotals.length !== 1 ? 'es' : ''} activo{summaryTotals.length !== 1 ? 's' : ''}
                     </p>
                   </div>
@@ -318,7 +318,7 @@ function CuentasCorrientesApp({ movements = [], onNavigate = () => {} }) {
 
             {/* Contenido */}
             <div className="p-3 sm:p-4 lg:p-6">
-              <h2 className="text-base sm:text-lg font-semibold text-gray-700">
+              <h2 className="section-title">
                 Resumen por Proveedor
               </h2>
               
@@ -332,14 +332,14 @@ function CuentasCorrientesApp({ movements = [], onNavigate = () => {} }) {
                     >
                       {/* Header del proveedor */}
                       <div className="flex items-center justify-between mb-3 sm:mb-4">
-                        <h3 className="font-bold text-gray-900 text-sm sm:text-base truncate">
+                        <h3 className="font-bold table-cell text-sm sm:text-base truncate">
                           {getProviderLabel(providerSummary.proveedor)}
                         </h3>
                         <div className="flex items-center gap-1 flex-shrink-0">
-                          <span className="text-xs text-gray-800 bg-gray-100 px-2 py-1 rounded-full">
+                          <span className="text-xs description-text bg-gray-100 px-2 py-1 rounded-full">
                             {providerSummary.cantidadMonedas} moneda{providerSummary.cantidadMonedas !== 1 ? 's' : ''}
                           </span>
-                          <ChevronRight size={16} className="text-gray-800" />
+                          <ChevronRight size={16} className="description-text" />
                         </div>
                       </div>
 
@@ -349,14 +349,14 @@ function CuentasCorrientesApp({ movements = [], onNavigate = () => {} }) {
                         <div className="grid grid-cols-2 gap-2 sm:gap-3">
                           <div className="bg-white rounded-lg p-3 sm:p-4 text-center">
                             <TrendingUp size={14} className="text-success-500 mx-auto mb-2" />
-                            <p className="text-xs text-gray-700">Ingresos</p>
+                            <p className="text-xs empty-state-text">Ingresos</p>
                             <p className="font-semibold text-success-600 text-xs sm:text-sm">
                               {formatAmountWithCurrency(providerSummary.ingresos, 'PESO', { showSymbol: false, decimals: 0 })}
                             </p>
                           </div>
                           <div className="bg-white rounded-lg p-3 sm:p-4 text-center">
                             <TrendingDown size={14} className="text-error-500 mx-auto mb-2" />
-                            <p className="text-xs text-gray-700">Egresos</p>
+                            <p className="text-xs empty-state-text">Egresos</p>
                             <p className="font-semibold text-error-600 text-xs sm:text-sm">
                               {formatAmountWithCurrency(providerSummary.egresos, 'PESO', { showSymbol: false, decimals: 0 })}
                             </p>
@@ -365,7 +365,7 @@ function CuentasCorrientesApp({ movements = [], onNavigate = () => {} }) {
 
                         {/* Saldo consolidado */}
                         <div className="bg-white rounded-lg p-2 sm:p-3">
-                          <p className="text-xs text-gray-700 text-center mb-1">Saldo Consolidado</p>
+                          <p className="text-xs empty-state-text text-center mb-1">Saldo Consolidado</p>
                           <p className={`font-bold text-center text-sm sm:text-base ${
                             providerSummary.saldo < 0 ? 'text-error-600' : 'text-success-600'
                           }`}>
@@ -395,8 +395,8 @@ function CuentasCorrientesApp({ movements = [], onNavigate = () => {} }) {
                         {/* Comisiones generadas */}
                         {providerSummary.comisionesGeneradas > 0 && (
                           <div className="bg-gray-100 rounded-lg p-2 sm:p-3 text-center">
-                            <p className="text-xs text-gray-700">Comisiones generadas</p>
-                            <p className="font-semibold text-gray-800 text-xs sm:text-sm">
+                            <p className="text-xs empty-state-text">Comisiones generadas</p>
+                            <p className="font-semibold description-text text-xs sm:text-sm">
                               {formatAmountWithCurrency(providerSummary.comisionesGeneradas, 'PESO', { showSymbol: false, decimals: 0 })}
                             </p>
                           </div>
@@ -404,7 +404,7 @@ function CuentasCorrientesApp({ movements = [], onNavigate = () => {} }) {
 
                         {/* Contador de movimientos */}
                         <div className="text-center pt-2 border-t border-gray-200">
-                          <p className="text-xs text-gray-800">
+                          <p className="text-xs description-text">
                             {providerSummary.movimientosCount} movimiento{providerSummary.movimientosCount !== 1 ? 's' : ''}
                           </p>
                         </div>
@@ -414,9 +414,9 @@ function CuentasCorrientesApp({ movements = [], onNavigate = () => {} }) {
                 </div>
               ) : (
                 <div className="text-center py-8 sm:py-12">
-                  <Building2 size={40} className="sm:w-12 sm:h-12 mx-auto text-gray-300 mb-3 sm:mb-4" />
-                  <p className="text-sm sm:text-base text-gray-700 mb-2">No hay cuentas corrientes activas</p>
-                  <p className="text-xs sm:text-sm text-gray-800 mb-4">
+                  <Building2 size={40} className="sm:w-12 sm:h-12 mx-auto empty-state-text mb-3 sm:mb-4" />
+                  <p className="text-sm sm:text-base empty-state-text mb-2">No hay cuentas corrientes activas</p>
+                  <p className="text-xs sm:text-sm description-text mb-4">
                     Las cuentas corrientes aparecerán aquí cuando se registren movimientos de INGRESO o EGRESO con proveedores
                   </p>
 
@@ -432,42 +432,42 @@ function CuentasCorrientesApp({ movements = [], onNavigate = () => {} }) {
   // Vista de detalle
   if (currentView === 'detail' && selectedProviderForDetail) {
     return (
-      <div className="min-h-screen bg-gray-50 p-1 sm:p-2 lg:p-3 safe-top safe-bottom pt-24">
+      <div className="main-container p-1 sm:p-2 lg:p-3 safe-top safe-bottom pt-24">
         <div className="w-full px-2 sm:px-3 lg:px-4">
           {/* Header con navegación */}
           <div className="">
-            <div className="p-3 sm:p-4 lg:p-6 border-b border-gray-100">
+            <div className="section-header">
               <div className="flex items-center gap-3 mb-2 sm:mb-3">
                 <button
                   onClick={handleBackToSummary}
                   className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200 touch-target"
                   aria-label="Volver al resumen"
                 >
-                  <ArrowLeft size={18} className="text-gray-600" />
+                  <ArrowLeft size={18} className="description-text" />
                 </button>
                 <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Building2 size={20} className="sm:w-6 sm:h-6 text-gray-800" />
+                  <Building2 size={20} className="sm:w-6 sm:h-6 description-text" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h1 className="text-base sm:text-lg font-semibold text-gray-900 truncate">
+                  <h1 className="text-base sm:text-lg font-semibold table-cell truncate">
                     Detalle de {getProviderLabel(selectedProviderForDetail)}
                   </h1>
-                  <p className="text-xs sm:text-sm text-gray-700">
+                  <p className="description-text">
                     {detailedAccounts.length} moneda{detailedAccounts.length !== 1 ? 's' : ''} • {detailedViewTotals.movimientosCount} movimiento{detailedViewTotals.movimientosCount !== 1 ? 's' : ''}
                   </p>
                 </div>
               </div>
               
               {/* Breadcrumb */}
-              <nav className="text-xs sm:text-sm text-gray-700">
+              <nav className="description-text">
                 <button 
                   onClick={handleBackToSummary}
-                  className="hover:text-gray-700 transition-colors"
+                  className="hover:empty-state-text transition-colors"
                 >
                   Cuentas Corrientes
                 </button>
                 <span className="mx-2">›</span>
-                <span className="text-gray-700 font-medium">
+                <span className="empty-state-text font-medium">
                   {getProviderLabel(selectedProviderForDetail)}
                 </span>
               </nav>
@@ -480,34 +480,34 @@ function CuentasCorrientesApp({ movements = [], onNavigate = () => {} }) {
                   {/* Tabla de detalles por moneda - Desktop */}
                   <div className="hidden sm:block overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
+                      <thead className="table-header">
                         <tr>
-                          <th className="px-2 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                          <th className="px-2 py-2 text-left text-xs font-medium empty-state-text uppercase tracking-wider">
                             Moneda
                           </th>
-                          <th className="px-2 py-2 text-right text-xs font-medium text-gray-700 uppercase tracking-wider">
+                          <th className="px-2 py-2 text-right text-xs font-medium empty-state-text uppercase tracking-wider">
                             Ingresos
                           </th>
-                          <th className="px-2 py-2 text-right text-xs font-medium text-gray-700 uppercase tracking-wider">
+                          <th className="px-2 py-2 text-right text-xs font-medium empty-state-text uppercase tracking-wider">
                             Egresos
                           </th>
-                          <th className="px-2 py-2 text-right text-xs font-medium text-gray-700 uppercase tracking-wider">
+                          <th className="px-2 py-2 text-right text-xs font-medium empty-state-text uppercase tracking-wider">
                             Saldo
                           </th>
-                          <th className="px-2 py-2 text-right text-xs font-medium text-gray-700 uppercase tracking-wider">
+                          <th className="px-2 py-2 text-right text-xs font-medium empty-state-text uppercase tracking-wider">
                             Comisiones
                           </th>
-                          <th className="px-2 py-2 text-right text-xs font-medium text-gray-700 uppercase tracking-wider">
+                          <th className="px-2 py-2 text-right text-xs font-medium empty-state-text uppercase tracking-wider">
                             Estado
                           </th>
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
                         {detailedAccounts.map((account, index) => (
-                          <tr key={`${account.proveedor}-${account.moneda}-${index}`} className="hover:bg-gray-50">
+                          <tr key={`${account.proveedor}-${account.moneda}-${index}`} className="hover:table-header">
                             <td className="px-2 py-3 whitespace-nowrap">
                               <div className="flex items-center">
-                                <span className="text-sm font-medium text-gray-900">{account.moneda}</span>
+                                <span className="text-sm font-medium table-cell">{account.moneda}</span>
                               </div>
                             </td>
                             <td className="px-2 py-3 whitespace-nowrap text-right text-sm text-success-600 font-medium">
@@ -534,7 +534,7 @@ function CuentasCorrientesApp({ movements = [], onNavigate = () => {} }) {
                                   Nos deben: {formatAmountWithCurrency(account.debeProveedor, account.moneda)}
                                 </span>
                               ) : (
-                                <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">
+                                <span className="px-2 py-1 bg-gray-100 description-text rounded-full text-xs">
                                   Sin saldo
                                 </span>
                               )}
@@ -543,14 +543,14 @@ function CuentasCorrientesApp({ movements = [], onNavigate = () => {} }) {
                         ))}
                         
                         {/* Fila de totales */}
-                        <tr className="bg-gray-50 font-bold">
-                          <td className="px-2 py-3 whitespace-nowrap text-sm text-gray-900">
+                        <tr className="table-header font-bold">
+                          <td className="px-2 py-3 whitespace-nowrap text-sm table-cell">
                             TOTAL {getProviderLabel(selectedProviderForDetail)}
                           </td>
-                          <td className="px-2 py-3 whitespace-nowrap text-right text-sm text-gray-900">
+                          <td className="px-2 py-3 whitespace-nowrap text-right text-sm table-cell">
                             {formatAmountWithCurrency(detailedViewTotals.ingresos, 'PESO', { showSymbol: false })}
                           </td>
-                          <td className="px-2 py-3 whitespace-nowrap text-right text-sm text-gray-900">
+                          <td className="px-2 py-3 whitespace-nowrap text-right text-sm table-cell">
                             {formatAmountWithCurrency(detailedViewTotals.egresos, 'PESO', { showSymbol: false })}
                           </td>
                           <td className={`px-2 py-3 whitespace-nowrap text-right text-sm font-bold ${
@@ -571,7 +571,7 @@ function CuentasCorrientesApp({ movements = [], onNavigate = () => {} }) {
                                 Nos deben: {formatAmountWithCurrency(detailedViewTotals.debeProveedor, 'PESO', { showSymbol: false })}
                               </span>
                             ) : (
-                              <span className="text-gray-600 text-xs">Balanceado</span>
+                              <span className="description-text text-xs">Balanceado</span>
                             )}
                           </td>
                         </tr>
@@ -585,7 +585,7 @@ function CuentasCorrientesApp({ movements = [], onNavigate = () => {} }) {
                       <div key={`${account.proveedor}-${account.moneda}-${index}`} className="">
                         <div className="p-3 space-y-2">
                           <div className="flex items-center justify-between">
-                            <h3 className="font-semibold text-gray-900">{account.moneda}</h3>
+                            <h3 className="font-semibold table-cell">{account.moneda}</h3>
                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                               account.saldo < 0 ? 'bg-error-100 text-error-700' : 'bg-success-100 text-success-700'
                             }`}>
@@ -595,13 +595,13 @@ function CuentasCorrientesApp({ movements = [], onNavigate = () => {} }) {
                           
                           <div className="grid grid-cols-2 gap-2 text-sm">
                             <div>
-                              <p className="text-gray-700 text-xs">Ingresos</p>
+                              <p className="empty-state-text text-xs">Ingresos</p>
                               <p className="font-medium text-success-600">
                                 {formatAmountWithCurrency(account.ingresos, account.moneda)}
                               </p>
                             </div>
                             <div>
-                              <p className="text-gray-700 text-xs">Egresos</p>
+                              <p className="empty-state-text text-xs">Egresos</p>
                               <p className="font-medium text-error-600">
                                 {formatAmountWithCurrency(account.egresos, account.moneda)}
                               </p>
@@ -610,7 +610,7 @@ function CuentasCorrientesApp({ movements = [], onNavigate = () => {} }) {
                           
                           <div className="pt-2 border-t border-gray-100">
                             <div className="flex items-center justify-between">
-                              <span className="text-xs text-gray-700">Saldo</span>
+                              <span className="text-xs empty-state-text">Saldo</span>
                               <span className={`font-bold ${
                                 account.saldo < 0 ? 'text-error-600' : 'text-success-600'
                               }`}>
@@ -619,8 +619,8 @@ function CuentasCorrientesApp({ movements = [], onNavigate = () => {} }) {
                             </div>
                             {account.comisionesGeneradas > 0 && (
                               <div className="flex items-center justify-between mt-1">
-                                <span className="text-xs text-gray-700">Comisiones</span>
-                                <span className="font-medium text-gray-800">
+                                <span className="text-xs empty-state-text">Comisiones</span>
+                                <span className="font-medium description-text">
                                   {formatAmountWithCurrency(account.comisionesGeneradas, account.moneda)}
                                 </span>
                               </div>
@@ -631,22 +631,22 @@ function CuentasCorrientesApp({ movements = [], onNavigate = () => {} }) {
                     ))}
                     
                     {/* Card de totales para mobile */}
-                    <div className=" bg-gray-50 border-gray-200">
+                    <div className=" table-header border-gray-200">
                       <div className="p-3 space-y-2">
-                        <h3 className="font-bold text-gray-900">
+                        <h3 className="font-bold table-cell">
                           TOTAL {getProviderLabel(selectedProviderForDetail)}
                         </h3>
                         
                         <div className="grid grid-cols-2 gap-2 text-sm">
                           <div>
-                            <p className="text-gray-800 text-xs">Total Ingresos</p>
-                            <p className="font-medium text-gray-900">
+                            <p className="description-text text-xs">Total Ingresos</p>
+                            <p className="font-medium table-cell">
                               {formatAmountWithCurrency(detailedViewTotals.ingresos, 'PESO', { showSymbol: false })}
                             </p>
                           </div>
                           <div>
-                            <p className="text-gray-800 text-xs">Total Egresos</p>
-                            <p className="font-medium text-gray-900">
+                            <p className="description-text text-xs">Total Egresos</p>
+                            <p className="font-medium table-cell">
                               {formatAmountWithCurrency(detailedViewTotals.egresos, 'PESO', { showSymbol: false })}
                             </p>
                           </div>
@@ -654,7 +654,7 @@ function CuentasCorrientesApp({ movements = [], onNavigate = () => {} }) {
                         
                         <div className="pt-2 border-t border-gray-200">
                           <div className="flex items-center justify-between">
-                            <span className="text-xs text-gray-800">Saldo Total</span>
+                            <span className="text-xs description-text">Saldo Total</span>
                             <span className={`font-bold ${
                               detailedViewTotals.saldo < 0 ? 'text-error-600' : 'text-success-600'
                             }`}>
@@ -668,13 +668,13 @@ function CuentasCorrientesApp({ movements = [], onNavigate = () => {} }) {
                 </>
               ) : (
                 <div className="text-center py-8 sm:py-12">
-                  <Building2 size={40} className="sm:w-12 sm:h-12 mx-auto text-gray-300 mb-3 sm:mb-4" />
-                  <p className="text-sm sm:text-base text-gray-700 mb-2">
+                  <Building2 size={40} className="sm:w-12 sm:h-12 mx-auto empty-state-text mb-3 sm:mb-4" />
+                  <p className="text-sm sm:text-base empty-state-text mb-2">
                     No se encontraron movimientos para {getProviderLabel(selectedProviderForDetail)}
                   </p>
                   <button
                     onClick={handleBackToSummary}
-                    className="text-gray-800 hover:text-gray-700 text-sm underline"
+                    className="description-text hover:empty-state-text text-sm underline"
                   >
                     Volver al resumen
                   </button>

@@ -22,7 +22,7 @@ const MontoMonedaGroup = ({
   return (
     <div className={`space-y-3 ${className}`}>
       {/* Label compartido para Monto y Moneda */}
-      <label className="block text-sm font-medium text-gray-700">
+      <label className="block text-sm font-medium empty-state-text">
         Monto {montoRequired && <span className="text-red-500">*</span>}
       </label>
       

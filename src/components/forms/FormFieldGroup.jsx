@@ -293,7 +293,7 @@ const FormFieldGroup = ({
             {label && (
               <label 
                 htmlFor={name}
-                className="block text-xs sm:text-sm font-medium text-gray-700"
+                className="block text-xs sm:text-sm font-medium empty-state-text"
               >
                 {label}
                 {required && <span className="text-error-500 ml-1">*</span>}
@@ -311,11 +311,11 @@ const FormFieldGroup = ({
               className={[
                 'w-full px-3 py-2 text-sm border rounded-lg transition-all duration-200',
                 'focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-transparent',
-                'placeholder:text-gray-800 resize-vertical min-h-[80px]',
+                'placeholder:description-text resize-vertical min-h-[80px]',
                 'sm:px-4 sm:py-2.5',
                 readOnly || calculated
-                  ? 'bg-gray-50 text-gray-600 cursor-not-allowed border-gray-200'
-                  : 'bg-white text-gray-900 border-gray-300 hover:border-gray-400',
+                  ? 'table-header description-text cursor-not-allowed border-gray-200'
+                  : 'bg-white table-cell border-gray-300 hover:border-gray-400',
                 fieldError
                   ? 'border-error-500 focus:ring-error-500'
                   : ''

@@ -6,7 +6,7 @@ const MovimientosApp = lazy(() => import('../features/movements/MovimientosApp')
 export default function MovimientosPage() {
   return (
     <MainLayout>
-      <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-gray-600">Cargando módulo...</div>}>
+      <Suspense fallback={<div className="min-h-screen flex items-center justify-center description-text">Cargando módulo...</div>}>
         <MovimientosApp 
           movements={[]}
           clients={[]}

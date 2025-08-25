@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { TrendingUp, Calendar, DollarSign, Percent, BarChart3, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { formatAmountWithCurrency } from '../../components/forms';
-import { safeParseFloat } from '../../services/safeOperations';
+import { safeParseFloat } from '../../services/utilityService';
 import { monedas } from '../../constants';
 
 function RentabilidadApp({ movements = [] }) {
@@ -361,18 +361,18 @@ function RentabilidadApp({ movements = [] }) {
   }, [profitabilityData]);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-1 sm:p-2 lg:p-3 safe-top safe-bottom pt-24">
+    <div className="main-container p-1 sm:p-2 lg:p-3 safe-top safe-bottom pt-24">
       <div className="w-full px-2 sm:px-3 lg:px-4 space-y-4 sm:space-y-6">
         {/* Header */}
         <div className="bg-white rounded-lg shadow-sm">
-          <div className="p-3 sm:p-4 lg:p-6 border-b border-gray-200">
+          <div className="section-header">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-gray-800" />
+                <TrendingUp className="w-6 h-6 description-text" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">Rentabilidad</h1>
-                <p className="text-sm text-gray-600">Análisis de ganancias y márgenes</p>
+                <h1 className="text-xl font-bold table-cell">Rentabilidad</h1>
+                <p className="text-sm description-text">Análisis de ganancias y márgenes</p>
               </div>
             </div>
           </div>
@@ -386,7 +386,7 @@ function RentabilidadApp({ movements = [] }) {
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   selectedPeriod === 'diario'
                     ? 'bg-gray-800 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    : 'bg-gray-100 empty-state-text hover:bg-gray-200'
                 }`}
               >
                 Hoy
@@ -396,7 +396,7 @@ function RentabilidadApp({ movements = [] }) {
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   selectedPeriod === 'semanal'
                     ? 'bg-gray-800 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    : 'bg-gray-100 empty-state-text hover:bg-gray-200'
                 }`}
               >
                 Semana
@@ -406,7 +406,7 @@ function RentabilidadApp({ movements = [] }) {
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   selectedPeriod === 'mensual'
                     ? 'bg-gray-800 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    : 'bg-gray-100 empty-state-text hover:bg-gray-200'
                 }`}
               >
                 Mes
@@ -416,7 +416,7 @@ function RentabilidadApp({ movements = [] }) {
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   selectedPeriod === 'anual'
                     ? 'bg-gray-800 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    : 'bg-gray-100 empty-state-text hover:bg-gray-200'
                 }`}
               >
                 Año
@@ -426,7 +426,7 @@ function RentabilidadApp({ movements = [] }) {
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   selectedPeriod === 'personalizado'
                     ? 'bg-gray-800 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    : 'bg-gray-100 empty-state-text hover:bg-gray-200'
                 }`}
               >
                 Personalizado
@@ -441,20 +441,20 @@ function RentabilidadApp({ movements = [] }) {
                   type="date"
                   value={dateRange.start}
                   onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+                  className="px-3 py-2 form-input focus:outline-none focus:ring-2 focus:ring-gray-500"
                 />
                 <span className="text-gray-500">hasta</span>
                 <input
                   type="date"
                   value={dateRange.end}
                   onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+                  className="px-3 py-2 form-input focus:outline-none focus:ring-2 focus:ring-gray-500"
                 />
               </div>
             )}
 
             {/* Información del período */}
-            <div className="text-sm text-gray-600">
+            <div className="text-sm description-text">
               Mostrando datos desde <span className="font-medium">{new Date(dateRange.start).toLocaleDateString('es-AR')}</span> hasta <span className="font-medium">{new Date(dateRange.end).toLocaleDateString('es-AR')}</span>
             </div>
           </div>
@@ -464,10 +464,10 @@ function RentabilidadApp({ movements = [] }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-white rounded-lg shadow-sm p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-600">Ganancia Total</span>
+              <span className="text-sm description-text">Ganancia Total</span>
               <DollarSign size={20} className="text-green-600" />
             </div>
-            <p className="text-2xl font-bold text-gray-900">
+            <p className="main-title">
               {formatAmountWithCurrency(profitabilityData.general.gananciaTotal, 'PESO')}
             </p>
             {previousProfitabilityData.general.gananciaTotal > 0 && (
@@ -494,10 +494,10 @@ function RentabilidadApp({ movements = [] }) {
 
           <div className="bg-white rounded-lg shadow-sm p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-600">Operaciones Rentables</span>
+              <span className="text-sm description-text">Operaciones Rentables</span>
               <Percent size={20} className="text-blue-600" />
             </div>
-            <p className="text-2xl font-bold text-gray-900">
+            <p className="main-title">
               {profitabilityData.general.totalOperaciones > 0 
                 ? `${((profitabilityData.general.operacionesRentables / profitabilityData.general.totalOperaciones) * 100).toFixed(1)}%`
                 : '0%'
@@ -510,10 +510,10 @@ function RentabilidadApp({ movements = [] }) {
 
           <div className="bg-white rounded-lg shadow-sm p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-600">Ganancia Promedio</span>
+              <span className="text-sm description-text">Ganancia Promedio</span>
               <BarChart3 size={20} className="text-purple-600" />
             </div>
-            <p className="text-2xl font-bold text-gray-900">
+            <p className="main-title">
               {formatAmountWithCurrency(profitabilityData.general.margenPromedio, 'PESO')}
             </p>
             <p className="text-xs text-gray-500">Por operación</p>
@@ -521,10 +521,10 @@ function RentabilidadApp({ movements = [] }) {
 
           <div className="bg-white rounded-lg shadow-sm p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-600">Total Operaciones</span>
-              <ArrowUpRight size={20} className="text-gray-600" />
+              <span className="text-sm description-text">Total Operaciones</span>
+              <ArrowUpRight size={20} className="description-text" />
             </div>
-            <p className="text-2xl font-bold text-gray-900">
+            <p className="main-title">
               {filteredMovements.length}
             </p>
             <p className="text-xs text-gray-500">En el período</p>
@@ -533,32 +533,32 @@ function RentabilidadApp({ movements = [] }) {
 
         {/* Rentabilidad por moneda */}
         <div className="bg-white rounded-lg shadow-sm p-4">
-          <h3 className="font-semibold text-gray-800 mb-4">Rentabilidad por Moneda</h3>
+          <h3 className="font-semibold description-text mb-4">Rentabilidad por Moneda</h3>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200">
-                  <th className="text-left py-2 text-sm font-medium text-gray-700">Moneda</th>
-                  <th className="text-right py-2 text-sm font-medium text-gray-700">Operaciones</th>
-                  <th className="text-right py-2 text-sm font-medium text-gray-700">Volumen</th>
-                  <th className="text-right py-2 text-sm font-medium text-gray-700">Ganancia</th>
-                  <th className="text-right py-2 text-sm font-medium text-gray-700">Margen %</th>
+                  <th className="text-left py-2 text-sm font-medium empty-state-text">Moneda</th>
+                  <th className="text-right py-2 text-sm font-medium empty-state-text">Operaciones</th>
+                  <th className="text-right py-2 text-sm font-medium empty-state-text">Volumen</th>
+                  <th className="text-right py-2 text-sm font-medium empty-state-text">Ganancia</th>
+                  <th className="text-right py-2 text-sm font-medium empty-state-text">Margen %</th>
                 </tr>
               </thead>
               <tbody>
                 {Object.entries(profitabilityData.porMoneda).map(([moneda, data]) => (
-                  <tr key={moneda} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="py-3 text-sm font-medium text-gray-900">
+                  <tr key={moneda} className="border-b border-gray-100 hover:table-header">
+                    <td className="py-3 text-sm font-medium table-cell">
                       {monedas.find(m => m.value === moneda)?.label || moneda}
                     </td>
-                    <td className="py-3 text-sm text-right text-gray-700">{data.operaciones}</td>
-                    <td className="py-3 text-sm text-right text-gray-700">
+                    <td className="py-3 text-sm text-right empty-state-text">{data.operaciones}</td>
+                    <td className="py-3 text-sm text-right empty-state-text">
                       {formatAmountWithCurrency(data.volumen, moneda)}
                     </td>
                     <td className="py-3 text-sm text-right font-medium text-green-600">
                       {formatAmountWithCurrency(data.gananciaTotal, moneda)}
                     </td>
-                    <td className="py-3 text-sm text-right text-gray-700">
+                    <td className="py-3 text-sm text-right empty-state-text">
                       {data.margenPromedio.toFixed(2)}%
                     </td>
                   </tr>
@@ -570,22 +570,22 @@ function RentabilidadApp({ movements = [] }) {
 
         {/* Top clientes */}
         <div className="bg-white rounded-lg shadow-sm p-4">
-          <h3 className="font-semibold text-gray-800 mb-4">Top 10 Clientes por Rentabilidad</h3>
+          <h3 className="font-semibold description-text mb-4">Top 10 Clientes por Rentabilidad</h3>
           <div className="space-y-3">
             {topClientes.map((cliente, idx) => (
-              <div key={cliente.cliente} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div key={cliente.cliente} className="flex items-center justify-between p-3 table-header rounded-lg">
                 <div className="flex items-center gap-3">
                   <span className="text-lg font-bold text-gray-400">#{idx + 1}</span>
                   <div>
-                    <p className="font-medium text-gray-900">{cliente.cliente}</p>
-                    <p className="text-sm text-gray-600">{cliente.operaciones} operaciones</p>
+                    <p className="font-medium table-cell">{cliente.cliente}</p>
+                    <p className="text-sm description-text">{cliente.operaciones} operaciones</p>
                   </div>
                 </div>
                 <div className="text-right">
                   <p className="font-bold text-green-600">
                     {formatAmountWithCurrency(cliente.gananciaTotal, 'PESO')}
                   </p>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm description-text">
                     Vol: {formatAmountWithCurrency(cliente.volumen, 'PESO')}
                   </p>
                 </div>
@@ -597,15 +597,15 @@ function RentabilidadApp({ movements = [] }) {
         {/* Comisiones por tipo */}
         {Object.keys(profitabilityData.porTipo).length > 0 && (
           <div className="bg-white rounded-lg shadow-sm p-4">
-            <h3 className="font-semibold text-gray-800 mb-4">Comisiones por Tipo de Operación</h3>
+            <h3 className="font-semibold description-text mb-4">Comisiones por Tipo de Operación</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {Object.entries(profitabilityData.porTipo).map(([tipo, data]) => (
-                <div key={tipo} className="p-4 bg-gray-50 rounded-lg">
-                  <h4 className="font-medium text-gray-900 mb-2">{tipo}</h4>
+                <div key={tipo} className="p-4 table-header rounded-lg">
+                  <h4 className="font-medium table-cell mb-2">{tipo}</h4>
                   <p className="text-2xl font-bold text-green-600">
                     {formatAmountWithCurrency(data.comisionTotal, 'PESO')}
                   </p>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="text-sm description-text mt-1">
                     {data.operaciones} operaciones
                   </p>
                 </div>

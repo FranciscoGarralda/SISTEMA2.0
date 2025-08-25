@@ -28,10 +28,10 @@ const ButtonSelectGroup = ({
     
     return `${baseClasses} ${
       readOnly
-        ? 'bg-gray-50 text-gray-400 cursor-not-allowed'
+        ? 'table-header text-gray-400 cursor-not-allowed'
         : isActive
           ? 'bg-gray-900 text-white border-gray-900'
-          : 'bg-white text-gray-700 border-gray-200'
+          : 'bg-white empty-state-text border-gray-200'
     }`;
   };
 
@@ -66,7 +66,7 @@ const ButtonSelectGroup = ({
   return (
     <div className={`space-y-3 ${className}`}>
       {label && !hideLabel && (
-        <label className="block text-sm font-medium text-gray-700">
+        <label className="block text-sm font-medium empty-state-text">
           {label} {required && <span className="text-red-500">*</span>}
         </label>
       )}

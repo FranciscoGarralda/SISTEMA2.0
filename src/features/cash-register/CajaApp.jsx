@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Calculator, Calendar, DollarSign, TrendingUp, TrendingDown, Check, X, Printer, Save, RefreshCw } from 'lucide-react';
 import { formatAmountWithCurrency } from '../../components/forms';
-import { safeParseFloat } from '../../services/safeOperations';
+import { safeParseFloat } from '../../services/utilityService';
 import { cajaService } from '../../services';
 import { monedas } from '../../constants';
 
@@ -202,19 +202,19 @@ function CajaApp({ movements = [] }) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-1 sm:p-2 lg:p-3 safe-top safe-bottom pt-24">
+    <div className="main-container p-1 sm:p-2 lg:p-3 safe-top safe-bottom pt-24">
       <div className="w-full px-2 sm:px-3 lg:px-4 space-y-4 sm:space-y-6">
         {/* Header */}
         <div className="bg-white rounded-lg shadow-sm">
-          <div className="p-3 sm:p-4 lg:p-6 border-b border-gray-200">
+          <div className="section-header">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                  <Calculator className="w-6 h-6 text-gray-800" />
+                  <Calculator className="w-6 h-6 description-text" />
                 </div>
                 <div>
-                  <h1 className="text-xl font-bold text-gray-900">Caja Diaria</h1>
-                  <p className="text-sm text-gray-600">Cuadre y control de efectivo</p>
+                  <h1 className="text-xl font-bold table-cell">Caja Diaria</h1>
+                  <p className="text-sm description-text">Cuadre y control de efectivo</p>
                 </div>
               </div>
               <button
@@ -236,9 +236,9 @@ function CajaApp({ movements = [] }) {
                   type="date"
                   value={selectedDate}
                   onChange={(e) => setSelectedDate(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+                  className="px-3 py-2 form-input focus:outline-none focus:ring-2 focus:ring-gray-500"
                 />
-                <span className="text-sm text-gray-600">
+                <span className="text-sm description-text">
                   {dailyMovements.length} movimientos
                 </span>
               </div>
@@ -246,7 +246,7 @@ function CajaApp({ movements = [] }) {
               <div className="flex gap-2">
                 <button
                   onClick={handleRecargarApertura}
-                  className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors flex items-center gap-1"
+                  className="px-3 py-1.5 bg-gray-100 empty-state-text rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors flex items-center gap-1"
                   title="Recargar apertura del día anterior"
                 >
                   <RefreshCw size={14} />
@@ -274,7 +274,7 @@ function CajaApp({ movements = [] }) {
           <div className="p-3 sm:p-4">
             <button
               onClick={() => setShowDetails(!showDetails)}
-              className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+              className="text-sm description-text hover:table-cell transition-colors"
             >
               {showDetails ? 'Ocultar' : 'Mostrar'} detalles de movimientos
             </button>
@@ -286,13 +286,13 @@ function CajaApp({ movements = [] }) {
           {dailySummary.map(caja => (
             <div key={`${caja.moneda}-${caja.tipo}`} className="bg-white rounded-lg shadow-sm p-4">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-gray-800">
+                <h3 className="font-semibold description-text">
                   {caja.monedaLabel} - {caja.tipo === 'efectivo' ? 'Efectivo' : 'Digital'}
                 </h3>
                 <div className={`px-2 py-1 rounded text-xs font-medium ${
                   Math.abs(caja.diferencia) < 0.01 
-                    ? 'bg-gray-50 text-gray-700' 
-                    : 'bg-gray-100 text-gray-800'
+                    ? 'table-header empty-state-text' 
+                    : 'bg-gray-100 description-text'
                 }`}>
                   {Math.abs(caja.diferencia) < 0.01 ? (
                     <Check size={14} className="inline" />
@@ -307,13 +307,13 @@ function CajaApp({ movements = [] }) {
               <div className="space-y-2 text-sm">
                 {/* Apertura */}
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Apertura:</span>
+                  <span className="description-text">Apertura:</span>
                   <span className="font-medium">{formatAmountWithCurrency(caja.apertura, caja.moneda)}</span>
                 </div>
 
                 {/* Ingresos */}
                 <div className="flex justify-between">
-                  <span className="text-gray-600 flex items-center gap-1">
+                  <span className="description-text flex items-center gap-1">
                     <TrendingUp size={14} className="text-green-600" />
                     Ingresos:
                   </span>
@@ -324,7 +324,7 @@ function CajaApp({ movements = [] }) {
 
                 {/* Egresos */}
                 <div className="flex justify-between">
-                  <span className="text-gray-600 flex items-center gap-1">
+                  <span className="description-text flex items-center gap-1">
                     <TrendingDown size={14} className="text-red-600" />
                     Egresos:
                   </span>
@@ -337,14 +337,14 @@ function CajaApp({ movements = [] }) {
                 <div className="border-t border-gray-200 pt-2">
                   {/* Esperado */}
                   <div className="flex justify-between">
-                    <span className="text-gray-600 font-medium">Esperado:</span>
+                    <span className="description-text font-medium">Esperado:</span>
                     <span className="font-bold">{formatAmountWithCurrency(caja.esperado, caja.moneda)}</span>
                   </div>
 
                   {/* Contado - Solo para efectivo */}
                   {caja.tipo === 'efectivo' && (
                     <div className="flex justify-between items-center mt-2">
-                      <span className="text-gray-600 font-medium">Contado:</span>
+                      <span className="description-text font-medium">Contado:</span>
                       <input
                         type="number"
                         value={cashCounts[`${caja.moneda}-${caja.tipo}`] || ''}
@@ -360,11 +360,11 @@ function CajaApp({ movements = [] }) {
               {/* Detalles de movimientos */}
               {showDetails && caja.movimientos.length > 0 && (
                 <div className="mt-4 pt-4 border-t border-gray-200">
-                  <h4 className="text-xs font-medium text-gray-700 mb-2">Movimientos:</h4>
+                  <h4 className="text-xs font-medium empty-state-text mb-2">Movimientos:</h4>
                   <div className="space-y-1 max-h-40 overflow-y-auto">
                     {caja.movimientos.map((mov, idx) => (
                       <div key={idx} className="flex justify-between text-xs">
-                        <span className="text-gray-600">
+                        <span className="description-text">
                           {mov.cliente} - {mov.operacion}
                         </span>
                         <span className={mov.esIngreso ? 'text-green-600' : 'text-red-600'}>
@@ -381,18 +381,18 @@ function CajaApp({ movements = [] }) {
 
         {/* Resumen general */}
         <div className="bg-white rounded-lg shadow-sm p-4">
-          <h3 className="font-semibold text-gray-800 mb-4">Resumen del Día</h3>
+          <h3 className="font-semibold description-text mb-4">Resumen del Día</h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="text-center">
-              <p className="text-sm text-gray-600">Total Operaciones</p>
-              <p className="text-2xl font-bold text-gray-900">{dailyMovements.length}</p>
+              <p className="text-sm description-text">Total Operaciones</p>
+              <p className="main-title">{dailyMovements.length}</p>
             </div>
             <div className="text-center">
-              <p className="text-sm text-gray-600">Cajas Activas</p>
-              <p className="text-2xl font-bold text-gray-900">{dailySummary.length}</p>
+              <p className="text-sm description-text">Cajas Activas</p>
+              <p className="main-title">{dailySummary.length}</p>
             </div>
             <div className="text-center">
-              <p className="text-sm text-gray-600">Estado General</p>
+              <p className="text-sm description-text">Estado General</p>
               <p className="text-2xl font-bold">
                 {dailySummary.every(c => Math.abs(c.diferencia) < 0.01) ? (
                   <span className="text-green-600">✓ Cuadrado</span>

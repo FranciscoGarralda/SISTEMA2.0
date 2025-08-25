@@ -2,7 +2,7 @@
  * Currency options with flags and symbols
  */
 
-import { safeParseFloat } from '../services/safeOperations.js';
+import { safeParseFloat } from '../services/utilityService.js';
 export const monedas = [
   { value: 'PESO', label: '🇦🇷 ARS' },
   { value: 'USD', label: '💵 USD' },

@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer } from 'recharts';
 import { FormInput, formatAmountWithCurrency } from '../../components/forms';
-import { safeParseFloat } from '../../services/safeOperations';
+import { safeParseFloat } from '../../services/utilityService';
 import { getTodayLocalDate, getCurrentYearMonth, isCurrentMonth, isToday } from '../../utils/dateUtils';
 
 /** COMPONENTE PRINCIPAL DE ANÁLISIS DE COMISIONES */
@@ -211,7 +211,7 @@ function ComisionesApp({ movements = [], onNavigate = () => {} }) {
               ))}
             </div>
           ) : (
-            <p className="text-base sm:text-lg text-gray-700 font-medium">Sin datos</p>
+            <p className="text-base sm:text-lg empty-state-text font-medium">Sin datos</p>
           )}
         </div>
         <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full ${bgColor} bg-opacity-20 flex items-center justify-center flex-shrink-0`}>
@@ -222,21 +222,21 @@ function ComisionesApp({ movements = [], onNavigate = () => {} }) {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 p-1 sm:p-2 lg:p-3 safe-top safe-bottom pt-24">
+    <div className="main-container p-1 sm:p-2 lg:p-3 safe-top safe-bottom pt-24">
       <div className="w-full px-2 sm:px-3 lg:px-4 space-y-4 sm:space-y-6">
         {/* Header */}
         <div className="">
-          <div className="p-3 sm:p-4 lg:p-6 border-b border-gray-100">
+          <div className="section-header">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-success-100 rounded-xl flex items-center justify-center flex-shrink-0">
                   <DollarSign size={20} className="sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-success-600" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h1 className="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-900 truncate">
+                  <h1 className="main-title truncate">
                     Análisis de Comisiones
                   </h1>
-                  <p className="text-xs sm:text-sm text-gray-700">
+                  <p className="description-text">
                     Dashboard completo de ingresos por comisiones • {commissionMovements.length} movimiento{commissionMovements.length !== 1 ? 's' : ''} con comisión
                   </p>
                 </div>
@@ -247,7 +247,7 @@ function ComisionesApp({ movements = [], onNavigate = () => {} }) {
 
           {/* Métricas principales */}
           <div className="p-3 sm:p-4 lg:p-6">
-            <h2 className="text-base sm:text-lg font-semibold text-gray-700">
+            <h2 className="section-title">
               Métricas Principales
             </h2>
             
@@ -255,8 +255,8 @@ function ComisionesApp({ movements = [], onNavigate = () => {} }) {
               {renderMetricCard(
                 'Comisión Total Histórica',
                 totalCommissions,
-                'bg-gray-50',
-                'text-gray-700',
+                'table-header',
+                'empty-state-text',
                 'border-gray-500',
                 Target
               )}
@@ -281,7 +281,7 @@ function ComisionesApp({ movements = [], onNavigate = () => {} }) {
             </div>
 
             {/* Métricas por tipo */}
-            <h3 className="text-sm font-semibold text-gray-600 mb-4">Comisiones por Tipo</h3>
+            <h3 className="text-sm font-semibold description-text mb-4">Comisiones por Tipo</h3>
             <div className="grid grid-cols-1 gap-4 sm:gap-6">
               {renderMetricCard(
                 'Proveedores CC',
@@ -298,8 +298,8 @@ function ComisionesApp({ movements = [], onNavigate = () => {} }) {
         {/* Buscador de comisiones por día */}
         <div className="">
           <div className="p-3 sm:p-4 lg:p-6">
-            <h2 className="text-base sm:text-lg font-semibold text-gray-700 mb-4 sm:mb-6 flex items-center gap-2">
-              <Search size={18} className="text-gray-800 flex-shrink-0" />
+            <h2 className="section-title mb-4 sm:mb-6 flex items-center gap-2">
+              <Search size={18} className="description-text flex-shrink-0" />
               <span>Buscar Comisiones por Fecha</span>
             </h2>
             
@@ -316,8 +316,8 @@ function ComisionesApp({ movements = [], onNavigate = () => {} }) {
               
               <div className="flex items-end">
                 {selectedDate && Object.entries(dailyCommissionsForSelectedDate).length > 0 ? (
-                  <div className="bg-gray-50 p-3 sm:p-4 rounded-lg w-full">
-                    <p className="text-xs sm:text-sm font-medium text-gray-700 mb-2">
+                  <div className="empty-state w-full">
+                    <p className="text-xs sm:text-sm font-medium empty-state-text mb-2">
                       Comisiones para {new Date(selectedDate + 'T12:00:00').toLocaleDateString('es-ES', { 
                         weekday: 'long', 
                         year: 'numeric', 
@@ -327,19 +327,19 @@ function ComisionesApp({ movements = [], onNavigate = () => {} }) {
                     </p>
                     <div className="space-y-1">
                       {Object.entries(dailyCommissionsForSelectedDate).map(([currency, amount]) => (
-                        <p key={currency} className="text-sm sm:text-base lg:text-lg font-bold text-gray-900">
+                        <p key={currency} className="text-sm sm:text-base lg:text-lg font-bold table-cell">
                           {formatAmountWithCurrency(amount, currency)}
                         </p>
                       ))}
                     </div>
                   </div>
                 ) : selectedDate ? (
-                  <div className="bg-gray-50 p-3 sm:p-4 rounded-lg w-full text-center">
-                    <p className="text-xs sm:text-sm text-gray-700">No hay comisiones para la fecha seleccionada</p>
+                  <div className="empty-state w-full text-center">
+                    <p className="description-text">No hay comisiones para la fecha seleccionada</p>
                   </div>
                 ) : (
-                  <div className="bg-gray-50 p-3 sm:p-4 rounded-lg w-full text-center">
-                    <p className="text-xs sm:text-sm text-gray-800">Selecciona una fecha para ver las comisiones</p>
+                  <div className="empty-state w-full text-center">
+                    <p className="text-xs sm:text-sm description-text">Selecciona una fecha para ver las comisiones</p>
                   </div>
                 )}
               </div>
@@ -350,7 +350,7 @@ function ComisionesApp({ movements = [], onNavigate = () => {} }) {
         {/* Comisiones por proveedor */}
         <div className="">
           <div className="p-3 sm:p-4 lg:p-6">
-            <h2 className="text-base sm:text-lg font-semibold text-gray-700 mb-4 sm:mb-6 flex items-center gap-2">
+            <h2 className="section-title mb-4 sm:mb-6 flex items-center gap-2">
               <Building2 size={18} className="text-purple-600 flex-shrink-0" />
               <span>Comisiones por Proveedor</span>
             </h2>
@@ -360,17 +360,17 @@ function ComisionesApp({ movements = [], onNavigate = () => {} }) {
                 {/* Tabla para desktop */}
                 <div className="hidden sm:block overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+                    <thead className="table-header">
                       <tr>
-                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                        <th className="px-2 py-2 text-left text-xs font-medium empty-state-text uppercase tracking-wider">
                           Proveedor
                         </th>
                         {allCurrenciesInCommissions.map(currency => (
-                          <th key={currency} className="px-2 py-2 text-right text-xs font-medium text-gray-700 uppercase tracking-wider">
+                          <th key={currency} className="px-2 py-2 text-right text-xs font-medium empty-state-text uppercase tracking-wider">
                             {currency}
                           </th>
                         ))}
-                        <th className="px-2 py-2 text-right text-xs font-medium text-gray-700 uppercase tracking-wider">
+                        <th className="px-2 py-2 text-right text-xs font-medium empty-state-text uppercase tracking-wider">
                           Operaciones
                         </th>
                       </tr>
@@ -388,23 +388,23 @@ function ComisionesApp({ movements = [], onNavigate = () => {} }) {
                         }).length;
                         
                         return (
-                          <tr key={provider} className="hover:bg-gray-50">
+                          <tr key={provider} className="hover:table-header">
                             <td className="px-2 py-3 whitespace-nowrap">
                               <div className="flex items-center">
                                 <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
                                   <Building2 size={16} className="text-purple-600" />
                                 </div>
-                                <span className="text-sm font-medium text-gray-900 truncate">{provider}</span>
+                                <span className="text-sm font-medium table-cell truncate">{provider}</span>
                               </div>
                             </td>
                             {allCurrenciesInCommissions.map(currency => (
                               <td key={`${provider}-${currency}`} className="px-2 py-3 whitespace-nowrap text-right text-sm">
                                 {currencies[currency] ? (
-                                  <span className="font-medium text-gray-900">
+                                  <span className="font-medium table-cell">
                                     {formatAmountWithCurrency(currencies[currency], currency)}
                                   </span>
                                 ) : (
-                                  <span className="text-gray-800">-</span>
+                                  <span className="description-text">-</span>
                                 )}
                               </td>
                             ))}
@@ -426,12 +426,12 @@ function ComisionesApp({ movements = [], onNavigate = () => {} }) {
                     ).length;
                     
                     return (
-                      <div key={provider} className="bg-gray-50 rounded-lg p-3">
+                      <div key={provider} className="table-header rounded-lg p-3">
                         <div className="flex items-center gap-2 mb-3">
                           <div className="w-6 h-6 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
                             <Building2 size={14} className="text-purple-600" />
                           </div>
-                          <h3 className="font-medium text-gray-900 text-sm truncate flex-1">{provider}</h3>
+                          <h3 className="font-medium table-cell text-sm truncate flex-1">{provider}</h3>
                           <span className="text-xs text-purple-600 font-medium bg-purple-100 px-2 py-1 rounded-full">
                             {operationsCount} op.
                           </span>
@@ -440,8 +440,8 @@ function ComisionesApp({ movements = [], onNavigate = () => {} }) {
                         <div className="space-y-1">
                           {Object.entries(currencies).map(([currency, amount]) => (
                             <div key={currency} className="flex justify-between items-center">
-                              <span className="text-xs text-gray-600">{currency}</span>
-                              <span className="text-sm font-medium text-gray-900">
+                              <span className="text-xs description-text">{currency}</span>
+                              <span className="text-sm font-medium table-cell">
                                 {formatAmountWithCurrency(amount, currency)}
                               </span>
                             </div>
@@ -454,8 +454,8 @@ function ComisionesApp({ movements = [], onNavigate = () => {} }) {
               </>
             ) : (
               <div className="text-center py-6 sm:py-8">
-                <Building2 size={40} className="sm:w-12 sm:h-12 mx-auto text-gray-300 mb-3 sm:mb-4" />
-                <p className="text-sm sm:text-base text-gray-700">No hay datos de comisiones por proveedor.</p>
+                <Building2 size={40} className="sm:w-12 sm:h-12 mx-auto empty-state-text mb-3 sm:mb-4" />
+                <p className="text-sm sm:text-base empty-state-text">No hay datos de comisiones por proveedor.</p>
               </div>
             )}
           </div>
@@ -464,7 +464,7 @@ function ComisionesApp({ movements = [], onNavigate = () => {} }) {
         {/* Gráfico de comisiones mensuales */}
         <div className="">
           <div className="p-3 sm:p-4 lg:p-6">
-            <h2 className="text-base sm:text-lg font-semibold text-gray-700 mb-4 sm:mb-6 flex items-center gap-2">
+            <h2 className="section-title mb-4 sm:mb-6 flex items-center gap-2">
               <BarChart3 size={18} className="text-emerald-600 flex-shrink-0" />
               <span>Tendencia de Comisiones Mensuales</span>
             </h2>
@@ -502,8 +502,8 @@ function ComisionesApp({ movements = [], onNavigate = () => {} }) {
               </div>
             ) : (
               <div className="text-center py-8 sm:py-12">
-                <PieChart size={40} className="sm:w-12 sm:h-12 mx-auto text-gray-300 mb-3 sm:mb-4" />
-                <p className="text-sm sm:text-base text-gray-700">No hay datos de comisiones mensuales para graficar.</p>
+                <PieChart size={40} className="sm:w-12 sm:h-12 mx-auto empty-state-text mb-3 sm:mb-4" />
+                <p className="text-sm sm:text-base empty-state-text">No hay datos de comisiones mensuales para graficar.</p>
               </div>
             )}
           </div>
@@ -513,26 +513,26 @@ function ComisionesApp({ movements = [], onNavigate = () => {} }) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           <div className="">
             <div className="p-3 sm:p-4 lg:p-6">
-              <h3 className="text-base sm:text-lg font-semibold text-gray-700 mb-3 sm:mb-4 flex items-center gap-2">
+              <h3 className="section-title mb-3 sm:mb-4 flex items-center gap-2">
                 <TrendingUp size={16} className="text-emerald-600" />
                 Resumen Ejecutivo
               </h3>
               <div className="space-y-2 sm:space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-xs sm:text-sm text-gray-600">Total de operaciones con comisión:</span>
-                  <span className="font-semibold text-gray-900 text-sm sm:text-base">{commissionMovements.length}</span>
+                  <span className="text-xs sm:text-sm description-text">Total de operaciones con comisión:</span>
+                  <span className="font-semibold table-cell text-sm sm:text-base">{commissionMovements.length}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-xs sm:text-sm text-gray-600">Monedas operadas:</span>
-                  <span className="font-semibold text-gray-900 text-sm sm:text-base">{allCurrenciesInCommissions.length}</span>
+                  <span className="text-xs sm:text-sm description-text">Monedas operadas:</span>
+                  <span className="font-semibold table-cell text-sm sm:text-base">{allCurrenciesInCommissions.length}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-xs sm:text-sm text-gray-600">Proveedores activos:</span>
-                  <span className="font-semibold text-gray-900 text-sm sm:text-base">{Object.keys(commissionsByProvider).length}</span>
+                  <span className="text-xs sm:text-sm description-text">Proveedores activos:</span>
+                  <span className="font-semibold table-cell text-sm sm:text-base">{Object.keys(commissionsByProvider).length}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-xs sm:text-sm text-gray-600">Meses con actividad:</span>
-                  <span className="font-semibold text-gray-900 text-sm sm:text-base">{monthlyCommissions.length}</span>
+                  <span className="text-xs sm:text-sm description-text">Meses con actividad:</span>
+                  <span className="font-semibold table-cell text-sm sm:text-base">{monthlyCommissions.length}</span>
                 </div>
               </div>
             </div>
@@ -540,11 +540,11 @@ function ComisionesApp({ movements = [], onNavigate = () => {} }) {
 
           <div className="">
             <div className="p-3 sm:p-4 lg:p-6">
-              <h3 className="text-base sm:text-lg font-semibold text-gray-700 mb-3 sm:mb-4 flex items-center gap-2">
-                <Target size={16} className="text-gray-800" />
+              <h3 className="section-title mb-3 sm:mb-4 flex items-center gap-2">
+                <Target size={16} className="description-text" />
                 Próximos Pasos
               </h3>
-              <div className="space-y-1 sm:space-y-2 text-xs sm:text-sm text-gray-600">
+              <div className="space-y-1 sm:space-y-2 text-xs sm:text-sm description-text">
                 <p>• Revisar comisiones por proveedor para optimizar acuerdos</p>
                 <p>• Analizar tendencias mensuales para proyecciones</p>
                 <p>• Evaluar rentabilidad por tipo de operación</p>
@@ -559,11 +559,11 @@ function ComisionesApp({ movements = [], onNavigate = () => {} }) {
         {commissionMovements.length === 0 && (
           <div className="">
             <div className="p-6 sm:p-8 lg:p-12 text-center">
-              <TrendingDown size={48} className="sm:w-16 sm:h-16 mx-auto text-gray-300 mb-4" />
-              <h3 className="text-lg sm:text-xl font-semibold text-gray-700 mb-4">
+              <TrendingDown size={48} className="sm:w-16 sm:h-16 mx-auto empty-state-text mb-4" />
+              <h3 className="text-lg sm:text-xl font-semibold empty-state-text mb-4">
                 No hay comisiones registradas
               </h3>
-              <p className="text-sm sm:text-base text-gray-700 mb-6">
+              <p className="text-sm sm:text-base empty-state-text mb-6">
                 Las comisiones aparecerán aquí cuando se registren operaciones que generen ingresos por comisiones.
               </p>
 

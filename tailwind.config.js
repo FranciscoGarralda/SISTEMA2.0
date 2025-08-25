@@ -10,83 +10,47 @@ module.exports = {
     './src/hooks/**/*.{js,ts,jsx,tsx,mdx}',
     './src/constants/**/*.{js,ts,jsx,tsx,mdx}',
   ],
-  darkMode: 'media', // 'class' or 'media'
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
-        // Paleta Netlify
-        'netlify-blue': {
-          50: '#E6FFFD',
-          100: '#B3FFF8',
-          200: '#80FFF3',
-          300: '#4DFFEE',
-          400: '#1AFFE9',
-          500: '#00AD9F',
-          600: '#008F85',
-          700: '#00716B',
-          800: '#005351',
-          900: '#003537',
+        // ========================
+        // 🎨 Paleta Tema Claro - Nueva
+        // ========================
+        light: {
+          background: '#FFFFFF',        // Fondo principal: blanco puro
+          text: '#1A1A1A',             // Texto primario: negro suave
+          textSecondary: '#4D4D4D',    // Texto secundario: gris medio elegante
+          primary: '#0D3B66',          // Color primario: azul marino profundo
+          secondary: '#3A6EA5',        // Color secundario: azul medio
+          border: '#E6E6E6',           // Detalles/bordes: gris claro
+          success: '#3B9C6D',          // Éxito: verde sutil
+          error: '#B23A48',            // Error: rojo elegante
+          warning: '#F59E0B',          // Advertencia
+          info: '#3B82F6',             // Información
+          card: '#F8F9FA',             // Cards
+          input: '#FFFFFF',            // Inputs
+          header: '#FFFFFF',           // Header
+          sidebar: '#0D3B66',          // Sidebar
         },
-        'netlify-gray': {
-          50: '#F7FAFC',
-          100: '#EDF2F7',
-          200: '#E2E8F0',
-          300: '#CBD5E0',
-          400: '#A0AEC0',
-          500: '#718096',
-          600: '#4A5568',
-          700: '#2D3748',
-          800: '#1A202C',
-          900: '#171923',
-        },
-        // Colores de estado
-        'success': {
-          50: '#F0FFF4',
-          100: '#C6F6D5',
-          200: '#9AE6B4',
-          300: '#68D391',
-          400: '#48BB78',
-          500: '#38A169',
-          600: '#2F855A',
-          700: '#276749',
-          800: '#22543D',
-          900: '#1C4532',
-        },
-        'warning': {
-          50: '#FFFBEB',
-          100: '#FEF3C7',
-          200: '#FDE68A',
-          300: '#FCD34D',
-          400: '#FBBF24',
-          500: '#F59E0B',
-          600: '#D97706',
-          700: '#B45309',
-          800: '#92400E',
-          900: '#78350F',
-        },
-        'error': {
-          50: '#FEF2F2',
-          100: '#FEE2E2',
-          200: '#FECACA',
-          300: '#FCA5A5',
-          400: '#F87171',
-          500: '#EF4444',
-          600: '#DC2626',
-          700: '#B91C1C',
-          800: '#991B1B',
-          900: '#7F1D1D',
-        },
-        'info': {
-          50: '#EFF6FF',
-          100: '#DBEAFE',
-          200: '#BFDBFE',
-          300: '#93C5FD',
-          400: '#60A5FA',
-          500: '#3B82F6',
-          600: '#2563EB',
-          700: '#1D4ED8',
-          800: '#1E40AF',
-          900: '#1E3A8A',
+        // ========================
+        // 🌙 Paleta Tema Oscuro - Nueva
+        // ========================
+        dark: {
+          background: '#0D1B2A',       // Fondo principal: azul petróleo/marino oscuro
+          text: '#F5F5F5',             // Texto primario: blanco humo
+          textSecondary: '#B0B0B0',    // Texto secundario: gris claro elegante
+          primary: '#1D4E89',          // Color primario: azul marino sofisticado
+          secondary: '#3A6EA5',        // Color secundario: azul medio contrastante
+          border: '#1E2E3D',           // Detalles/bordes: gris azulado profundo
+          success: '#3B9C6D',          // Éxito: verde sutil
+          error: '#B23A48',            // Error: rojo elegante
+          warning: '#F39C12',          // Advertencia
+          info: '#3498DB',             // Información
+          card: '#112240',             // Cards
+          input: '#1E2E3D',            // Inputs
+          header: '#0D1B2A',           // Header
+          sidebar: '#0D1B2A',          // Sidebar
         },
       },
       fontFamily: {

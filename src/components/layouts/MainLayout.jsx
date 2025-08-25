@@ -79,7 +79,7 @@ export default function MainLayout({ children }) {
   }, [navigateMap, router]);
 
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-gray-600">Cargando...</div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center description-text">Cargando...</div>}>
       <NavigationApp 
         currentPage={currentPage}
         onNavigate={handleNavigate}

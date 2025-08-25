@@ -19,8 +19,28 @@ const nextConfig = {
     // Habilitar verificación de tipos para mejor calidad
     ignoreBuildErrors: true, // Deshabilitado temporalmente hasta migrar a TypeScript
   },
-  webpack: (config) => {
-    // Configuraciones adicionales de webpack si son necesarias
+  webpack: (config, { dev, isServer }) => {
+    // Configuración simplificada y estable
+    if (!dev && !isServer) {
+      // Configuración básica de chunks sin optimizaciones complejas
+      config.optimization.splitChunks = {
+        chunks: 'all',
+        cacheGroups: {
+          default: {
+            minChunks: 1,
+            priority: -20,
+            reuseExistingChunk: true,
+          },
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            priority: -10,
+            chunks: 'all',
+          },
+        },
+      };
+    }
+    
     return config;
   },
   // Configuración para Netlify

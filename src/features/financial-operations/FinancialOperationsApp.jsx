@@ -6,7 +6,7 @@ import {
   validateDate, 
   safeCalculation,
   safeArray 
-} from '../../services/safeOperations';
+} from '../../services/utilityService';
 import { stockService } from '../../services';
 import { getTodayLocalDate, getDayName } from '../../utils/dateUtils';
 import {
@@ -764,20 +764,20 @@ const FinancialOperationsApp = ({ onSaveMovement, initialMovementData, onCancelE
   }, [formData, handleInputChange, renderEstadoYPor, prestamistaClientsOptions, handleMixedPaymentChange, addMixedPayment, removeMixedPayment]);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-2 sm:p-3 lg:p-4 safe-top safe-bottom pt-24">
+    <div className="main-container p-2 sm:p-3 lg:p-4 safe-top safe-bottom pt-24">
       <div className="max-w-2xl mx-auto">
         <div className="bg-white rounded-lg shadow-sm">
             {/* Header */}
             <div className="p-1 sm:p-2 lg:p-3 border-b border-gray-200">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <DollarSign size={20} className="sm:w-6 sm:h-6 text-gray-800" />
+                  <DollarSign size={20} className="sm:w-6 sm:h-6 description-text" />
                 </div>
                 <div>
-                  <h2 className="text-lg sm:text-xl font-bold text-gray-900">
+                  <h2 className="text-lg sm:text-xl font-bold table-cell">
                     {initialMovementData ? 'Editar Movimiento' : 'Nueva Operación Financiera'}
                   </h2>
-                  <p className="text-sm text-gray-600 mt-1">Complete los datos de la operación</p>
+                  <p className="text-sm description-text mt-1">Complete los datos de la operación</p>
                 </div>
               </div>
             </div>
@@ -898,17 +898,17 @@ const FinancialOperationsApp = ({ onSaveMovement, initialMovementData, onCancelE
           {/* Resumen para operaciones COMPRA/VENTA */}
           {(['COMPRA', 'VENTA'].includes(formData.subOperacion) && formData.total) && (
             <div className="bg-gradient-to-br from-gray-50 to-gray-50 border-2 border-gray-200 rounded-xl p-6 shadow-md">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">Resumen de la Operación</h3>
+              <h3 className="text-lg font-bold table-cell mb-4">Resumen de la Operación</h3>
               <div className="space-y-3">
                 <div className="flex justify-between items-center bg-white rounded-lg p-3 shadow-sm">
-                  <span className="text-gray-600 text-sm">Monto:</span>
-                  <span className="font-bold text-gray-900 text-lg whitespace-nowrap">
+                  <span className="description-text text-sm">Monto:</span>
+                  <span className="font-bold table-cell text-lg whitespace-nowrap">
                     {formatAmountWithCurrency(formData.monto, formData.moneda)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center bg-white rounded-lg p-3 shadow-sm">
-                  <span className="text-gray-600 text-sm">Tipo de Cambio:</span>
-                  <span className="font-bold text-gray-900 text-lg whitespace-nowrap">
+                  <span className="description-text text-sm">Tipo de Cambio:</span>
+                  <span className="font-bold table-cell text-lg whitespace-nowrap">
                     {formatAmountWithCurrency(formData.tc, formData.monedaTC)}
                   </span>
                 </div>

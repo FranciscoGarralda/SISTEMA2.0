@@ -34,24 +34,24 @@ function StockApp() {
   }, 0);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-1 sm:p-2 lg:p-3 safe-top safe-bottom pt-24">
+    <div className="main-container p-1 sm:p-2 lg:p-3 safe-top safe-bottom pt-24">
       <div className="w-full px-2 sm:px-3 lg:px-4 space-y-4 sm:space-y-6">
         {/* Header */}
         <div className="bg-white rounded-lg shadow-sm">
-          <div className="p-3 sm:p-4 lg:p-6 border-b border-gray-200">
+          <div className="section-header">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                  <Package className="w-6 h-6 text-gray-800" />
+                  <Package className="w-6 h-6 description-text" />
                 </div>
                 <div>
-                  <h1 className="text-xl font-bold text-gray-900">Stock de Divisas</h1>
-                  <p className="text-sm text-gray-600">Inventario actual con costo promedio ponderado</p>
+                  <h1 className="text-xl font-bold table-cell">Stock de Divisas</h1>
+                  <p className="text-sm description-text">Inventario actual con costo promedio ponderado</p>
                 </div>
               </div>
               <button
                 onClick={loadStock}
-                className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 description-text hover:table-cell hover:bg-gray-100 rounded-lg transition-colors"
                 title="Actualizar"
               >
                 <RefreshCw size={20} />
@@ -62,19 +62,19 @@ function StockApp() {
           {/* Resumen */}
           <div className="p-3 sm:p-4 lg:p-6">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-              <div className="bg-gray-50 rounded-lg p-4">
-                <p className="text-sm text-gray-600 mb-1">Monedas en Stock</p>
-                <p className="text-2xl font-bold text-gray-900">{stockList.length}</p>
+              <div className="table-header rounded-lg p-4">
+                <p className="text-sm description-text mb-1">Monedas en Stock</p>
+                <p className="main-title">{stockList.length}</p>
               </div>
-              <div className="bg-gray-50 rounded-lg p-4">
-                <p className="text-sm text-gray-600 mb-1">Valor Total (en pesos)</p>
-                <p className="text-2xl font-bold text-gray-900">
+              <div className="table-header rounded-lg p-4">
+                <p className="text-sm description-text mb-1">Valor Total (en pesos)</p>
+                <p className="main-title">
                   {formatAmountWithCurrency(valorTotal, 'PESO')}
                 </p>
               </div>
-              <div className="bg-gray-50 rounded-lg p-4">
-                <p className="text-sm text-gray-600 mb-1">Última actualización</p>
-                <p className="text-sm font-medium text-gray-900">
+              <div className="table-header rounded-lg p-4">
+                <p className="text-sm description-text mb-1">Última actualización</p>
+                <p className="text-sm font-medium table-cell">
                   {lastUpdate.toLocaleString('es-AR')}
                 </p>
               </div>
@@ -86,19 +86,19 @@ function StockApp() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-gray-200">
-                      <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">
+                      <th className="text-left py-3 px-4 text-sm font-medium empty-state-text">
                         Moneda
                       </th>
-                      <th className="text-right py-3 px-4 text-sm font-medium text-gray-700">
+                      <th className="text-right py-3 px-4 text-sm font-medium empty-state-text">
                         Cantidad
                       </th>
-                      <th className="text-right py-3 px-4 text-sm font-medium text-gray-700">
+                      <th className="text-right py-3 px-4 text-sm font-medium empty-state-text">
                         Costo Promedio
                       </th>
-                      <th className="text-right py-3 px-4 text-sm font-medium text-gray-700">
+                      <th className="text-right py-3 px-4 text-sm font-medium empty-state-text">
                         Valor Total
                       </th>
-                      <th className="text-center py-3 px-4 text-sm font-medium text-gray-700">
+                      <th className="text-center py-3 px-4 text-sm font-medium empty-state-text">
                         Última Operación
                       </th>
                     </tr>
@@ -109,18 +109,18 @@ function StockApp() {
                       const valorItem = item.cantidad * item.costoPromedio;
                       
                       return (
-                        <tr key={item.moneda} className="border-b border-gray-100 hover:bg-gray-50">
+                        <tr key={item.moneda} className="border-b border-gray-100 hover:table-header">
                           <td className="py-3 px-4">
                             <div className="flex items-center gap-2">
                               <span className="text-2xl">{monedaInfo?.emoji || '💰'}</span>
                               <div>
-                                <p className="font-medium text-gray-900">{item.moneda}</p>
+                                <p className="font-medium table-cell">{item.moneda}</p>
                                 <p className="text-xs text-gray-500">{monedaInfo?.label || item.moneda}</p>
                               </div>
                             </div>
                           </td>
                           <td className="py-3 px-4 text-right">
-                            <p className="font-medium text-gray-900">
+                            <p className="font-medium table-cell">
                               {item.cantidad.toLocaleString('es-AR', { 
                                 minimumFractionDigits: 2,
                                 maximumFractionDigits: 4 
@@ -128,13 +128,13 @@ function StockApp() {
                             </p>
                           </td>
                           <td className="py-3 px-4 text-right">
-                            <p className="font-medium text-gray-900">
+                            <p className="font-medium table-cell">
                               {formatAmountWithCurrency(item.costoPromedio, 'PESO')}
                             </p>
                             <p className="text-xs text-gray-500">por unidad</p>
                           </td>
                           <td className="py-3 px-4 text-right">
-                            <p className="font-bold text-gray-900">
+                            <p className="font-bold table-cell">
                               {formatAmountWithCurrency(valorItem, 'PESO')}
                             </p>
                           </td>
@@ -154,8 +154,8 @@ function StockApp() {
               </div>
             ) : (
               <div className="text-center py-12">
-                <Package size={48} className="mx-auto text-gray-300 mb-4" />
-                <p className="text-gray-600">No hay stock registrado</p>
+                <Package size={48} className="mx-auto empty-state-text mb-4" />
+                <p className="description-text">No hay stock registrado</p>
                 <p className="text-sm text-gray-500 mt-2">
                   El stock se actualizará automáticamente con las operaciones de compra y venta
                 </p>

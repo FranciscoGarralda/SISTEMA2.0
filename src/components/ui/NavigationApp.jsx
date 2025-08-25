@@ -39,11 +39,10 @@ const MenuItem = memo(({ icon: Icon, title, onClick, isActive, isSidebarOpen, on
           w-full flex items-center gap-3 p-3 rounded-xl relative
           ${!isSidebarOpen ? 'justify-center' : ''}
           ${isActive 
-            ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/25' 
-            : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20'
+            ? 'btn-nav active' 
+            : 'btn-nav'
           }
           touch-manipulation select-none
-          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
           transition-all duration-200 ease-in-out
         `}
         onClick={onClick}
@@ -253,8 +252,8 @@ const MainMenu = memo(({ onNavigate, activeItem, isSidebarOpen, toggleSidebar, i
             onClick={() => handleItemClick('inicio')}
             className="flex items-center gap-3 flex-1 p-2 rounded-lg"
           >
-            <Home size={20} className="text-gray-600" />
-            <span className="text-sm font-medium text-gray-900">Inicio</span>
+            <Home size={20} className="description-text" />
+            <span className="text-sm font-medium table-cell">Inicio</span>
           </button>
           <button
             onClick={toggleSidebar}
@@ -273,8 +272,8 @@ const MainMenu = memo(({ onNavigate, activeItem, isSidebarOpen, toggleSidebar, i
             onClick={() => handleItemClick('inicio')}
             className="flex items-center gap-3 flex-1 p-2 rounded-lg"
           >
-            <Home size={20} className="text-gray-600" />
-            <span className="text-sm font-medium text-gray-900">Inicio</span>
+            <Home size={20} className="description-text" />
+            <span className="text-sm font-medium table-cell">Inicio</span>
           </button>
           <button
             onClick={toggleSidebar}
@@ -431,7 +430,7 @@ const NavigationApp = memo(({ children, currentPage, onNavigate, currentUser, on
   }, [isMobile, isSidebarOpen]);
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50 overflow-hidden">
+    <div className="h-screen flex flex-col table-header overflow-hidden">
       {/* Header fijo */}
       <FixedHeader 
         isSidebarOpen={isSidebarOpen}
@@ -502,15 +501,15 @@ NavigationApp.displayName = 'NavigationApp';
 
 /** PÁGINA DE BIENVENIDA */
 const WelcomePage = ({ onNavigate }) => (
-  <div className="flex flex-col items-center justify-center min-h-screen text-gray-600 p-4 lg:p-8">
+  <div className="flex flex-col items-center justify-center min-h-screen description-text p-4 lg:p-8">
     <div className="text-center w-full px-2 sm:px-3 lg:px-4">
       <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-        <DollarSign size={32} className="text-gray-800" />
+        <DollarSign size={32} className="description-text" />
       </div>
-      <h2 className="text-2xl sm:text-3xl font-bold mb-4 text-gray-800">
+      <h2 className="text-2xl sm:text-3xl font-bold mb-4 description-text">
         Bienvenido a Alliance F&R
       </h2>
-      <p className="text-base sm:text-lg text-gray-600 leading-relaxed mb-8">
+      <p className="text-base sm:text-lg description-text leading-relaxed mb-8">
         Sistema integral de gestión financiera. Accede rápidamente a las funciones principales:
       </p>
       
@@ -521,8 +520,8 @@ const WelcomePage = ({ onNavigate }) => (
           className="text-center p-6 bg-white rounded-lg border border-gray-200"
         >
           <Plus size={32} className="mx-auto mb-3 text-gray-500" />
-          <span className="block font-semibold text-gray-800 mb-1">Nuevo Movimiento</span>
-          <span className="text-sm text-gray-700">Crear operación financiera</span>
+          <span className="block font-semibold description-text mb-1">Nuevo Movimiento</span>
+          <span className="text-sm empty-state-text">Crear operación financiera</span>
         </button>
         
         <button
@@ -530,8 +529,8 @@ const WelcomePage = ({ onNavigate }) => (
           className="text-center p-6 bg-white rounded-lg border border-gray-200"
         >
           <Wallet size={32} className="mx-auto mb-3 text-success-500" />
-          <span className="block font-semibold text-gray-800 mb-1">Saldos</span>
-          <span className="text-sm text-gray-700">Ver estado de cuentas</span>
+          <span className="block font-semibold description-text mb-1">Saldos</span>
+          <span className="text-sm empty-state-text">Ver estado de cuentas</span>
         </button>
         
         <button
@@ -539,13 +538,13 @@ const WelcomePage = ({ onNavigate }) => (
           className="text-center p-6 bg-white rounded-lg border border-gray-200"
         >
           <List size={32} className="mx-auto mb-3 text-gray-500" />
-          <span className="block font-semibold text-gray-800 mb-1">Movimientos</span>
-          <span className="text-sm text-gray-700">Ver y gestionar</span>
+          <span className="block font-semibold description-text mb-1">Movimientos</span>
+          <span className="text-sm empty-state-text">Ver y gestionar</span>
         </button>
       </div>
       
       {/* Info */}
-      <div className="max-w-3xl mx-auto text-sm text-gray-600">
+      <div className="max-w-3xl mx-auto text-sm description-text">
         <p>
           Optimizado para uso diario con accesos rápidos, atajos de teclado y un diseño funcional.
         </p>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { apiService } from '../../services';
-import { serverWakeService } from '../../services/server-wake';
+import { serverWakeService } from '../../services/dataService';
 
 export default function LoginPage({ onLoginSuccess }) {
   const [formData, setFormData] = useState({
@@ -106,16 +106,16 @@ export default function LoginPage({ onLoginSuccess }) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div className="main-container flex items-center justify-center p-4">
       <div className="max-w-md w-full">
         <div className="bg-white rounded-lg shadow-lg p-8">
-          <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">
+          <h2 className="main-title text-center mb-2">
             Sistema Financiero
           </h2>
           
           {!serverAwake && !error && (
             <div className="text-center mb-6">
-              <div className="inline-flex items-center gap-2 text-sm text-gray-600">
+              <div className="inline-flex items-center gap-2 text-sm description-text">
                 <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-300 border-t-gray-600"></div>
                 Conectando con el servidor...
               </div>
@@ -146,7 +146,7 @@ export default function LoginPage({ onLoginSuccess }) {
             )}
             
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="username" className="block text-sm font-medium empty-state-text mb-2">
                 Usuario (no email)
               </label>
               <input
@@ -158,14 +158,14 @@ export default function LoginPage({ onLoginSuccess }) {
                 autoFocus
                 value={formData.username}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+                className="w-full px-3 py-2 form-input focus:outline-none focus:ring-2 focus:ring-gray-500"
                 placeholder="Ingresa tu usuario"
                 disabled={loading}
               />
             </div>
             
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="password" className="block text-sm font-medium empty-state-text mb-2">
                 Contraseña
               </label>
               <div className="relative">
@@ -177,7 +177,7 @@ export default function LoginPage({ onLoginSuccess }) {
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 pr-10"
+                  className="w-full px-3 py-2 form-input focus:outline-none focus:ring-2 focus:ring-gray-500 pr-10"
                   placeholder="Ingresa tu contraseña"
                   disabled={loading}
                   onKeyDown={(e) => {
@@ -189,7 +189,7 @@ export default function LoginPage({ onLoginSuccess }) {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:empty-state-text"
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>

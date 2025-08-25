@@ -224,7 +224,7 @@ const ClientAutocomplete = forwardRef(({
     <div className="space-y-3" ref={dropdownRef}>
       {/* Label */}
       {label && (
-        <label className="block text-xs sm:text-sm font-medium text-gray-700">
+        <label className="block text-xs sm:text-sm font-medium empty-state-text">
           {label}
           {required && <span className="text-error-500 ml-1">*</span>}
         </label>
@@ -244,10 +244,10 @@ const ClientAutocomplete = forwardRef(({
               onKeyDown={handleKeyDown}
               onFocus={handleInputFocus}
               placeholder={placeholder}
-              className={`w-full px-3 py-2 pr-12 text-base border rounded-lg focus:outline-none placeholder:text-gray-800 sm:px-4 sm:py-2.5 sm:text-sm ${
+              className={`w-full px-3 py-2 pr-12 text-base border rounded-lg focus:outline-none placeholder:description-text sm:px-4 sm:py-2.5 sm:text-sm ${
                 error 
                   ? 'border-error-500' 
-                  : 'bg-white text-gray-900 border-gray-300'
+                  : 'bg-white table-cell border-gray-300'
               }`}
               aria-autocomplete="list"
               aria-expanded={isOpen}
@@ -271,7 +271,7 @@ const ClientAutocomplete = forwardRef(({
             <button
               type="button"
               onClick={handleDropdownToggle}
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600"
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:description-text"
               aria-label="Desplegar"
             >
               <ChevronDown className="w-4 h-4" />
@@ -295,7 +295,7 @@ const ClientAutocomplete = forwardRef(({
                       onClick={() => handleClientSelect(client)}
                       className={`client-item w-full px-2 py-2 text-left focus:outline-none border-b border-gray-100 ${
                         selectedIndex === index
-                          ? 'bg-gray-50'
+                          ? 'table-header'
                           : ''
                       }`}
                       role="option"
@@ -304,14 +304,14 @@ const ClientAutocomplete = forwardRef(({
                     >
                       <div className="flex items-center space-x-3">
                         <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
-                          <User size={16} className="text-gray-800" />
+                          <User size={16} className="description-text" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900 truncate">
+                          <p className="text-sm font-medium table-cell truncate">
                             {client.nombre} {client.apellido || ''}
                           </p>
                           {client.telefono && (
-                            <p className="text-xs text-gray-700 truncate">
+                            <p className="text-xs empty-state-text truncate">
                               {client.telefono}
                             </p>
                           )}
@@ -324,7 +324,7 @@ const ClientAutocomplete = forwardRef(({
                   <button
                     type="button"
                     onClick={handleCreateClient}
-                    className="create-client-item w-full px-2 py-2 text-left focus:outline-none border-t border-gray-200 bg-gray-50"
+                    className="create-client-item w-full px-2 py-2 text-left focus:outline-none border-t border-gray-200 table-header"
                   >
                     <div className="flex items-center space-x-3">
                       <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
@@ -340,7 +340,7 @@ const ClientAutocomplete = forwardRef(({
                 </>
               ) : (
                 <>
-                  <div className="px-2 py-2 text-sm text-gray-700 text-center border-b border-gray-200">
+                  <div className="px-2 py-2 text-sm empty-state-text text-center border-b border-gray-200">
                     {inputValue ? 'No se encontraron clientes' : 'No hay clientes disponibles'}
                   </div>
                   
@@ -348,7 +348,7 @@ const ClientAutocomplete = forwardRef(({
                   <button
                     type="button"
                     onClick={handleCreateClient}
-                    className="create-client-item w-full px-2 py-2 text-left focus:outline-none bg-gray-50"
+                    className="create-client-item w-full px-2 py-2 text-left focus:outline-none table-header"
                   >
                     <div className="flex items-center space-x-3">
                       <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">

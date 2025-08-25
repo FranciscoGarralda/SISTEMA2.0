@@ -1,8 +1,8 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { Wallet, TrendingUp, TrendingDown, DollarSign, CreditCard, Banknote } from 'lucide-react';
 import { formatAmountWithCurrency } from '../../components/forms';
-import { safeParseFloat } from '../../services/safeOperations';
-import { initialBalanceService } from '../../services';
+import { safeParseFloat } from '../../services/utilityService';
+import { balanceService } from '../../services';
 import { monedas } from '../../constants';
 
 function SaldosApp({ movements = [] }) {
@@ -208,7 +208,7 @@ function SaldosApp({ movements = [] }) {
     });
 
     // Agregar saldos iniciales
-    const saldosIniciales = initialBalanceService.getAllBalances();
+    const saldosIniciales = balanceService.getAllInitialBalancesByCuenta();
     Object.entries(saldosIniciales).forEach(([key, monto]) => {
       // Validar que key es string
       if (typeof key !== 'string' || !key.includes('-')) return;
@@ -278,18 +278,18 @@ function SaldosApp({ movements = [] }) {
 
 
   return (
-    <div className="min-h-screen bg-gray-50 p-1 sm:p-2 lg:p-3 safe-top safe-bottom pt-24">
+    <div className="main-container p-1 sm:p-2 lg:p-3 safe-top safe-bottom pt-24">
       <div className="w-full px-2 sm:px-3 lg:px-4 space-y-4 sm:space-y-6">
         {/* Header */}
         <div className="bg-white rounded-lg shadow-sm">
-          <div className="p-3 sm:p-4 lg:p-6 border-b border-gray-200">
+          <div className="section-header">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                <Wallet className="w-6 h-6 text-gray-800" />
+                <Wallet className="w-6 h-6 description-text" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">Saldos</h1>
-                <p className="text-sm text-gray-600">Control de efectivo y digital por socio</p>
+                <h1 className="text-xl font-bold table-cell">Saldos</h1>
+                <p className="text-sm description-text">Control de efectivo y digital por socio</p>
               </div>
             </div>
           </div>
@@ -300,14 +300,14 @@ function SaldosApp({ movements = [] }) {
             <div className="p-3 sm:p-4 space-y-4">
                 {/* Filtro por Socio */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Socio</label>
+                  <label className="block text-sm font-medium empty-state-text mb-2">Socio</label>
                   <div className="grid grid-cols-4 gap-2">
                     <button
                       onClick={() => setFilterSocio('all')}
                       className={`px-3 py-2 text-sm font-medium rounded-lg border transition-colors ${
                         filterSocio === 'all'
                           ? 'bg-gray-900 text-white border-gray-900'
-                          : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                          : 'bg-white description-text border-gray-200 hover:table-header'
                       }`}
                     >
                       Todos
@@ -317,7 +317,7 @@ function SaldosApp({ movements = [] }) {
                       className={`px-3 py-2 text-sm font-medium rounded-lg border transition-colors ${
                         filterSocio === 'socio1'
                           ? 'bg-gray-900 text-white border-gray-900'
-                          : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                          : 'bg-white description-text border-gray-200 hover:table-header'
                       }`}
                     >
                       Socio 1
@@ -327,7 +327,7 @@ function SaldosApp({ movements = [] }) {
                       className={`px-3 py-2 text-sm font-medium rounded-lg border transition-colors ${
                         filterSocio === 'socio2'
                           ? 'bg-gray-900 text-white border-gray-900'
-                          : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                          : 'bg-white description-text border-gray-200 hover:table-header'
                       }`}
                     >
                       Socio 2
@@ -337,7 +337,7 @@ function SaldosApp({ movements = [] }) {
                       className={`px-3 py-2 text-sm font-medium rounded-lg border transition-colors ${
                         filterSocio === 'all_wallet'
                           ? 'bg-gray-900 text-white border-gray-900'
-                          : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                          : 'bg-white description-text border-gray-200 hover:table-header'
                       }`}
                     >
                       ALL
@@ -347,14 +347,14 @@ function SaldosApp({ movements = [] }) {
 
                 {/* Filtro por Tipo */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Tipo</label>
+                  <label className="block text-sm font-medium empty-state-text mb-2">Tipo</label>
                   <div className="grid grid-cols-3 gap-2">
                     <button
                       onClick={() => setFilterTipo('all')}
                       className={`px-3 py-2 text-sm font-medium rounded-lg border transition-colors ${
                         filterTipo === 'all'
                           ? 'bg-gray-900 text-white border-gray-900'
-                          : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                          : 'bg-white description-text border-gray-200 hover:table-header'
                       }`}
                     >
                       Todos
@@ -364,7 +364,7 @@ function SaldosApp({ movements = [] }) {
                       className={`px-3 py-2 text-sm font-medium rounded-lg border transition-colors flex items-center justify-center gap-2 ${
                         filterTipo === 'digital'
                           ? 'bg-gray-900 text-white border-gray-900'
-                          : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                          : 'bg-white description-text border-gray-200 hover:table-header'
                       }`}
                     >
                       <CreditCard size={16} />
@@ -375,7 +375,7 @@ function SaldosApp({ movements = [] }) {
                       className={`px-3 py-2 text-sm font-medium rounded-lg border transition-colors flex items-center justify-center gap-2 ${
                         filterTipo === 'efectivo'
                           ? 'bg-gray-900 text-white border-gray-900'
-                          : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                          : 'bg-white description-text border-gray-200 hover:table-header'
                       }`}
                     >
                       <Banknote size={16} />
@@ -388,13 +388,13 @@ function SaldosApp({ movements = [] }) {
               {/* Resumen de Totales */}
               {totalesPorMoneda.length > 0 && (
                 <div className="bg-white rounded-lg shadow-sm p-4">
-                  <h2 className="text-lg font-semibold text-gray-800 mb-4">Totales por Moneda</h2>
+                  <h2 className="text-lg font-semibold description-text mb-4">Totales por Moneda</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                     {totalesPorMoneda.map(total => (
                       <div 
                         key={total.moneda}
                         className={`p-4 rounded-lg border-2 ${
-                          total.total >= 0 ? 'border-gray-300 bg-gray-50' : 'border-gray-400 bg-gray-100'
+                          total.total >= 0 ? 'border-gray-300 table-header' : 'border-gray-400 bg-gray-100'
                         }`}
                       >
                         <div className="text-lg font-bold mb-1">
@@ -405,7 +405,7 @@ function SaldosApp({ movements = [] }) {
                         }`}>
                           {formatAmountWithCurrency(Math.abs(total.total), total.moneda)}
                         </div>
-                        <div className="text-xs text-gray-600 mt-2 space-y-1">
+                        <div className="text-xs description-text mt-2 space-y-1">
                           <div className="flex items-center gap-1">
                             <TrendingUp size={12} className="text-green-600" />
                             <span>Ingresos: {formatAmountWithCurrency(total.ingresos, total.moneda)}</span>
@@ -424,41 +424,41 @@ function SaldosApp({ movements = [] }) {
               {/* Detalle de Saldos */}
               <div className="bg-white rounded-lg shadow-sm">
                 <div className="p-4 border-b border-gray-200">
-                  <h2 className="text-lg font-semibold text-gray-800">Detalle de Saldos</h2>
+                  <h2 className="text-lg font-semibold description-text">Detalle de Saldos</h2>
                 </div>
                 
                 {filteredSaldos.length === 0 ? (
                   <div className="p-8 text-center">
-                    <DollarSign className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                    <p className="text-gray-600">No hay saldos para mostrar con los filtros seleccionados</p>
+                    <DollarSign className="w-12 h-12 empty-state-text mx-auto mb-4" />
+                    <p className="description-text">No hay saldos para mostrar con los filtros seleccionados</p>
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
                         <tr className="border-b border-gray-200">
-                          <th className="px-2 py-2 text-left text-xs font-medium text-gray-700 uppercase">Socio</th>
-                          <th className="px-2 py-2 text-left text-xs font-medium text-gray-700 uppercase">Tipo</th>
-                          <th className="px-2 py-2 text-left text-xs font-medium text-gray-700 uppercase">Moneda</th>
-                          <th className="px-2 py-2 text-right text-xs font-medium text-gray-700 uppercase">Ingresos</th>
-                          <th className="px-2 py-2 text-right text-xs font-medium text-gray-700 uppercase">Egresos</th>
-                          <th className="px-2 py-2 text-right text-xs font-medium text-gray-700 uppercase">Saldo</th>
-                          <th className="px-2 py-2 text-center text-xs font-medium text-gray-700 uppercase">Movs</th>
+                          <th className="px-2 py-2 text-left text-xs font-medium empty-state-text uppercase">Socio</th>
+                          <th className="px-2 py-2 text-left text-xs font-medium empty-state-text uppercase">Tipo</th>
+                          <th className="px-2 py-2 text-left text-xs font-medium empty-state-text uppercase">Moneda</th>
+                          <th className="px-2 py-2 text-right text-xs font-medium empty-state-text uppercase">Ingresos</th>
+                          <th className="px-2 py-2 text-right text-xs font-medium empty-state-text uppercase">Egresos</th>
+                          <th className="px-2 py-2 text-right text-xs font-medium empty-state-text uppercase">Saldo</th>
+                          <th className="px-2 py-2 text-center text-xs font-medium empty-state-text uppercase">Movs</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-200">
                         {filteredSaldos.map(saldo => (
-                          <tr key={`${saldo.socio}-${saldo.tipo}-${saldo.moneda}`} className="hover:bg-gray-50">
-                            <td className="px-2 py-3 text-sm font-medium text-gray-900">
+                          <tr key={`${saldo.socio}-${saldo.tipo}-${saldo.moneda}`} className="hover:table-header">
+                            <td className="px-2 py-3 text-sm font-medium table-cell">
                               {saldo.socio === 'all' ? 'ALL' : saldo.socio === 'socio1' ? 'Socio 1' : 'Socio 2'}
                             </td>
-                            <td className="px-2 py-3 text-sm text-gray-700">
+                            <td className="px-2 py-3 text-sm empty-state-text">
                               <div className="flex items-center gap-1">
                                 {saldo.tipo === 'digital' ? <CreditCard size={14} /> : <Banknote size={14} />}
                                 {saldo.tipo === 'digital' ? 'Digital' : 'Efectivo'}
                               </div>
                             </td>
-                            <td className="px-2 py-3 text-sm text-gray-700">{saldo.monedaLabel}</td>
+                            <td className="px-2 py-3 text-sm empty-state-text">{saldo.monedaLabel}</td>
                             <td className="px-2 py-3 text-sm text-right text-green-600 font-medium">
                               {formatAmountWithCurrency(saldo.ingresos, saldo.moneda)}
                             </td>
@@ -470,7 +470,7 @@ function SaldosApp({ movements = [] }) {
                             }`}>
                               {formatAmountWithCurrency(saldo.saldo, saldo.moneda)}
                             </td>
-                            <td className="px-2 py-3 text-sm text-center text-gray-600">
+                            <td className="px-2 py-3 text-sm text-center description-text">
                               {saldo.movimientosCount}
                             </td>
                           </tr>

@@ -11,7 +11,7 @@ import {
   Edit,
   Trash2
 } from 'lucide-react';
-import { getClientName, formatAmountWithCurrency } from '../../services/formatters';
+import { getClientName, formatAmountWithCurrency } from '../../services/utilityService';
 
 /**
  * Módulo para gestionar operaciones pendientes de retiro
@@ -69,17 +69,17 @@ const PendientesRetiroApp = ({ movements = [], clients = [], onEditMovement, onD
     const badges = {
       'pendiente_retiro': { 
         bg: 'bg-gray-100', 
-        text: 'text-gray-800', 
+        text: 'description-text', 
         label: 'P. Retiro' 
       },
       'pendiente_entrega': { 
         bg: 'bg-gray-200', 
-        text: 'text-gray-900', 
+        text: 'table-cell', 
         label: 'P. Entrega' 
       }
     };
     
-    const badge = badges[estado] || { bg: 'bg-gray-100', text: 'text-gray-800', label: estado };
+    const badge = badges[estado] || { bg: 'bg-gray-100', text: 'description-text', label: estado };
     
     return (
       <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${badge.bg} ${badge.text}`}>
@@ -90,23 +90,23 @@ const PendientesRetiroApp = ({ movements = [], clients = [], onEditMovement, onD
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-1 sm:p-2 lg:p-3 safe-top safe-bottom pt-24">
+    <div className="main-container">
       <div className="w-full px-2 sm:px-3 lg:px-4">
         <div className="">
           {/* Header */}
-          <div className="p-3 sm:p-4 lg:p-6 border-b border-gray-100">
+          <div className="section-header">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 flex items-center">
+            <h1 className="main-title flex items-center">
               <Clock className="w-7 h-7 mr-3 text-orange-600" />
               Pendientes
             </h1>
-            <p className="text-gray-600 mt-1">
+            <p className="description-text mt-1">
               Gestión de operaciones pendientes de retiro y entrega
             </p>
           </div>
           <div className="text-right">
-            <div className="text-sm text-gray-700">Total pendientes</div>
+            <div className="text-sm empty-state-text">Total pendientes</div>
             <div className="text-2xl font-bold text-orange-600">
               {filteredMovements.length}
             </div>
@@ -115,17 +115,17 @@ const PendientesRetiroApp = ({ movements = [], clients = [], onEditMovement, onD
           </div>
 
           {/* Filtros y búsqueda */}
-          <div className="p-3 sm:p-4 lg:p-6 border-b border-gray-100">
+          <div className="section-header">
             <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-800 w-4 h-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 description-text w-4 h-4" />
               <input
                 type="text"
                 placeholder="Buscar por cliente, monto, moneda, dirección o teléfono..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 form-input focus:ring-1 focus:ring-orange-500 focus:border-transparent"
               />
             </div>
           </div>
@@ -133,7 +133,7 @@ const PendientesRetiroApp = ({ movements = [], clients = [], onEditMovement, onD
             <select
               value={filterEstado}
               onChange={(e) => setFilterEstado(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-transparent"
+              className="w-full px-3 py-2 form-input focus:ring-1 focus:ring-orange-500 focus:border-transparent"
             >
               <option value="all">Todos los estados</option>
               <option value="pendiente_retiro">P. Retiro</option>
@@ -147,11 +147,11 @@ const PendientesRetiroApp = ({ movements = [], clients = [], onEditMovement, onD
           <div className="p-3 sm:p-4 lg:p-6">
       {filteredMovements.length === 0 ? (
         <div className="text-center py-12">
-          <Clock className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
+          <Clock className="w-16 h-16 empty-state-text mx-auto mb-4" />
+          <h3 className="text-lg font-medium table-cell mb-2">
             No hay operaciones pendientes
           </h3>
-          <p className="text-gray-700">
+          <p className="empty-state-text">
             {searchTerm || filterEstado !== 'all' 
               ? 'No se encontraron operaciones con los filtros aplicados'
               : 'Todas las operaciones están completadas'
@@ -163,18 +163,18 @@ const PendientesRetiroApp = ({ movements = [], clients = [], onEditMovement, onD
           {filteredMovements.map((movement, index) => (
             <div
               key={movement.id || index}
-              className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+              className="content-card hover:shadow-md transition-shadow"
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                    <DollarSign className="w-5 h-5 text-gray-600" />
+                    <DollarSign className="w-5 h-5 description-text" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900">
+                    <h3 className="font-semibold table-cell">
                        {getClientName(movement.cliente, clients)}
                      </h3>
-                    <p className="text-sm text-gray-700">
+                    <p className="text-sm empty-state-text">
                       {movement.operacion} - {movement.subOperacion}
                     </p>
                   </div>
@@ -184,17 +184,17 @@ const PendientesRetiroApp = ({ movements = [], clients = [], onEditMovement, onD
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                 <div className="flex items-center space-x-2">
-                  <Calendar className="w-4 h-4 text-gray-800" />
+                  <Calendar className="w-4 h-4 description-text" />
                   <div>
-                    <div className="text-sm text-gray-700">Fecha</div>
+                    <div className="text-sm empty-state-text">Fecha</div>
                     <div className="font-medium">{formatDate(movement.fecha)}</div>
                   </div>
                 </div>
 
                 <div className="flex items-center space-x-2">
-                  <DollarSign className="w-4 h-4 text-gray-800" />
+                  <DollarSign className="w-4 h-4 description-text" />
                   <div>
-                    <div className="text-sm text-gray-700">Monto</div>
+                    <div className="text-sm empty-state-text">Monto</div>
                     <div className="font-medium text-green-600">
                       {formatAmountWithCurrency(movement.monto, movement.moneda, { showSymbol: false })}
                     </div>
@@ -202,9 +202,9 @@ const PendientesRetiroApp = ({ movements = [], clients = [], onEditMovement, onD
                 </div>
 
                 <div className="flex items-center space-x-2">
-                  <MapPin className="w-4 h-4 text-gray-800" />
+                  <MapPin className="w-4 h-4 description-text" />
                   <div>
-                    <div className="text-sm text-gray-700">Dirección</div>
+                    <div className="text-sm empty-state-text">Dirección</div>
                     <div className="font-medium text-sm">
                       {movement.direccion || 'No especificada'}
                     </div>
@@ -212,9 +212,9 @@ const PendientesRetiroApp = ({ movements = [], clients = [], onEditMovement, onD
                 </div>
 
                 <div className="flex items-center space-x-2">
-                  <Phone className="w-4 h-4 text-gray-800" />
+                  <Phone className="w-4 h-4 description-text" />
                   <div>
-                    <div className="text-sm text-gray-700">Teléfono</div>
+                    <div className="text-sm empty-state-text">Teléfono</div>
                     <div className="font-medium">
                       {movement.telefono || 'No especificado'}
                     </div>
@@ -226,14 +226,14 @@ const PendientesRetiroApp = ({ movements = [], clients = [], onEditMovement, onD
               <div className="flex items-center justify-end space-x-2 pt-3 border-t border-gray-100">
                 <button
                   onClick={() => onEditMovement && onEditMovement(movement)}
-                  className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-50 rounded-md hover:bg-gray-100 transition-colors"
+                  className="inline-flex items-center px-3 py-1.5 text-sm font-medium empty-state-text table-header rounded-md hover:bg-gray-100 transition-colors"
                 >
                   <Edit className="w-4 h-4 mr-1" />
                   Editar
                 </button>
                 <button
                   onClick={() => onDeleteMovement && onDeleteMovement(movement.id)}
-                  className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+                  className="inline-flex items-center px-3 py-1.5 text-sm font-medium empty-state-text bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
                 >
                   <Trash2 className="w-4 h-4 mr-1" />
                   Eliminar

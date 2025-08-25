@@ -11,7 +11,7 @@ import {
   Eye
 } from 'lucide-react';
 import { formatAmountWithCurrency } from '../../components/forms';
-import { safeParseFloat } from '../../services/safeOperations';
+import { safeParseFloat } from '../../services/utilityService';
 import { getTodayLocalDate, isToday } from '../../utils/dateUtils';
 
 /** COMPONENTE PRINCIPAL DE GASTOS */
@@ -106,7 +106,7 @@ function GastosApp({ movements = [], onEditMovement = () => {}, onDeleteMovement
             </p>
           ))
         ) : (
-          <p className="text-sm sm:text-base text-gray-700">Sin datos</p>
+          <p className="text-sm sm:text-base empty-state-text">Sin datos</p>
         )}
       </div>
       <Icon size={32} className="sm:w-8 sm:h-8 lg:w-10 lg:h-10 opacity-20 flex-shrink-0" />
@@ -114,20 +114,20 @@ function GastosApp({ movements = [], onEditMovement = () => {}, onDeleteMovement
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 p-1 sm:p-2 lg:p-3 safe-top safe-bottom pt-24">
+    <div className="main-container p-1 sm:p-2 lg:p-3 safe-top safe-bottom pt-24">
       {/* Header */}
       <div className="">
-        <div className="p-3 sm:p-4 lg:p-6 border-b border-gray-100">
+        <div className="section-header">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 sm:w-10 sm:h-10 bg-error-100 rounded-lg flex items-center justify-center flex-shrink-0">
                 <Receipt size={20} className="sm:w-6 sm:h-6 text-error-600" />
               </div>
               <div className="min-w-0 flex-1">
-                <h1 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
+                <h1 className="text-lg sm:text-xl font-semibold table-cell truncate">
                   Gestión de Gastos
                 </h1>
-                <p className="text-xs sm:text-sm text-gray-700">
+                <p className="description-text">
                   {filteredAndSortedExpenses.length} de {allExpenses.length} gasto{allExpenses.length !== 1 ? 's' : ''}
                 </p>
               </div>
@@ -146,7 +146,7 @@ function GastosApp({ movements = [], onEditMovement = () => {}, onDeleteMovement
         </div>
 
         {/* Tarjetas de resumen de gastos */}
-        <div className="p-3 sm:p-4 lg:p-6 border-b border-gray-100">
+        <div className="section-header">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
             {renderCurrencyMetrics(
               'Gasto Total Histórico',
@@ -175,13 +175,13 @@ function GastosApp({ movements = [], onEditMovement = () => {}, onDeleteMovement
         </div>
 
         {/* Controles de búsqueda */}
-        <div className="p-3 sm:p-4 lg:p-6 border-b border-gray-100">
+        <div className="section-header">
           <div className="relative">
-            <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-800" />
+            <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 description-text" />
             <input
               type="text"
               placeholder="Buscar gasto por motivo, cliente o autorizado por..."
-              className="w-full pl-10 pr-4 py-3 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-error-500 focus:border-transparent transition-all"
+              className="w-full pl-10 pr-4 py-3 text-sm form-input focus:ring-1 focus:ring-error-500 focus:border-transparent transition-all"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -190,14 +190,14 @@ function GastosApp({ movements = [], onEditMovement = () => {}, onDeleteMovement
           {/* Indicador de búsqueda activa */}
           {searchTerm && (
             <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-gray-100">
-              <Search size={14} className="text-gray-800" />
-              <span className="text-xs sm:text-sm text-gray-600">Búsqueda activa:</span>
+              <Search size={14} className="description-text" />
+              <span className="text-xs sm:text-sm description-text">Búsqueda activa:</span>
               <span className="px-2 py-1 bg-error-100 text-error-700 rounded-full text-xs">
                 "{searchTerm}"
               </span>
               <button
                 onClick={() => setSearchTerm('')}
-                className="text-xs text-gray-700 hover:text-gray-700 underline ml-2"
+                className="text-xs empty-state-text hover:empty-state-text underline ml-2"
               >
                 Limpiar
               </button>
@@ -209,10 +209,10 @@ function GastosApp({ movements = [], onEditMovement = () => {}, onDeleteMovement
         <div className="p-3 sm:p-4 lg:p-6">
           {filteredAndSortedExpenses.length === 0 ? (
             <div className="text-center py-8 sm:py-12">
-              <Receipt size={40} className="sm:w-12 sm:h-12 mx-auto text-gray-300 mb-3 sm:mb-4" />
+              <Receipt size={40} className="sm:w-12 sm:h-12 mx-auto empty-state-text mb-3 sm:mb-4" />
               {searchTerm ? (
                 <div className="px-2">
-                  <p className="text-sm sm:text-base text-gray-700 mb-2">
+                  <p className="text-sm sm:text-base empty-state-text mb-2">
                     No se encontraron gastos que coincidan con "{searchTerm}"
                   </p>
                   <button
@@ -224,13 +224,13 @@ function GastosApp({ movements = [], onEditMovement = () => {}, onDeleteMovement
                 </div>
               ) : allExpenses.length === 0 ? (
                 <div className="px-2">
-                  <p className="text-sm sm:text-base text-gray-700 mb-4">No hay gastos registrados</p>
-                  <p className="text-xs sm:text-sm text-gray-800">
+                  <p className="text-sm sm:text-base empty-state-text mb-4">No hay gastos registrados</p>
+                  <p className="text-xs sm:text-sm description-text">
                     Los gastos aparecerán aquí cuando se registren operaciones administrativas de tipo "GASTO"
                   </p>
                 </div>
               ) : (
-                <p className="text-sm sm:text-base text-gray-700">Todos los gastos están ocultos por el filtro actual</p>
+                <p className="text-sm sm:text-base empty-state-text">Todos los gastos están ocultos por el filtro actual</p>
               )}
             </div>
           ) : (
@@ -280,7 +280,7 @@ function GastoCard({ movement, onEdit, onDelete, onViewDetail }) {
         {/* Header con fecha y monto */}
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 text-xs text-gray-700 mb-1">
+            <div className="flex items-center gap-2 text-xs empty-state-text mb-1">
               <CalendarDays size={12} className="flex-shrink-0" />
               <span className="truncate">{formattedDate}</span>
               {movement.nombreDia && (
@@ -288,22 +288,22 @@ function GastoCard({ movement, onEdit, onDelete, onViewDetail }) {
               )}
             </div>
             
-            <h3 className="font-semibold text-gray-900 text-sm sm:text-base flex items-center gap-2 mb-2">
+            <h3 className="font-semibold table-cell text-sm sm:text-base flex items-center gap-2 mb-2">
               <Receipt size={14} className="text-error-500 flex-shrink-0" />
               <span className="truncate">{movement.detalle || 'Gasto sin detalle'}</span>
             </h3>
             
             {/* Información del cliente si existe */}
             {movement.cliente && (
-              <div className="flex items-center gap-2 mb-1 text-xs sm:text-sm text-gray-600">
-                <User size={12} className="text-gray-800 flex-shrink-0" />
+              <div className="flex items-center gap-2 mb-1 text-xs sm:text-sm description-text">
+                <User size={12} className="description-text flex-shrink-0" />
                 <span className="truncate">Cliente: {movement.cliente}</span>
               </div>
             )}
             
             {/* Información de autorización */}
-            <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
-              <Shield size={12} className="text-gray-800 flex-shrink-0" />
+            <div className="flex items-center gap-2 text-xs sm:text-sm description-text">
+              <Shield size={12} className="description-text flex-shrink-0" />
               <span className="truncate">
                 Autorizado por: {movement.por === 'otro' ? movement.nombreOtro : movement.por || 'N/A'}
               </span>
@@ -321,7 +321,7 @@ function GastoCard({ movement, onEdit, onDelete, onViewDetail }) {
                 ? 'bg-success-100 text-success-700' 
                 : movement.estado === 'pendiente'
                 ? 'bg-warning-100 text-warning-700'
-                : 'bg-gray-100 text-gray-700'
+                : 'bg-gray-100 empty-state-text'
             }`}>
               {movement.estado || 'Sin estado'}
             </span>
@@ -340,7 +340,7 @@ function GastoCard({ movement, onEdit, onDelete, onViewDetail }) {
         {/* Información adicional */}
                   <div className="flex flex-wrap items-center gap-2">
           {movement.moneda && (
-            <span className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded-full text-xs">
+            <span className="px-2 py-0.5 bg-gray-100 empty-state-text rounded-full text-xs">
               {movement.moneda}
             </span>
           )}
@@ -353,14 +353,14 @@ function GastoCard({ movement, onEdit, onDelete, onViewDetail }) {
         <div className="flex justify-end gap-1 border-t pt-3">
           <button 
             onClick={() => onViewDetail(movement)} 
-            className="p-2 text-gray-800 hover:bg-gray-50 rounded-lg transition-colors touch-target"
+            className="p-2 description-text hover:table-header rounded-lg transition-colors touch-target"
             title="Ver detalles completos"
           >
             <Eye size={14} />
           </button>
           <button 
             onClick={() => onEdit(movement)} 
-            className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors touch-target"
+            className="p-2 description-text hover:table-header rounded-lg transition-colors touch-target"
             title="Editar gasto"
           >
             <Edit3 size={14} />

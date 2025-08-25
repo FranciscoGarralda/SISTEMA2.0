@@ -43,8 +43,8 @@ export const CuentaButtonGroup = React.forwardRef(({
       isSocioActive(socioValue)
         ? 'bg-gray-900 text-white border-gray-900'
         : readOnly 
-          ? 'bg-gray-50 text-gray-700 border-gray-200 cursor-not-allowed'
-          : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+          ? 'table-header empty-state-text border-gray-200 cursor-not-allowed'
+          : 'bg-white description-text border-gray-200 hover:table-header hover:border-gray-300'
     }`;
   };
 
@@ -53,14 +53,14 @@ export const CuentaButtonGroup = React.forwardRef(({
       isTipoActive(tipoValue)
         ? 'bg-gray-900 text-white border-gray-900'
         : readOnly 
-          ? 'bg-gray-50 text-gray-700 border-gray-200 cursor-not-allowed'
-          : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+          ? 'table-header empty-state-text border-gray-200 cursor-not-allowed'
+          : 'bg-white description-text border-gray-200 hover:table-header hover:border-gray-300'
     }`;
   };
 
   return (
     <div className="space-y-3">
-      <label className="block text-sm font-medium text-gray-700">
+      <label className="block text-sm font-medium empty-state-text">
         {label} {required && <span className="text-red-500">*</span>}
       </label>
       <div className="space-y-2">

@@ -22,7 +22,7 @@ export {
   parseCurrencyInput,
   CURRENCY_SYMBOLS,
   CURRENCY_NAMES
-} from '../../services/formatters';
+} from '../../services/utilityService';
 
 // Re-export constants that components might need
 export { estados, proveedoresCC } from '../../constants/constants';

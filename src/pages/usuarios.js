@@ -6,7 +6,7 @@ const UserManagementApp = lazy(() => import('../features/user-management/UserMan
 export default function UsuariosPage() {
   return (
     <MainLayout>
-      <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-gray-600">Cargando módulo...</div>}>
+      <Suspense fallback={<div className="min-h-screen flex items-center justify-center description-text">Cargando módulo...</div>}>
         <UserManagementApp />
       </Suspense>
     </MainLayout>

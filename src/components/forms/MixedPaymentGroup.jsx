@@ -1,7 +1,7 @@
 import React, { forwardRef } from 'react';
 import { Plus, X } from 'lucide-react';
-import { safeParseFloat, safeArray } from '../../services/safeOperations';
-import { formatAmountWithCurrency } from '../../services/formatters';
+import { safeParseFloat, safeArray } from '../../services/utilityService';
+import { formatAmountWithCurrency } from '../../services/utilityService';
 import ButtonSelectGroup from './ButtonSelectGroup';
 import CurrencyInput from './CurrencyInput';
 
@@ -51,7 +51,7 @@ const MixedPaymentGroup = ({
   return (
     <div className="space-y-4">
       {/* Título de sección */}
-      <div className="text-sm font-medium text-gray-700 border-b border-gray-200 pb-2">
+      <div className="text-sm font-medium empty-state-text border-b border-gray-200 pb-2">
         Configuración de Pago Mixto
       </div>
 
@@ -60,7 +60,7 @@ const MixedPaymentGroup = ({
         <div key={payment.id || index} className="grid grid-cols-1 sm:grid-cols-4 gap-4">
           {/* Selector de Socio y Tipo combinados */}
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-3">
+            <label className="block text-sm font-medium empty-state-text mb-3">
               Cuenta y Modo
             </label>
             <div className="space-y-2">
@@ -74,7 +74,7 @@ const MixedPaymentGroup = ({
                     className={`px-4 py-2.5 text-sm font-medium flex items-center justify-center rounded-lg border transition-all ${
                       payment.socio === option.value
                         ? 'bg-gray-900 text-white border-gray-900'
-                        : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+                        : 'bg-white description-text border-gray-200 hover:table-header hover:border-gray-300'
                     }`}
                   >
                     {option.label}
@@ -92,7 +92,7 @@ const MixedPaymentGroup = ({
                     className={`px-4 py-2.5 text-sm font-medium flex items-center justify-center rounded-lg border transition-all ${
                       payment.tipo === option.value
                         ? 'bg-gray-900 text-white border-gray-900'
-                        : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+                        : 'bg-white description-text border-gray-200 hover:table-header hover:border-gray-300'
                     }`}
                   >
                     {option.label}
@@ -104,7 +104,7 @@ const MixedPaymentGroup = ({
 
           {/* Campo de Monto */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium empty-state-text mb-1">
               Monto
             </label>
             <CurrencyInput
@@ -144,7 +144,7 @@ const MixedPaymentGroup = ({
             type="button"
             onClick={onAddPayment}
   
-            className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-800 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors border border-gray-200 hover:border-gray-300"
+            className="flex items-center space-x-2 px-3 py-2 text-sm description-text hover:table-cell hover:table-header rounded-lg transition-colors border border-gray-200 hover:border-gray-300"
           >
             <Plus size={16} />
             <span>Añadir Pago</span>
@@ -156,14 +156,14 @@ const MixedPaymentGroup = ({
       <div className="pt-2 border-t border-gray-200">
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
-            <span className="text-gray-600">Total Pagos:</span>
-            <span className="ml-2 font-medium text-gray-900">
+            <span className="description-text">Total Pagos:</span>
+            <span className="ml-2 font-medium table-cell">
               {formatAmountWithCurrency(totalPayments, currency, { showSymbol: false })}
             </span>
           </div>
           <div>
-            <span className="text-gray-600">Esperado:</span>
-            <span className="ml-2 font-medium text-gray-900">
+            <span className="description-text">Esperado:</span>
+            <span className="ml-2 font-medium table-cell">
               {formatAmountWithCurrency(totalExpected, currency, { showSymbol: false })}
             </span>
           </div>

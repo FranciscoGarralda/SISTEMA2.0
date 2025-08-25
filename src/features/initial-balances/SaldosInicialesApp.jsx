@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Wallet, Save, RefreshCw, AlertCircle, Building2, Users } from 'lucide-react';
 import { formatAmountWithCurrency, proveedoresCC } from '../../components/forms';
-import { initialBalanceService, ccInitialBalanceService } from '../../services';
+import { balanceService } from '../../services';
 import { walletTypes, walletTypesTC, monedas } from '../../constants';
-import { safeParseFloat } from '../../services/safeOperations';
+import { safeParseFloat } from '../../services/utilityService';
 
 function SaldosInicialesApp() {
   const [activeTab, setActiveTab] = useState('cuentas'); // 'cuentas' o 'cc'
@@ -19,11 +19,11 @@ function SaldosInicialesApp() {
   }, []);
 
   const loadBalances = () => {
-    const currentBalances = initialBalanceService.getAllBalancesByCuenta();
+    const currentBalances = balanceService.getAllInitialBalancesByCuenta();
     setBalances(currentBalances);
     setHasChanges(false);
     
-    const currentCCBalances = ccInitialBalanceService.getAllBalancesByProveedor();
+    const currentCCBalances = balanceService.getAllCCBalancesByProveedor();
     setCCBalances(currentCCBalances);
     setHasCCChanges(false);
   };
@@ -61,7 +61,7 @@ function SaldosInicialesApp() {
     if (activeTab === 'cuentas') {
       Object.entries(balances).forEach(([cuenta, monedas]) => {
         Object.entries(monedas).forEach(([moneda, monto]) => {
-          initialBalanceService.setBalance(cuenta, moneda, monto);
+          balanceService.setInitialBalance(cuenta, moneda, monto);
         });
       });
       setHasChanges(false);
@@ -69,7 +69,7 @@ function SaldosInicialesApp() {
     } else {
       Object.entries(ccBalances).forEach(([proveedor, monedas]) => {
         Object.entries(monedas).forEach(([moneda, monto]) => {
-          ccInitialBalanceService.setBalance(proveedor, moneda, monto);
+          balanceService.setCCBalance(proveedor, moneda, monto);
         });
       });
       setHasCCChanges(false);
@@ -93,19 +93,19 @@ function SaldosInicialesApp() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-1 sm:p-2 lg:p-3 safe-top safe-bottom pt-24">
+    <div className="main-container p-1 sm:p-2 lg:p-3 safe-top safe-bottom pt-24">
       <div className="w-full px-2 sm:px-3 lg:px-4 space-y-4 sm:space-y-6">
         {/* Header */}
         <div className="bg-white rounded-lg shadow-sm">
-          <div className="p-3 sm:p-4 lg:p-6 border-b border-gray-200">
+          <div className="section-header">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                  <Wallet className="w-6 h-6 text-gray-800" />
+                  <Wallet className="w-6 h-6 description-text" />
                 </div>
                 <div>
-                  <h1 className="text-xl font-bold text-gray-900">Saldos Iniciales</h1>
-                  <p className="text-sm text-gray-600">
+                  <h1 className="text-xl font-bold table-cell">Saldos Iniciales</h1>
+                  <p className="text-sm description-text">
                     {activeTab === 'cuentas' 
                       ? 'Configurar saldos de apertura por cuenta' 
                       : 'Configurar deudas iniciales con proveedores'}
@@ -115,7 +115,7 @@ function SaldosInicialesApp() {
               <div className="flex gap-2">
                 <button
                   onClick={loadBalances}
-                  className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="p-2 description-text hover:table-cell hover:bg-gray-100 rounded-lg transition-colors"
                   title="Recargar"
                 >
                   <RefreshCw size={20} />
@@ -142,8 +142,8 @@ function SaldosInicialesApp() {
               onClick={() => setActiveTab('cuentas')}
               className={`px-6 py-3 font-medium transition-colors flex items-center gap-2 ${
                 activeTab === 'cuentas'
-                  ? 'text-gray-900 border-b-2 border-gray-900'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'table-cell border-b-2 border-gray-900'
+                  : 'text-gray-500 hover:empty-state-text'
               }`}
             >
               <Users size={18} />
@@ -153,8 +153,8 @@ function SaldosInicialesApp() {
               onClick={() => setActiveTab('cc')}
               className={`px-6 py-3 font-medium transition-colors flex items-center gap-2 ${
                 activeTab === 'cc'
-                  ? 'text-gray-900 border-b-2 border-gray-900'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'table-cell border-b-2 border-gray-900'
+                  : 'text-gray-500 hover:empty-state-text'
               }`}
             >
               <Building2 size={18} />
@@ -175,7 +175,7 @@ function SaldosInicialesApp() {
                       className={`px-2 py-3 rounded-lg font-medium transition-colors flex flex-col items-center justify-center ${
                         selectedMoneda === moneda.value
                           ? 'bg-gray-800 text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          : 'bg-gray-100 empty-state-text hover:bg-gray-200'
                       }`}
                     >
                       <span className="text-2xl mb-1">{moneda.emoji}</span>
@@ -198,9 +198,9 @@ function SaldosInicialesApp() {
                     const balance = balances[wallet]?.[selectedMoneda] || '';
                     
                     return (
-                      <div key={wallet} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div key={wallet} className="flex items-center justify-between p-3 table-header rounded-lg">
                         <div>
-                          <span className="font-medium text-gray-900">
+                          <span className="font-medium table-cell">
                             {socio.toUpperCase()} - {tipo === 'efectivo' ? 'Efectivo' : 'Digital'}
                           </span>
                         </div>
@@ -210,9 +210,9 @@ function SaldosInicialesApp() {
                             value={balance}
                             onChange={(e) => handleBalanceChange(wallet, selectedMoneda, e.target.value)}
                             placeholder="0.00"
-                            className="w-32 px-3 py-1.5 text-right border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                            className="w-32 px-3 py-1.5 text-right border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 bg-white dark:bg-gray-700 table-cell dark:text-white"
                           />
-                          <span className="text-sm text-gray-600 w-12">{selectedMoneda}</span>
+                          <span className="text-sm description-text w-12">{selectedMoneda}</span>
                         </div>
                       </div>
                     );
@@ -222,7 +222,7 @@ function SaldosInicialesApp() {
                 {/* Totales - Solo monedas con saldo */}
                 {Object.entries(totalesPorMoneda).filter(([_, total]) => total > 0).length > 0 && (
                   <div className="mt-6 p-4 bg-gray-100 rounded-lg">
-                    <h3 className="font-semibold text-gray-800 mb-3">Totales por Moneda</h3>
+                    <h3 className="font-semibold description-text mb-3">Totales por Moneda</h3>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                       {Object.entries(totalesPorMoneda)
                         .filter(([_, total]) => total > 0)
@@ -258,14 +258,14 @@ function SaldosInicialesApp() {
                 <div className="space-y-4">
                   {proveedoresCC.filter(p => p.value !== '').map(proveedor => (
                     <div key={proveedor.value} className="border border-gray-200 rounded-lg p-4">
-                      <h3 className="font-semibold text-gray-900 mb-3">{proveedor.label}</h3>
+                      <h3 className="font-semibold table-cell mb-3">{proveedor.label}</h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {proveedor.allowedCurrencies.map(moneda => {
                           const balance = ccBalances[proveedor.value]?.[moneda] || '';
                           const monedaObj = monedas.find(m => m.value === moneda);
                           
                           return (
-                            <div key={moneda} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div key={moneda} className="flex items-center justify-between p-3 table-header rounded-lg">
                               <div className="flex items-center gap-2">
                                 <span className="text-2xl">{monedaObj?.emoji}</span>
                                 <span className="font-medium">{moneda}</span>
@@ -275,7 +275,7 @@ function SaldosInicialesApp() {
                                 value={balance}
                                 onChange={(e) => handleCCBalanceChange(proveedor.value, moneda, e.target.value)}
                                 placeholder="0.00"
-                                className="w-32 px-3 py-1.5 text-right border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                                className="w-32 px-3 py-1.5 text-right border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 bg-white dark:bg-gray-700 table-cell dark:text-white"
                               />
                             </div>
                           );

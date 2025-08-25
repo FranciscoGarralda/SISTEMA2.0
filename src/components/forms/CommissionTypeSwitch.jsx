@@ -4,7 +4,7 @@ import { Percent, DollarSign } from 'lucide-react';
 const CommissionTypeSwitch = ({ value = 'percentage', onChange, className = '' }) => {
   return (
     <div className={`flex items-center space-x-2 ${className}`}>
-      <span className={`text-sm font-medium ${value === 'fixed' ? 'text-gray-700' : 'text-gray-700'}`}>
+      <span className={`text-sm font-medium ${value === 'fixed' ? 'empty-state-text' : 'empty-state-text'}`}>
         %
       </span>
       <button
@@ -24,7 +24,7 @@ const CommissionTypeSwitch = ({ value = 'percentage', onChange, className = '' }
           `}
         />
       </button>
-      <span className={`text-sm font-medium ${value === 'percentage' ? 'text-gray-700' : 'text-gray-700'}`}>
+      <span className={`text-sm font-medium ${value === 'percentage' ? 'empty-state-text' : 'empty-state-text'}`}>
         $
       </span>
     </div>

@@ -1,14 +1,14 @@
 import React, { useCallback } from 'react';
 
-// Importar errorHandler si está disponible, o crear un fallback
-let errorHandler;
-try {
-  errorHandler = require('../../services/errorHandler').default;
-} catch (e) {
-  errorHandler = {
-    handleCriticalError: (error) => console.error('Critical error:', error)
-  };
-}
+// Importar errorHandler del nuevo sistema consolidado
+import { systemService } from '../../services/systemService.js';
+
+const errorHandler = {
+  handleCriticalError: (error, context = {}) => {
+    console.error('Critical error:', error, context);
+    return systemService.error.handleCriticalError(error, context);
+  }
+};
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -78,18 +78,18 @@ class ErrorBoundary extends React.Component {
                 </svg>
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">Error de Aplicación</h2>
-                <p className="text-sm text-gray-600">Se ha producido un error inesperado</p>
+                <h2 className="text-lg font-semibold table-cell">Error de Aplicación</h2>
+                <p className="text-sm description-text">Se ha producido un error inesperado</p>
               </div>
             </div>
             
-            <div className="bg-gray-50 rounded-lg p-4 mb-4">
-              <p className="text-sm text-gray-700 mb-2">
+            <div className="table-header rounded-lg p-4 mb-4">
+              <p className="text-sm empty-state-text mb-2">
                 <strong>Error:</strong> {this.state.error && this.state.error.toString()}
               </p>
               {this.state.errorInfo && (
-                <details className="text-xs text-gray-600">
-                  <summary className="cursor-pointer hover:text-gray-800">Detalles técnicos</summary>
+                <details className="text-xs description-text">
+                  <summary className="cursor-pointer hover:description-text">Detalles técnicos</summary>
                   <pre className="mt-2 whitespace-pre-wrap overflow-auto max-h-40">{this.state.errorInfo.componentStack}</pre>
                 </details>
               )}
@@ -98,7 +98,7 @@ class ErrorBoundary extends React.Component {
             <div className="flex gap-2">
               <button
                 onClick={this.resetError}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                className="flex-1 btn-primary"
                 disabled={this.state.retry >= this.maxRetries}
               >
                 Reintentar

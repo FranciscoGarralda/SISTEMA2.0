@@ -46,13 +46,13 @@ const ErrorPage = ({
         </div>
         
         <div className="mb-6">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+          <h1 className="text-4xl font-bold table-cell mb-2">
             {statusCode}
           </h1>
-          <h2 className="text-xl font-semibold text-gray-700 mb-3">
+          <h2 className="text-xl font-semibold empty-state-text mb-3">
             {title}
           </h2>
-          <p className="text-gray-600 leading-relaxed">
+          <p className="description-text leading-relaxed">
             {message}
           </p>
         </div>
@@ -61,7 +61,7 @@ const ErrorPage = ({
           {showHomeButton && (
             <button
               onClick={handleGoHome}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200"
+              className="flex-1 btn-primary"
             >
               Ir al Inicio
             </button>
@@ -69,7 +69,7 @@ const ErrorPage = ({
           
           <button
             onClick={handleGoBack}
-            className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-3 px-6 rounded-lg transition-colors duration-200"
+            className="flex-1 bg-gray-100 hover:bg-gray-200 empty-state-text font-medium py-3 px-6 rounded-lg transition-colors duration-200"
           >
             Volver Atrás
           </button>

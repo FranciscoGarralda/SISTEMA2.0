@@ -1,5 +1,5 @@
 import { monedas, cuentas, socios, sociosSinOtro, proveedoresCC, prestamistaClientsDefault, walletTypes, walletTypesTC } from './constants';
-import { safeParseFloat } from '../services/safeOperations';
+import { safeParseFloat } from '../services/utilityService';
 
 // Helper function to get currency label
 const getCurrencyLabel = (value) => {

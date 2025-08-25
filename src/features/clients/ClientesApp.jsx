@@ -110,7 +110,7 @@ function ClientesApp({ clientes = [], onSaveClient = () => {}, onDeleteClient = 
 
   // Función para determinar estado de contacto
   const getEstadoContacto = (cliente) => {
-    if (!cliente.ultimaOperacion) return { color: 'bg-gray-100 text-gray-600', texto: 'Sin datos' };
+    if (!cliente.ultimaOperacion) return { color: 'bg-gray-100 description-text', texto: 'Sin datos' };
 
     const dias = Math.floor((new Date() - new Date(cliente.ultimaOperacion)) / (1000 * 60 * 60 * 24));
     const frecuencia = calcularFrecuencia(cliente);
@@ -165,18 +165,18 @@ function ClientesApp({ clientes = [], onSaveClient = () => {}, onDeleteClient = 
 
   // Vista principal - Lista de clientes
   return (
-    <div className="min-h-screen bg-gray-50 p-1 sm:p-2 lg:p-3 safe-top safe-bottom pt-24">
+    <div className="main-container p-1 sm:p-2 lg:p-3 safe-top safe-bottom pt-24">
       {/* Header */}
       <div className="">
-        <div className="p-3 sm:p-4 lg:p-6 border-b border-gray-100">
+        <div className="section-header">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                <User size={20} className="sm:w-6 sm:h-6 text-gray-800" />
+                <User size={20} className="sm:w-6 sm:h-6 description-text" />
               </div>
               <div className="min-w-0 flex-1">
-                <h1 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">Gestión de Clientes</h1>
-                <p className="text-xs sm:text-sm text-gray-700">
+                <h1 className="text-lg sm:text-xl font-semibold table-cell truncate">Gestión de Clientes</h1>
+                <p className="description-text">
                   {clientes.length} cliente{clientes.length !== 1 ? 's' : ''} registrado{clientes.length !== 1 ? 's' : ''}
                 </p>
               </div>
@@ -192,13 +192,13 @@ function ClientesApp({ clientes = [], onSaveClient = () => {}, onDeleteClient = 
         </div>
 
         {/* Búsqueda */}
-        <div className="p-3 sm:p-4 lg:p-6 border-b border-gray-100">
+        <div className="section-header">
           <div className="relative">
-            <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-800" />
+            <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 description-text" />
             <input
               type="text"
               placeholder="Buscar por nombre, teléfono o DNI..."
-              className="w-full pl-10 pr-4 py-3 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-gray-500 focus:border-transparent transition-all"
+              className="w-full pl-10 pr-4 py-3 text-sm form-input focus:ring-1 focus:ring-gray-500 focus:border-transparent transition-all"
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
             />
@@ -211,8 +211,8 @@ function ClientesApp({ clientes = [], onSaveClient = () => {}, onDeleteClient = 
           {clientesOperaciones.length > 0 && (
             <div>
               <div className="flex items-center gap-2 mb-3 sm:mb-4">
-                <TrendingUp size={18} className="text-gray-800 flex-shrink-0" />
-                <h2 className="text-sm sm:text-base lg:text-lg font-semibold text-gray-800">
+                <TrendingUp size={18} className="description-text flex-shrink-0" />
+                <h2 className="text-sm sm:text-base lg:text-lg font-semibold description-text">
                   Clientes de Operaciones ({clientesOperaciones.length})
                 </h2>
               </div>
@@ -237,7 +237,7 @@ function ClientesApp({ clientes = [], onSaveClient = () => {}, onDeleteClient = 
             <div>
               <div className="flex items-center gap-2 mb-3 sm:mb-4">
                 <CreditCard size={18} className="text-warning-600 flex-shrink-0" />
-                <h2 className="text-sm sm:text-base lg:text-lg font-semibold text-gray-800">
+                <h2 className="text-sm sm:text-base lg:text-lg font-semibold description-text">
                   Clientes Prestamistas ({clientesPrestamistas.length})
                 </h2>
               </div>
@@ -260,20 +260,20 @@ function ClientesApp({ clientes = [], onSaveClient = () => {}, onDeleteClient = 
           {/* Estado vacío */}
           {clientesFiltrados.length === 0 && (
             <div className="text-center py-8 sm:py-12">
-              <User size={40} className="sm:w-12 sm:h-12 mx-auto text-gray-300 mb-3 sm:mb-4" />
+              <User size={40} className="sm:w-12 sm:h-12 mx-auto empty-state-text mb-3 sm:mb-4" />
               {busqueda ? (
                 <div>
-                  <p className="text-sm sm:text-base text-gray-700 mb-2 px-4">No se encontraron clientes que coincidan con "{busqueda}"</p>
+                  <p className="text-sm sm:text-base empty-state-text mb-2 px-4">No se encontraron clientes que coincidan con "{busqueda}"</p>
                   <button
                     onClick={() => setBusqueda('')}
-                    className="text-gray-800 hover:text-gray-700 text-sm"
+                    className="description-text hover:empty-state-text text-sm"
                   >
                     Limpiar búsqueda
                   </button>
                 </div>
               ) : (
                 <div className="px-2">
-                  <p className="text-sm sm:text-base text-gray-700">No hay clientes registrados</p>
+                  <p className="text-sm sm:text-base empty-state-text">No hay clientes registrados</p>
                 </div>
               )}
             </div>
@@ -303,7 +303,7 @@ function ClienteCard({ cliente, onEdit, onViewAnalytics, onDelete, calcularFrecu
         {/* Header con nombre y estado */}
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-gray-900 text-sm sm:text-base truncate">
+            <h3 className="font-semibold table-cell text-sm sm:text-base truncate">
               {cliente.nombre} {cliente.apellido}
             </h3>
             <div className="flex flex-wrap items-center gap-2 mt-2">
@@ -313,7 +313,7 @@ function ClienteCard({ cliente, onEdit, onViewAnalytics, onDelete, calcularFrecu
               {cliente.tipoCliente && (
                 <span className={`px-2 py-1 rounded-full text-sm font-medium ${
                   cliente.tipoCliente === 'operaciones' 
-                    ? 'bg-gray-100 text-gray-700' 
+                    ? 'bg-gray-100 empty-state-text' 
                     : 'bg-warning-100 text-warning-700'
                 }`}>
                   {cliente.tipoCliente === 'operaciones' ? 'Operaciones' : 'Prestamista'}
@@ -326,14 +326,14 @@ function ClienteCard({ cliente, onEdit, onViewAnalytics, onDelete, calcularFrecu
           <div className="flex items-center gap-1 flex-shrink-0">
             <button 
               onClick={() => onViewAnalytics(cliente)} 
-              className="p-2 text-gray-800 hover:bg-gray-50 rounded-lg transition-colors touch-target"
+              className="p-2 description-text hover:table-header rounded-lg transition-colors touch-target"
               title="Ver análisis"
             >
               <TrendingUp size={14} />
             </button>
             <button 
               onClick={() => onEdit(cliente)} 
-              className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors touch-target"
+              className="p-2 description-text hover:table-header rounded-lg transition-colors touch-target"
               title="Editar cliente"
             >
               <Edit3 size={14} />
@@ -349,23 +349,23 @@ function ClienteCard({ cliente, onEdit, onViewAnalytics, onDelete, calcularFrecu
         </div>
 
         {/* Información de contacto */}
-        <div className="space-y-2 text-sm text-gray-600">
+        <div className="space-y-2 text-sm description-text">
           <div className="flex items-center gap-2">
-            <Phone size={12} className="text-gray-800 flex-shrink-0" />
+            <Phone size={12} className="description-text flex-shrink-0" />
             <span className="truncate">{cliente.telefono}</span>
           </div>
           <div className="flex items-center gap-2">
-            <CreditCard size={12} className="text-gray-800 flex-shrink-0" />
+            <CreditCard size={12} className="description-text flex-shrink-0" />
             <span className="truncate">DNI: {cliente.dni}</span>
           </div>
           <div className="flex items-center gap-2">
-            <MapPin size={12} className="text-gray-800 flex-shrink-0" />
+            <MapPin size={12} className="description-text flex-shrink-0" />
             <span className="truncate" title={cliente.direccion}>{cliente.direccion}</span>
           </div>
         </div>
 
         {/* Métricas del cliente */}
-        <div className="border-t pt-3 flex flex-col sm:flex-row sm:justify-between text-sm text-gray-700 gap-2">
+        <div className="border-t pt-3 flex flex-col sm:flex-row sm:justify-between text-sm empty-state-text gap-2">
           <span className="truncate">Última: {getDiasDesdeUltimaOperacion()}</span>
           <span className="truncate">Cada {frecuencia} días • {cliente.totalOperaciones || 0} ops</span>
         </div>
@@ -457,11 +457,11 @@ function FormularioCliente({ cliente, onSave, onCancel }) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-1 sm:p-2 lg:p-3 safe-top safe-bottom pt-24">
+    <div className="main-container p-1 sm:p-2 lg:p-3 safe-top safe-bottom pt-24">
       <div className="w-full px-2 sm:px-3 lg:px-4">
         <div className="">
           {/* Header */}
-          <div className="p-3 sm:p-4 lg:p-6 border-b border-gray-100">
+          <div className="section-header">
             <div className="flex items-center gap-3">
               <button 
                 onClick={onCancel} 
@@ -470,10 +470,10 @@ function FormularioCliente({ cliente, onSave, onCancel }) {
                 <ArrowLeft size={18} />
               </button>
               <div className="min-w-0 flex-1">
-                <h1 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
+                <h1 className="text-lg sm:text-xl font-semibold table-cell truncate">
                   {cliente ? 'Editar Cliente' : 'Nuevo Cliente'}
                 </h1>
-                <p className="text-xs sm:text-sm text-gray-700">
+                <p className="description-text">
                   {cliente ? 'Modifica la información del cliente' : 'Completa los datos del nuevo cliente'}
                 </p>
               </div>
@@ -551,10 +551,10 @@ function FormularioCliente({ cliente, onSave, onCancel }) {
               />
 
               {/* Información adicional */}
-              <div className="bg-gray-50 p-3 sm:p-4 rounded-lg">
+              <div className="empty-state">
                 <div className="flex items-start gap-2">
-                  <Bell size={14} className="text-gray-800 mt-0.5 flex-shrink-0" />
-                  <div className="text-xs sm:text-sm text-gray-700">
+                  <Bell size={14} className="description-text mt-0.5 flex-shrink-0" />
+                  <div className="description-text">
                     <p className="font-medium mb-1">Información automática</p>
                     <p>Las métricas de frecuencia de operación, última operación y volumen total se calcularán automáticamente basándose en el historial de movimientos.</p>
                   </div>
@@ -602,11 +602,11 @@ function AnalyticsCliente({ cliente, onBack, calcularFrecuencia }) {
   const recomendacion = getRecomendacion();
 
   return (
-    <div className="min-h-screen bg-gray-50 p-1 sm:p-2 lg:p-3 safe-top safe-bottom pt-24">
+    <div className="main-container p-1 sm:p-2 lg:p-3 safe-top safe-bottom pt-24">
       <div className="w-full px-2 sm:px-3 lg:px-4">
         <div className="">
           {/* Header */}
-          <div className="p-3 sm:p-4 lg:p-6 border-b border-gray-100">
+          <div className="section-header">
             <div className="flex items-center gap-3">
               <button 
                 onClick={onBack} 
@@ -615,10 +615,10 @@ function AnalyticsCliente({ cliente, onBack, calcularFrecuencia }) {
                 <ArrowLeft size={18} />
               </button>
               <div className="min-w-0 flex-1">
-                <h1 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
+                <h1 className="text-lg sm:text-xl font-semibold table-cell truncate">
                   Análisis de {cliente.nombre} {cliente.apellido}
                 </h1>
-                <p className="text-xs sm:text-sm text-gray-700">
+                <p className="description-text">
                   Métricas y patrones de comportamiento del cliente
                 </p>
               </div>
@@ -629,11 +629,11 @@ function AnalyticsCliente({ cliente, onBack, calcularFrecuencia }) {
           <div className="p-3 sm:p-4 lg:p-6 space-y-4 sm:space-y-6">
             {/* Métricas principales */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-              <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
-                <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 truncate">
+              <div className="table-header rounded-lg p-3 sm:p-4">
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold description-text truncate">
                   {cliente.totalOperaciones || 0}
                 </div>
-                <div className="text-xs sm:text-sm text-gray-800 font-medium">Operaciones Totales</div>
+                <div className="text-xs sm:text-sm description-text font-medium">Operaciones Totales</div>
               </div>
 
               <div className="bg-success-50 rounded-lg p-3 sm:p-4">
@@ -665,7 +665,7 @@ function AnalyticsCliente({ cliente, onBack, calcularFrecuencia }) {
             <div className="bg-warning-50 rounded-lg p-3 sm:p-4">
               <div className="flex items-center gap-2 mb-2 sm:mb-3">
                 <TrendingUp size={16} className="text-warning-600 flex-shrink-0" />
-                <span className="font-semibold text-gray-900 text-sm sm:text-base">Patrón de Operaciones</span>
+                <span className="font-semibold table-cell text-sm sm:text-base">Patrón de Operaciones</span>
               </div>
               <p className="text-xs sm:text-sm text-warning-700">
                 <strong>Frecuencia calculada:</strong> Este cliente opera cada <strong>{frecuencia} días</strong> en promedio.
@@ -676,30 +676,30 @@ function AnalyticsCliente({ cliente, onBack, calcularFrecuencia }) {
             </div>
 
             {/* Recomendaciones */}
-            <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+            <div className="table-header rounded-lg p-3 sm:p-4">
               <div className="flex items-start gap-2">
-                <Bell size={16} className="text-gray-800 mt-0.5 flex-shrink-0" />
+                <Bell size={16} className="description-text mt-0.5 flex-shrink-0" />
                 <div>
-                  <span className="font-semibold text-gray-900 block mb-2 sm:mb-3 text-base">Recomendación de Contacto</span>
-                  <p className="text-xs sm:text-sm text-gray-700">{recomendacion}</p>
+                  <span className="font-semibold table-cell block mb-2 sm:mb-3 text-base">Recomendación de Contacto</span>
+                  <p className="description-text">{recomendacion}</p>
                 </div>
               </div>
             </div>
 
             {/* Información del cliente */}
             <div className="border-t pt-24 sm:pt-6">
-              <h3 className="font-semibold text-gray-900 mb-3 sm:mb-4 text-sm sm:text-base">Información de Contacto</h3>
+              <h3 className="font-semibold table-cell mb-3 sm:mb-4 text-sm sm:text-base">Información de Contacto</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm">
                 <div className="flex items-center gap-2">
-                  <Phone size={14} className="text-gray-800 flex-shrink-0" />
+                  <Phone size={14} className="description-text flex-shrink-0" />
                   <span className="truncate"><strong>Teléfono:</strong> {cliente.telefono}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CreditCard size={14} className="text-gray-800 flex-shrink-0" />
+                  <CreditCard size={14} className="description-text flex-shrink-0" />
                   <span className="truncate"><strong>DNI:</strong> {cliente.dni}</span>
                 </div>
                 <div className="flex items-center gap-2 sm:col-span-2">
-                  <MapPin size={14} className="text-gray-800 flex-shrink-0" />
+                  <MapPin size={14} className="description-text flex-shrink-0" />
                   <span className="truncate"><strong>Dirección:</strong> {cliente.direccion}</span>
                 </div>
               </div>

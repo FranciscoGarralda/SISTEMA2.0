@@ -1,4 +1,4 @@
-import { safeLocalStorage } from './safeOperations';
+import { safeLocalStorage } from './utilityService';
 
 /**
  * Servicio para manejar clientes
@@ -77,4 +77,34 @@ class ClientService {
 
 // Exportar instancia única
 const clientService = new ClientService();
+
+// Exportar funciones individuales para compatibilidad
+export const getClients = () => clientService.getClients();
+export const saveClient = (client) => clientService.addClient(client);
+export const updateClient = (id, updates) => clientService.updateClient(id, updates);
+export const deleteClient = (id) => clientService.deleteClient(id);
+export const getClientById = (id) => clientService.getClientById(id);
+export const searchClients = (query) => {
+  const clients = clientService.getClients();
+  return clients.filter(c => 
+    c.nombre?.toLowerCase().includes(query.toLowerCase()) ||
+    c.apellido?.toLowerCase().includes(query.toLowerCase())
+  );
+};
+export const validateClientData = (data) => {
+  return {
+    isValid: data.nombre && data.nombre.trim().length > 0,
+    errors: []
+  };
+};
+export const formatClientData = (data) => {
+  return {
+    ...data,
+    nombre: data.nombre?.trim(),
+    apellido: data.apellido?.trim(),
+    telefono: data.telefono?.trim(),
+    email: data.email?.trim()
+  };
+};
+
 export default clientService;

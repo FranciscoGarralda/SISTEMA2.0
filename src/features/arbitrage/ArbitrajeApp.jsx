@@ -10,10 +10,9 @@ import {
   Search,
   User
 } from 'lucide-react';
-import { formatCurrency, formatNumber } from '../../services/formatters';
+import { formatCurrencyInput, formatAmountWithCurrency } from '../../services/utilityService';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer } from 'recharts';
-import { formatAmountWithCurrency } from '../../components/forms';
-import { safeParseFloat } from '../../services/safeOperations';
+import { safeParseFloat } from '../../services/utilityService';
 import { getTodayLocalDate, getCurrentYearMonth, isCurrentMonth, isToday } from '../../utils/dateUtils';
 
 /** COMPONENTE PRINCIPAL DE ANÁLISIS DE ARBITRAJE */
@@ -164,7 +163,7 @@ const ArbitrajeApp = ({ movements = [], onNavigate }) => {
               ))}
             </div>
           ) : (
-            <p className="text-base sm:text-lg text-gray-700 font-medium">Sin datos</p>
+            <p className="text-base sm:text-lg empty-state-text font-medium">Sin datos</p>
           )}
         </div>
         <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full ${bgColor} bg-opacity-20 flex items-center justify-center flex-shrink-0`}>
@@ -175,21 +174,21 @@ const ArbitrajeApp = ({ movements = [], onNavigate }) => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 p-1 sm:p-2 lg:p-3 safe-top safe-bottom pt-24">
+    <div className="main-container p-1 sm:p-2 lg:p-3 safe-top safe-bottom pt-24">
       <div className="w-full px-2 sm:px-3 lg:px-4 space-y-4 sm:space-y-6">
         {/* Header */}
         <div className="">
-          <div className="p-3 sm:p-4 lg:p-6 border-b border-gray-100">
+          <div className="section-header">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <ArrowRightLeft size={20} className="sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-gray-800" />
+                  <ArrowRightLeft size={20} className="sm:w-6 sm:h-6 lg:w-7 lg:h-7 description-text" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h1 className="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-900 truncate">
+                  <h1 className="main-title truncate">
                     Análisis de Arbitraje
                   </h1>
-                  <p className="text-xs sm:text-sm text-gray-700">
+                  <p className="description-text">
                     Dashboard de operaciones de arbitraje • {arbitrageMovements.length} operacion{arbitrageMovements.length !== 1 ? 'es' : ''} registrada{arbitrageMovements.length !== 1 ? 's' : ''}
                   </p>
                 </div>
@@ -209,7 +208,7 @@ const ArbitrajeApp = ({ movements = [], onNavigate }) => {
 
           {/* Métricas principales */}
           <div className="p-3 sm:p-4 lg:p-6">
-            <h2 className="text-base sm:text-lg font-semibold text-gray-700">
+            <h2 className="section-title">
               Métricas Principales
             </h2>
 
@@ -217,8 +216,8 @@ const ArbitrajeApp = ({ movements = [], onNavigate }) => {
               {renderMetricCard(
                 'Ganancias Totales por Arbitraje',
                 totalArbitrageProfits,
-                'bg-gray-50',
-                'text-gray-700',
+                'table-header',
+                'empty-state-text',
                 'border-gray-500',
                 Wallet,
                 'Acumulado histórico'
@@ -227,8 +226,8 @@ const ArbitrajeApp = ({ movements = [], onNavigate }) => {
               {renderMetricCard(
                 'Ganancias del Mes Actual',
                 currentMonthArbitrageProfits,
-                'bg-gray-50',
-                'text-gray-700',
+                'table-header',
+                'empty-state-text',
                 'border-gray-500',
                 CalendarIcon,
                 'Mes en curso'
@@ -250,8 +249,8 @@ const ArbitrajeApp = ({ movements = [], onNavigate }) => {
         {/* Gráfico de ganancias mensuales por arbitraje */}
         <div className="">
           <div className="p-3 sm:p-4 lg:p-6">
-            <h2 className="text-base sm:text-lg font-semibold text-gray-700 mb-4 sm:mb-6 flex items-center gap-2">
-              <ArrowRightLeft size={18} className="text-gray-800 flex-shrink-0" />
+            <h2 className="section-title mb-4 sm:mb-6 flex items-center gap-2">
+              <ArrowRightLeft size={18} className="description-text flex-shrink-0" />
               <span>Tendencia de Ganancias Mensuales por Arbitraje</span>
             </h2>
 
@@ -288,28 +287,28 @@ const ArbitrajeApp = ({ movements = [], onNavigate }) => {
               </div>
             ) : (
               <div className="text-center py-8 sm:py-12">
-                <ArrowRightLeft size={40} className="sm:w-12 sm:h-12 mx-auto text-gray-300 mb-3 sm:mb-4" />
+                <ArrowRightLeft size={40} className="sm:w-12 sm:h-12 mx-auto empty-state-text mb-3 sm:mb-4" />
                 {searchTerm ? (
                   <div>
-                    <p className="text-sm sm:text-base text-gray-700 mb-2">
+                    <p className="text-sm sm:text-base empty-state-text mb-2">
                       No se encontraron operaciones de arbitraje que coincidan con "{searchTerm}"
                     </p>
                     <button
                       onClick={() => setSearchTerm('')}
-                      className="text-gray-800 hover:text-gray-700 text-sm underline"
+                      className="description-text hover:empty-state-text text-sm underline"
                     >
                       Limpiar búsqueda
                     </button>
                   </div>
                 ) : arbitrageMovements.length === 0 ? (
                   <div>
-                    <p className="text-sm sm:text-base text-gray-700 mb-4">No hay operaciones de arbitraje registradas</p>
-                    <p className="text-xs sm:text-sm text-gray-800">
+                    <p className="text-sm sm:text-base empty-state-text mb-4">No hay operaciones de arbitraje registradas</p>
+                    <p className="text-xs sm:text-sm description-text">
                       Las operaciones de arbitraje aparecerán aquí cuando se registren transacciones de tipo "ARBITRAJE"
                     </p>
                   </div>
                 ) : (
-                  <p className="text-sm sm:text-base text-gray-700">Todas las operaciones de arbitraje están ocultas por el filtro actual</p>
+                  <p className="text-sm sm:text-base empty-state-text">Todas las operaciones de arbitraje están ocultas por el filtro actual</p>
                 )}
               </div>
             )}
@@ -319,18 +318,18 @@ const ArbitrajeApp = ({ movements = [], onNavigate }) => {
         {/* Lista de movimientos de arbitraje */}
         <div className="">
           <div className="p-3 sm:p-4 lg:p-6">
-            <h2 className="text-base sm:text-lg font-semibold text-gray-700 mb-4 sm:mb-6 flex items-center gap-2">
-              <ArrowRightLeft size={18} className="text-gray-800 flex-shrink-0" />
+            <h2 className="section-title mb-4 sm:mb-6 flex items-center gap-2">
+              <ArrowRightLeft size={18} className="description-text flex-shrink-0" />
               <span>Operaciones de Arbitraje</span>
             </h2>
 
             {/* Barra de búsqueda */}
             <div className="relative">
-              <CalendarIcon size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-800" />
+              <CalendarIcon size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 description-text" />
               <input
                 type="text"
                 placeholder="Buscar operación de arbitraje por cliente, detalle, moneda o cuenta..."
-                className="w-full pl-10 pr-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-transparent transition-all duration-200 text-sm"
+                className="w-full pl-10 pr-4 py-2 sm:py-3 form-input focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-transparent transition-all duration-200 text-sm"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -339,13 +338,13 @@ const ArbitrajeApp = ({ movements = [], onNavigate }) => {
             {/* Indicador de búsqueda activa */}
             {searchTerm && (
               <div className="flex items-center gap-2 mb-3 sm:mb-4 pb-3 sm:pb-4 border-b">
-                <span className="text-xs sm:text-sm text-gray-600">Búsqueda activa:</span>
-                <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs">
+                <span className="text-xs sm:text-sm description-text">Búsqueda activa:</span>
+                <span className="px-2 py-1 bg-gray-100 empty-state-text rounded-full text-xs">
                   "{searchTerm}"
                 </span>
                 <button
                   onClick={() => setSearchTerm('')}
-                  className="text-xs text-gray-700 hover:text-gray-700 underline ml-2"
+                  className="text-xs empty-state-text hover:empty-state-text underline ml-2"
                 >
                   Limpiar
                 </button>
@@ -360,7 +359,7 @@ const ArbitrajeApp = ({ movements = [], onNavigate }) => {
                     {/* Header de la operación */}
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-3">
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 text-sm text-gray-800 mb-2">
+                        <div className="flex items-center gap-2 text-sm description-text mb-2">
                           <CalendarIcon size={12} />
                           <span>
                             {mov.fecha ? new Date(mov.fecha + 'T12:00:00').toLocaleDateString('es-ES', {
@@ -372,7 +371,7 @@ const ArbitrajeApp = ({ movements = [], onNavigate }) => {
                           </span>
                         </div>
 
-                        <h3 className="font-semibold text-gray-900 text-sm sm:text-base flex items-center gap-2 truncate">
+                        <h3 className="font-semibold table-cell text-sm sm:text-base flex items-center gap-2 truncate">
                           <Wallet size={16} className="text-gray-500 flex-shrink-0" />
                           <span className="truncate">{mov.cliente || 'Sin Cliente'}</span>
                         </h3>
@@ -380,8 +379,8 @@ const ArbitrajeApp = ({ movements = [], onNavigate }) => {
 
                       {/* Ganancia destacada */}
                       <div className="text-right flex-shrink-0 mt-2 sm:mt-0">
-                        <p className="text-sm text-gray-800 mb-2">Ganancia</p>
-                        <p className="font-bold text-lg sm:text-xl text-gray-700">
+                        <p className="text-sm description-text mb-2">Ganancia</p>
+                        <p className="font-bold text-lg sm:text-xl empty-state-text">
                           {formatAmountWithCurrency(safeParseFloat(mov.profit), mov.monedaProfit || mov.monedaTC || 'ARS')}
                         </p>
                       </div>
@@ -391,34 +390,34 @@ const ArbitrajeApp = ({ movements = [], onNavigate }) => {
                     <div className="bg-white rounded-lg p-3 space-y-2">
                       {mov.detalle && (
                         <div>
-                          <span className="text-xs font-medium text-gray-600">Detalle:</span>
-                          <p className="text-sm text-gray-800 break-words">{mov.detalle}</p>
+                          <span className="text-xs font-medium description-text">Detalle:</span>
+                          <p className="text-sm description-text break-words">{mov.detalle}</p>
                         </div>
                       )}
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 text-xs">
                         <div>
-                          <span className="font-medium text-gray-600">Moneda Base:</span>
-                          <p className="text-gray-800">{mov.moneda || 'N/A'}</p>
+                          <span className="font-medium description-text">Moneda Base:</span>
+                          <p className="description-text">{mov.moneda || 'N/A'}</p>
                         </div>
 
                         {mov.monto && (
                           <div>
-                            <span className="font-medium text-gray-600">Monto Compra:</span>
-                            <p className="text-gray-800">{formatAmountWithCurrency(mov.monto, mov.moneda)}</p>
+                            <span className="font-medium description-text">Monto Compra:</span>
+                            <p className="description-text">{formatAmountWithCurrency(mov.monto, mov.moneda)}</p>
                           </div>
                         )}
 
                         {mov.montoVenta && (
                           <div>
-                            <span className="font-medium text-gray-600">Monto Venta:</span>
-                            <p className="text-gray-800">{formatAmountWithCurrency(mov.montoVenta, mov.monedaVenta || mov.moneda)}</p>
+                            <span className="font-medium description-text">Monto Venta:</span>
+                            <p className="description-text">{formatAmountWithCurrency(mov.montoVenta, mov.monedaVenta || mov.moneda)}</p>
                           </div>
                         )}
 
                         <div>
-                          <span className="font-medium text-gray-600">Cuenta Comisión:</span>
-                          <p className="text-gray-800">{mov.cuenta || 'N/A'}</p>
+                          <span className="font-medium description-text">Cuenta Comisión:</span>
+                          <p className="description-text">{mov.cuenta || 'N/A'}</p>
                         </div>
                       </div>
 
@@ -428,14 +427,14 @@ const ArbitrajeApp = ({ movements = [], onNavigate }) => {
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 text-xs">
                             {mov.tc && (
                               <div>
-                                <span className="font-medium text-gray-600">TC Compra:</span>
-                                <p className="text-gray-800">{mov.tc} {mov.monedaTC && `(${mov.monedaTC})`}</p>
+                                <span className="font-medium description-text">TC Compra:</span>
+                                <p className="description-text">{mov.tc} {mov.monedaTC && `(${mov.monedaTC})`}</p>
                               </div>
                             )}
                             {mov.tcVenta && (
                               <div>
-                                <span className="font-medium text-gray-600">TC Venta:</span>
-                                <p className="text-gray-800">{mov.tcVenta} {mov.monedaTCVenta && `(${mov.monedaTCVenta})`}</p>
+                                <span className="font-medium description-text">TC Venta:</span>
+                                <p className="description-text">{mov.tcVenta} {mov.monedaTCVenta && `(${mov.monedaTCVenta})`}</p>
                               </div>
                             )}
                           </div>
@@ -450,12 +449,12 @@ const ArbitrajeApp = ({ movements = [], onNavigate }) => {
                           ? 'bg-success-100 text-success-700'
                           : mov.estado === 'pendiente'
                           ? 'bg-warning-100 text-warning-700'
-                          : 'bg-gray-100 text-gray-700'
+                          : 'bg-gray-100 empty-state-text'
                       }`}>
                         {mov.estado || 'Sin estado'}
                       </span>
 
-                      <div className="flex items-center gap-2 text-xs text-gray-700">
+                      <div className="flex items-center gap-2 text-xs empty-state-text">
                         <span>Por: {mov.por || 'N/A'}</span>
                         {mov.nombreOtro && <span>({mov.nombreOtro})</span>}
                       </div>
@@ -464,8 +463,8 @@ const ArbitrajeApp = ({ movements = [], onNavigate }) => {
                 ))
               ) : (
                 <div className="text-center">
-                  <p className="text-sm sm:text-base text-gray-700 mb-4">No hay operaciones de arbitraje registradas</p>
-                  <p className="text-xs sm:text-sm text-gray-800">
+                  <p className="text-sm sm:text-base empty-state-text mb-4">No hay operaciones de arbitraje registradas</p>
+                  <p className="text-xs sm:text-sm description-text">
                     Las operaciones de arbitraje aparecerán aquí cuando se registren transacciones de tipo "ARBITRAJE"
                   </p>
                 </div>
@@ -478,34 +477,34 @@ const ArbitrajeApp = ({ movements = [], onNavigate }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           <div className="">
             <div className="p-3 sm:p-4 lg:p-6">
-              <h3 className="text-base sm:text-lg font-semibold text-gray-700 mb-3 sm:mb-4 flex items-center gap-2">
-                <Wallet size={16} className="text-gray-800" />
+              <h3 className="section-title mb-3 sm:mb-4 flex items-center gap-2">
+                <Wallet size={16} className="description-text" />
                 Resumen de Arbitraje
               </h3>
               <div className="space-y-2 sm:space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-xs sm:text-sm text-gray-600">Total de operaciones:</span>
-                  <span className="font-semibold text-gray-900 text-sm sm:text-base">{arbitrageMovements.length}</span>
+                  <span className="text-xs sm:text-sm description-text">Total de operaciones:</span>
+                  <span className="font-semibold table-cell text-sm sm:text-base">{arbitrageMovements.length}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-xs sm:text-sm text-gray-600">Monedas operadas:</span>
-                  <span className="font-semibold text-gray-900 text-sm sm:text-base">{allCurrenciesInArbitrage.length}</span>
+                  <span className="text-xs sm:text-sm description-text">Monedas operadas:</span>
+                  <span className="font-semibold table-cell text-sm sm:text-base">{allCurrenciesInArbitrage.length}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-xs sm:text-sm text-gray-600">Operaciones este mes:</span>
-                  <span className="font-semibold text-gray-900 text-sm sm:text-base">
+                  <span className="text-xs sm:text-sm description-text">Operaciones este mes:</span>
+                  <span className="font-semibold table-cell text-sm sm:text-base">
                     {arbitrageMovements.filter(mov =>
                       mov.fecha && isCurrentMonth(mov.fecha)
                     ).length}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-xs sm:text-sm text-gray-600">Meses con actividad:</span>
-                  <span className="font-semibold text-gray-900 text-sm sm:text-base">{monthlyArbitrageProfits.length}</span>
+                  <span className="text-xs sm:text-sm description-text">Meses con actividad:</span>
+                  <span className="font-semibold table-cell text-sm sm:text-base">{monthlyArbitrageProfits.length}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-xs sm:text-sm text-gray-600">Promedio ganancia/operación:</span>
-                  <span className="font-semibold text-gray-900 text-sm sm:text-base">
+                  <span className="text-xs sm:text-sm description-text">Promedio ganancia/operación:</span>
+                  <span className="font-semibold table-cell text-sm sm:text-base">
                     {arbitrageMovements.length > 0
                       ? (Object.values(totalArbitrageProfits).reduce((a, b) => a + b, 0) / arbitrageMovements.length).toFixed(2)
                       : '0'
@@ -518,11 +517,11 @@ const ArbitrajeApp = ({ movements = [], onNavigate }) => {
 
           <div className="">
             <div className="p-3 sm:p-4 lg:p-6">
-              <h3 className="text-base sm:text-lg font-semibold text-gray-700 mb-3 sm:mb-4 flex items-center gap-2">
+              <h3 className="section-title mb-3 sm:mb-4 flex items-center gap-2">
                 <Calculator size={16} className="text-emerald-600" />
                 Optimización de Arbitraje
               </h3>
-              <div className="space-y-1 sm:space-y-2 text-xs sm:text-sm text-gray-600">
+              <div className="space-y-1 sm:space-y-2 text-xs sm:text-sm description-text">
                 <p>• Identificar oportunidades frecuentes de arbitraje</p>
                 <p>• Analizar márgenes de ganancia por par de monedas</p>
                 <p>• Optimizar timing de operaciones</p>
@@ -538,11 +537,11 @@ const ArbitrajeApp = ({ movements = [], onNavigate }) => {
         {arbitrageMovements.length === 0 && (
           <div className="">
             <div className="p-6 sm:p-8 lg:p-12 text-center">
-              <AlertCircle size={48} className="sm:w-16 sm:h-16 mx-auto text-gray-300 mb-4" />
-              <h3 className="text-lg sm:text-xl font-semibold text-gray-700 mb-4">
+              <AlertCircle size={48} className="sm:w-16 sm:h-16 mx-auto empty-state-text mb-4" />
+              <h3 className="text-lg sm:text-xl font-semibold empty-state-text mb-4">
                 No hay operaciones de arbitraje registradas
               </h3>
-              <p className="text-sm sm:text-base text-gray-700 mb-6">
+              <p className="text-sm sm:text-base empty-state-text mb-6">
                 Las operaciones de arbitraje aparecerán aquí cuando se registren transacciones que generen ganancias por diferencias de precios.
               </p>
 

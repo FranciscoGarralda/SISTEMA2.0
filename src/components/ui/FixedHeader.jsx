@@ -68,21 +68,21 @@ const FixedHeader = ({ toggleSidebar, currentPage, showMenuButton, currentUser, 
               className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
               aria-label="Toggle menu"
             >
-              <Menu className="w-6 h-6 text-gray-700" />
+              <Menu className="w-6 h-6 empty-state-text" />
             </button>
           )}
           <div className="flex items-center gap-3">
-            <h1 className="text-xl lg:text-2xl font-bold text-gray-900">
+            <h1 className="text-xl lg:main-title">
               Sistema Financiero
             </h1>
             <div className="hidden sm:flex items-center gap-2">
               <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
-              <span className="text-sm text-gray-600">Activo</span>
+              <span className="text-sm description-text">Activo</span>
             </div>
           </div>
         </div>
 
-        <div className="hidden lg:flex items-center gap-4 text-sm text-gray-600 absolute left-1/2 transform -translate-x-1/2">
+        <div className="hidden lg:flex items-center gap-4 text-sm description-text absolute left-1/2 transform -translate-x-1/2">
           <div className="flex items-center gap-2">
             <Calendar className="w-4 h-4" />
             <span>{formatDate(currentTime)}</span>
@@ -102,8 +102,8 @@ const FixedHeader = ({ toggleSidebar, currentPage, showMenuButton, currentUser, 
                 onClick={() => setShowUserMenu(!showUserMenu)}
                 className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 transition-colors"
               >
-                <User className="w-5 h-5 text-gray-600" />
-                <span className="hidden sm:block text-sm font-medium text-gray-700">
+                <User className="w-5 h-5 description-text" />
+                <span className="hidden sm:block text-sm font-medium empty-state-text">
                   {currentUser.name}
                 </span>
               </button>
@@ -111,7 +111,7 @@ const FixedHeader = ({ toggleSidebar, currentPage, showMenuButton, currentUser, 
               {showUserMenu && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-[100]">
                   <div className="px-4 py-2 border-b border-gray-100">
-                    <p className="text-sm font-medium text-gray-900">{currentUser.name}</p>
+                    <p className="text-sm font-medium table-cell">{currentUser.name}</p>
                     <p className="text-xs text-gray-500">{currentUser.role === 'admin' ? 'Administrador' : 'Usuario'}</p>
                   </div>
                   <button
@@ -119,7 +119,7 @@ const FixedHeader = ({ toggleSidebar, currentPage, showMenuButton, currentUser, 
                       setShowUserMenu(false);
                       onLogout();
                     }}
-                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                    className="w-full flex items-center gap-2 px-4 py-2 text-sm empty-state-text hover:bg-gray-100 transition-colors"
                   >
                     <LogOut className="w-4 h-4" />
                     Cerrar Sesion
