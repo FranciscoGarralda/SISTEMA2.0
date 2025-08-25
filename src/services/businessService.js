@@ -137,6 +137,17 @@ class BalanceService {
       throw error;
     }
   }
+
+  // Método para obtener todos los balances CC por proveedor
+  getAllCCBalancesByProveedor() {
+    try {
+      const balances = dataService.storage.get('ccBalances') || {};
+      return balances;
+    } catch (error) {
+      console.error('Error obteniendo balances CC por proveedor:', error);
+      return {};
+    }
+  }
 }
 
 // ========================
@@ -284,6 +295,18 @@ class CajaService {
         saldoInicial: 0,
         monedas: {}
       };
+    }
+  }
+
+  // Método para verificar si hay cierre
+  hayCierre(fecha) {
+    try {
+      const cajaData = dataService.storage.get(this.storageKey) || {};
+      const cierreKey = `cierre_${fecha}`;
+      return !!cajaData[cierreKey];
+    } catch (error) {
+      console.error('Error verificando cierre de caja:', error);
+      return false;
     }
   }
 

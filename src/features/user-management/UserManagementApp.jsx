@@ -464,7 +464,7 @@ function UserManagementApp() {
             <div className="p-8 text-center text-gray-500">
               Cargando usuarios...
             </div>
-          ) : users.length === 0 ? (
+          ) : (users && users.length === 0) ? (
             <div className="p-8 text-center text-gray-500">
               No hay usuarios registrados
             </div>

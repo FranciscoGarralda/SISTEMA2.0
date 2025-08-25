@@ -2,7 +2,7 @@ import React from 'react';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
-  const version = "V97"; // Correcciones críticas completadas - Sistema estable
+  const version = "V98"; // Errores críticos corregidos - Sistema completamente funcional
 
   return (
     <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-sm">
