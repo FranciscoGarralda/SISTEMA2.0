@@ -69,8 +69,16 @@ const FormInput = forwardRef(({
         
         {/* Iconos especiales */}
         {type === 'date' && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-            <Calendar size={18} className="text-gray-400" />
+          <div 
+            className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer"
+            onClick={() => {
+              const input = document.getElementById(inputId);
+              if (input) {
+                input.showPicker();
+              }
+            }}
+          >
+            <Calendar size={18} className="text-gray-400 hover:text-gray-300 transition-colors" />
           </div>
         )}
       </div>

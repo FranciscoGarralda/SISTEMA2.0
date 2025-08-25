@@ -291,6 +291,49 @@ class ApiService {
     this.cache.clear();
     return Promise.resolve();
   }
+
+  // Métodos para gestión de usuarios
+  async getUsers() {
+    if (this.isLocalMode) {
+      return this.localBackend.get('users') || [];
+    }
+    return this.get('/users');
+  }
+
+  async createUser(userData) {
+    if (this.isLocalMode) {
+      const users = await this.getUsers();
+      const newUser = { ...userData, id: Date.now().toString() };
+      users.push(newUser);
+      await this.localBackend.set('users', users);
+      return newUser;
+    }
+    return this.post('/users', userData);
+  }
+
+  async updateUser(userId, userData) {
+    if (this.isLocalMode) {
+      const users = await this.getUsers();
+      const userIndex = users.findIndex(u => u.id === userId);
+      if (userIndex >= 0) {
+        users[userIndex] = { ...users[userIndex], ...userData };
+        await this.localBackend.set('users', users);
+        return users[userIndex];
+      }
+      throw new Error('Usuario no encontrado');
+    }
+    return this.put(`/users/${userId}`, userData);
+  }
+
+  async deleteUser(userId) {
+    if (this.isLocalMode) {
+      const users = await this.getUsers();
+      const filteredUsers = users.filter(u => u.id !== userId);
+      await this.localBackend.set('users', filteredUsers);
+      return true;
+    }
+    return this.delete(`/users/${userId}`);
+  }
 }
 
 // ========================

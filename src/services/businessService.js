@@ -89,6 +89,54 @@ class BalanceService {
       fechaFormatted: formatDate(balance.fecha)
     };
   }
+
+  // Métodos específicos para saldos iniciales
+  getAllInitialBalancesByCuenta() {
+    try {
+      const balances = dataService.storage.get('initialBalances') || {};
+      return balances;
+    } catch (error) {
+      console.error('Error obteniendo saldos iniciales:', error);
+      return {};
+    }
+  }
+
+  async saveInitialBalance(cuenta, monto) {
+    try {
+      const balances = this.getAllInitialBalancesByCuenta();
+      balances[cuenta] = safeParseFloat(monto, 0);
+      await dataService.storage.set('initialBalances', balances);
+      return balances;
+    } catch (error) {
+      console.error('Error guardando saldo inicial:', error);
+      throw error;
+    }
+  }
+
+  // Métodos para cuentas corrientes
+  getCCBalance(proveedor, currency) {
+    try {
+      const balances = dataService.storage.get('ccBalances') || {};
+      const key = `${proveedor}-${currency}`;
+      return safeParseFloat(balances[key], 0);
+    } catch (error) {
+      console.error('Error obteniendo balance CC:', error);
+      return 0;
+    }
+  }
+
+  async saveCCBalance(proveedor, currency, monto) {
+    try {
+      const balances = dataService.storage.get('ccBalances') || {};
+      const key = `${proveedor}-${currency}`;
+      balances[key] = safeParseFloat(monto, 0);
+      await dataService.storage.set('ccBalances', balances);
+      return balances;
+    } catch (error) {
+      console.error('Error guardando balance CC:', error);
+      throw error;
+    }
+  }
 }
 
 // ========================
@@ -181,6 +229,17 @@ class StockService {
       fechaFormatted: formatDate(item.fecha)
     };
   }
+
+  // Método específico para obtener todo el stock
+  getAllStock() {
+    try {
+      const stock = dataService.storage.get(this.storageKey) || [];
+      return safeArray(stock);
+    } catch (error) {
+      console.error('Error obteniendo todo el stock:', error);
+      return [];
+    }
+  }
 }
 
 // ========================
@@ -202,7 +261,29 @@ class CajaService {
       return cajaData;
     } catch (error) {
       console.error('Error obteniendo datos de caja:', error);
-      return { saldoInicial: 0, movimientos: [], saldoActual: 0 };
+      return {
+        saldoInicial: 0,
+        movimientos: [],
+        saldoActual: 0
+      };
+    }
+  }
+
+  // Método específico para obtener apertura de caja
+  getApertura(fecha) {
+    try {
+      const cajaData = dataService.storage.get(this.storageKey) || {};
+      const aperturaKey = `apertura_${fecha}`;
+      return cajaData[aperturaKey] || {
+        saldoInicial: 0,
+        monedas: {}
+      };
+    } catch (error) {
+      console.error('Error obteniendo apertura de caja:', error);
+      return {
+        saldoInicial: 0,
+        monedas: {}
+      };
     }
   }
 
