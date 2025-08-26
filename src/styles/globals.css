@@ -17,212 +17,121 @@ body {
 @layer components {
   /* Botones principales - Nueva paleta profesional */
   .btn-primary {
-    @apply bg-light-primary hover:bg-light-primaryHover text-white font-semibold py-2.5 px-4 rounded-lg shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-light-primary/50 focus:ring-offset-2;
+    @apply bg-light-primary hover:bg-light-primaryHover dark:bg-dark-primary dark:hover:bg-dark-primaryHover text-white font-semibold py-2.5 px-4 rounded-lg shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-light-primary/50 dark:focus:ring-dark-primary/50 focus:ring-offset-2;
   }
 
   .btn-secondary {
-    @apply bg-light-secondary hover:bg-light-secondary/90 text-white font-semibold py-2.5 px-4 rounded-lg shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-light-secondary/50 focus:ring-offset-2;
+    @apply bg-light-secondary hover:bg-light-secondary/90 dark:bg-dark-secondary dark:hover:bg-dark-secondary/90 text-white font-semibold py-2.5 px-4 rounded-lg shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-light-secondary/50 dark:focus:ring-dark-secondary/50 focus:ring-offset-2;
   }
 
   .btn-success {
-    @apply bg-light-success hover:bg-light-success/90 text-white font-semibold py-2.5 px-4 rounded-lg shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-light-success/50 focus:ring-offset-2;
+    @apply bg-light-success hover:bg-light-success/90 dark:bg-dark-success dark:hover:bg-dark-success/90 text-white font-semibold py-2.5 px-4 rounded-lg shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-light-success/50 dark:focus:ring-dark-success/50 focus:ring-offset-2;
   }
 
   .btn-warning {
-    @apply bg-light-warning hover:bg-light-warning/90 text-white font-semibold py-2.5 px-4 rounded-lg shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-light-warning/50 focus:ring-offset-2;
+    @apply bg-light-warning hover:bg-light-warning/90 dark:bg-dark-warning dark:hover:bg-dark-warning/90 text-white font-semibold py-2.5 px-4 rounded-lg shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-light-warning/50 dark:focus:ring-dark-warning/50 focus:ring-offset-2;
   }
 
   .btn-error {
-    @apply bg-light-error hover:bg-light-error/90 text-white font-semibold py-2.5 px-4 rounded-lg shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-light-error/50 focus:ring-offset-2;
-  }
-
-  /* Botones en modo oscuro - Nueva paleta profesional */
-  .dark .btn-primary {
-    @apply bg-dark-primary hover:bg-dark-primaryHover text-white font-semibold py-2.5 px-4 rounded-lg shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-dark-primary/50 focus:ring-offset-2 focus:ring-offset-dark-background;
-  }
-
-  .dark .btn-secondary {
-    @apply bg-dark-secondary hover:bg-dark-secondary/90 text-white font-semibold py-2.5 px-4 rounded-lg shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-dark-secondary/50 focus:ring-offset-2 focus:ring-offset-dark-background;
-  }
-
-  .dark .btn-success {
-    @apply bg-dark-success hover:bg-dark-success/90 text-white font-semibold py-2.5 px-4 rounded-lg shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-dark-success/50 focus:ring-offset-2 focus:ring-offset-dark-background;
-  }
-
-  .dark .btn-warning {
-    @apply bg-dark-warning hover:bg-dark-warning/90 text-white font-semibold py-2.5 px-4 rounded-lg shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-dark-warning/50 focus:ring-offset-2 focus:ring-offset-dark-background;
-  }
-
-  .dark .btn-error {
-    @apply bg-dark-error hover:bg-dark-error/90 text-white font-semibold py-2.5 px-4 rounded-lg shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-dark-error/50 focus:ring-offset-2 focus:ring-offset-dark-background;
+    @apply bg-light-error hover:bg-light-error/90 dark:bg-dark-error dark:hover:bg-dark-error/90 text-white font-semibold py-2.5 px-4 rounded-lg shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-light-error/50 dark:focus:ring-dark-error/50 focus:ring-offset-2;
   }
 
   /* Botones de navegación - Nueva paleta profesional */
   .btn-nav {
-    @apply bg-light-surface hover:bg-light-cardHover text-light-text border border-light-border rounded-lg px-4 py-2.5 font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-light-primary/50 focus:ring-offset-2;
-  }
-
-  .dark .btn-nav {
-    @apply bg-dark-surface hover:bg-dark-cardHover text-dark-text border border-dark-border rounded-lg px-4 py-2.5 font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-dark-primary/50 focus:ring-offset-2 focus:ring-offset-dark-background;
+    @apply bg-light-surface hover:bg-light-cardHover dark:bg-dark-surface dark:hover:bg-dark-cardHover text-light-text dark:text-dark-text border border-light-border dark:border-dark-border rounded-lg px-4 py-2.5 font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-light-primary/50 dark:focus:ring-dark-primary/50 focus:ring-offset-2;
   }
 
   /* Botones de navegación activos/seleccionados */
   .btn-nav.active,
   .btn-nav.selected,
   .btn-nav[aria-current="true"] {
-    @apply bg-light-primary text-white border-light-primary shadow-sm;
-  }
-
-  .dark .btn-nav.active,
-  .dark .btn-nav.selected,
-  .dark .btn-nav[aria-current="true"] {
-    @apply bg-dark-primary text-white border-dark-primary shadow-sm;
+    @apply bg-light-primary dark:bg-dark-primary text-white border-light-primary dark:border-dark-primary shadow-sm;
   }
 
   /* Botones de categoría - Nueva paleta profesional */
   .category-btn {
-    @apply bg-light-surface hover:bg-light-cardHover text-light-text border border-light-border rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-light-primary/50 focus:ring-offset-2;
-  }
-
-  .dark .category-btn {
-    @apply bg-dark-surface hover:bg-dark-cardHover text-dark-text border border-dark-border rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-dark-primary/50 focus:ring-offset-2 focus:ring-offset-dark-background;
+    @apply bg-light-surface hover:bg-light-cardHover dark:bg-dark-surface dark:hover:bg-dark-cardHover text-light-text dark:text-dark-text border border-light-border dark:border-dark-border rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-light-primary/50 dark:focus:ring-dark-primary/50 focus:ring-offset-2;
   }
 
   /* Botones de categoría activos/seleccionados */
   .category-btn.active,
   .category-btn.selected,
   .category-btn[aria-current="true"] {
-    @apply bg-light-primary text-white border-light-primary shadow-sm;
-  }
-
-  .dark .category-btn.active,
-  .dark .category-btn.selected,
-  .dark .category-btn[aria-current="true"] {
-    @apply bg-dark-primary text-white border-dark-primary shadow-sm;
+    @apply bg-light-primary dark:bg-dark-primary text-white border-light-primary dark:border-dark-primary shadow-sm;
   }
 
   /* Inputs - Nueva paleta profesional */
   .form-input {
-    @apply bg-light-input border border-light-border text-light-text placeholder-light-textMuted rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-light-primary/50 focus:border-light-primary focus:bg-light-inputFocus transition-all duration-200;
-  }
-
-  .dark .form-input {
-    @apply bg-dark-input border border-dark-border text-dark-text placeholder-dark-textMuted rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-dark-primary/50 focus:border-dark-primary focus:bg-dark-inputFocus transition-all duration-200;
+    @apply bg-light-input dark:bg-dark-input border border-light-border dark:border-dark-border text-light-text dark:text-dark-text placeholder-light-textMuted dark:placeholder-dark-textMuted rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-light-primary/50 dark:focus:ring-dark-primary/50 focus:border-light-primary dark:focus:border-dark-primary focus:bg-light-inputFocus dark:focus:bg-dark-inputFocus transition-all duration-200;
   }
 
   /* Cards - Nueva paleta profesional */
   .card {
-    @apply bg-light-card border border-light-border rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow duration-200;
-  }
-
-  .dark .card {
-    @apply bg-dark-card border border-dark-border rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow duration-200;
+    @apply bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow duration-200;
   }
 
   /* Headers - Nueva paleta profesional */
   .header {
-    @apply bg-light-header border-b border-light-border shadow-sm;
-  }
-
-  .dark .header {
-    @apply bg-dark-header border-b border-dark-border shadow-sm;
+    @apply bg-light-header dark:bg-dark-header border-b border-light-border dark:border-dark-border shadow-sm;
   }
 
   /* Sidebar - Nueva paleta profesional */
   .sidebar {
-    @apply bg-light-sidebar text-light-sidebarText;
-  }
-
-  .dark .sidebar {
-    @apply bg-dark-sidebar text-dark-sidebarText;
+    @apply bg-light-sidebar dark:bg-dark-sidebar text-light-sidebarText dark:text-dark-sidebarText;
   }
 
   /* Contenedores principales - Nueva paleta profesional */
   .main-container {
-    @apply min-h-screen bg-light-background p-1 sm:p-2 lg:p-3 pt-24;
-  }
-
-  .dark .main-container {
-    @apply bg-dark-background;
+    @apply min-h-screen bg-light-background dark:bg-dark-background p-1 sm:p-2 lg:p-3 pt-24;
   }
 
   /* Headers de sección - Nueva paleta profesional */
   .section-header {
-    @apply p-3 sm:p-4 lg:p-6 border-b border-light-border bg-light-surface;
-  }
-
-  .dark .section-header {
-    @apply border-dark-border bg-dark-surface;
+    @apply p-3 sm:p-4 lg:p-6 border-b border-light-border dark:border-dark-border bg-light-surface dark:bg-dark-surface;
   }
 
   /* Títulos principales - Nueva paleta profesional */
   .main-title {
-    @apply text-lg sm:text-xl lg:text-2xl font-semibold text-light-text truncate;
-  }
-
-  .dark .main-title {
-    @apply text-dark-text;
+    @apply text-lg sm:text-xl lg:text-2xl font-semibold text-light-text dark:text-dark-text truncate;
   }
 
   /* Títulos secundarios - Nueva paleta profesional */
   .section-title {
-    @apply text-base sm:text-lg font-semibold text-light-textSecondary;
-  }
-
-  .dark .section-title {
-    @apply text-dark-textSecondary;
+    @apply text-base sm:text-lg font-semibold text-light-textSecondary dark:text-dark-textSecondary;
   }
 
   /* Texto de descripción - Nueva paleta profesional */
   .description-text {
-    @apply text-xs sm:text-sm text-light-textSecondary;
-  }
-
-  .dark .description-text {
-    @apply text-dark-textSecondary;
+    @apply text-xs sm:text-sm text-light-textSecondary dark:text-dark-textSecondary;
   }
 
   /* Cards de contenido - Nueva paleta profesional */
   .content-card {
-    @apply bg-light-card border border-light-border rounded-lg p-4 hover:shadow-md transition-shadow duration-200;
-  }
-
-  .dark .content-card {
-    @apply bg-dark-card border-dark-border;
+    @apply bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border rounded-lg p-4 hover:shadow-md transition-shadow duration-200;
   }
 
   /* Tablas - Nueva paleta profesional */
   .table-header {
-    @apply bg-light-surface border-b border-light-border;
-  }
-
-  .dark .table-header {
-    @apply bg-dark-surface border-b border-dark-border;
+    @apply bg-light-surface dark:bg-dark-surface border-b border-light-border dark:border-dark-border;
   }
 
   .table-cell {
-    @apply text-light-text border-b border-light-border/50;
-  }
-
-  .dark .table-cell {
-    @apply text-dark-text border-b border-dark-border/50;
+    @apply text-light-text dark:text-dark-text border-b border-light-border/50 dark:border-dark-border/50;
   }
 
   /* Estados vacíos - Nueva paleta profesional */
   .empty-state {
-    @apply bg-light-card p-3 sm:p-4 rounded-lg w-full text-center border border-light-border;
-  }
-
-  .dark .empty-state {
-    @apply bg-dark-card border-dark-border;
+    @apply bg-light-card dark:bg-dark-card p-3 sm:p-4 rounded-lg w-full text-center border border-light-border dark:border-dark-border;
   }
 
   .empty-state-text {
-    @apply text-xs sm:text-sm text-light-textMuted;
+    @apply text-xs sm:text-sm text-light-textMuted dark:text-dark-textMuted;
   }
 
-  .dark .empty-state-text {
-    @apply text-dark-textMuted;
+  /* Tooltip personalizado - Nueva paleta profesional */
+  .tooltip-custom {
+    @apply fixed z-[9999] p-2 px-3.5 rounded-xl text-sm font-semibold whitespace-nowrap pointer-events-none shadow-lg backdrop-blur-sm;
+    @apply bg-light-sidebar/80 dark:bg-dark-sidebar/80 text-light-sidebarText dark:text-dark-sidebarText border border-light-border/20 dark:border-dark-border/20;
   }
 }
 
@@ -232,61 +141,10 @@ body {
   .transition-smooth {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
-
-  /* Animaciones */
-  .animate-fade-in {
-    animation: fadeIn 0.3s ease-in-out;
-  }
-
-  .animate-slide-up {
-    animation: slideUp 0.3s ease-out;
-  }
-
-  .animate-slide-down {
-    animation: slideDown 0.3s ease-out;
-  }
-
-  /* Sombras personalizadas */
-  .shadow-netlify {
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  }
-
-  .shadow-netlify-md {
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  }
-
-  .shadow-netlify-lg {
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  }
 }
 
 /* ===== ANIMACIONES ===== */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideUp {
-  from { 
-    transform: translateY(10px); 
-    opacity: 0; 
-  }
-  to { 
-    transform: translateY(0); 
-    opacity: 1; 
-  }
-}
-
-@keyframes slideDown {
-  from { 
-    transform: translateY(-10px); 
-    opacity: 0; 
-  }
-  to { 
-    transform: translateY(0); 
-    opacity: 1; 
-  }
-}
+/* Las animaciones están definidas en tailwind.config.js */
 
 /* ===== ESTILOS ESPECÍFICOS ===== */
 /* Ocultar indicador de calendario nativo */

@@ -52,7 +52,7 @@ const NotificationSystem = ({ onNotificationCallback }) => {
   };
 
   const getNotificationStyles = (type) => {
-    const baseStyles = "flex items-start p-4 mb-3 rounded-lg shadow-lg border-l-4 animate-fadeIn";
+    const baseStyles = "flex items-start p-4 mb-3 rounded-lg shadow-lg border-l-4 animate-fade-in";
     
     switch (type) {
       case 'error':
@@ -62,7 +62,7 @@ const NotificationSystem = ({ onNotificationCallback }) => {
       case 'warning':
         return `${baseStyles} bg-yellow-50 border-yellow-500 text-yellow-800`;
       default:
-        return `${baseStyles} table-header border-gray-500 table-cell`;
+        return `${baseStyles} bg-light-info/20 dark:bg-dark-info/20 border-light-info dark:border-dark-info text-light-primary dark:text-dark-primary`;
     }
   };
 

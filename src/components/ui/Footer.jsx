@@ -2,7 +2,7 @@ import React from 'react';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
-  const version = "V99"; // Error de Suspense corregido - Sistema estable
+  const version = "V100"; // CSS optimizado - Eliminación de duplicados y refactorización completa
 
   return (
     <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-sm">

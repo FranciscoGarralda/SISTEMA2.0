@@ -29,38 +29,14 @@ const SidebarTooltip = ({ children, content, disabled = false }) => {
       
       {tooltip.visible && content && (
         <div
+          className="tooltip-custom"
           style={{
-            position: 'fixed',
             top: `${tooltip.y}px`,
             left: `${tooltip.x}px`,
-            zIndex: 9999,
-            background: '#111827',
-            color: 'white',
-            padding: '8px 14px',
-            borderRadius: '12px',
-            fontSize: '13px',
-            fontWeight: '600',
-            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.25), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
-            pointerEvents: 'none',
-            whiteSpace: 'nowrap',
-            backdropFilter: 'blur(8px)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            letterSpacing: '0.025em'
           }}
         >
           <div
-            style={{
-              position: 'absolute',
-              left: '-5px',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              width: 0,
-              height: 0,
-              borderTop: '5px solid transparent',
-              borderBottom: '5px solid transparent',
-              borderRight: '5px solid #111827',
-              filter: 'drop-shadow(-1px 0 1px rgba(0, 0, 0, 0.1))'
-            }}
+            className="absolute left-[-5px] top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-[5px] border-b-[5px] border-r-[5px] border-t-transparent border-b-transparent border-r-light-sidebar/80 dark:border-r-dark-sidebar/80 filter drop-shadow-[-1px_0_1px_rgba(0,0,0,0.1)]"
           />
           {content}
         </div>
