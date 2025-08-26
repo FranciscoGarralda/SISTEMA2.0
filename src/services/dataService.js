@@ -124,7 +124,8 @@ class ApiService {
     this.baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
     this.cache = new CacheService();
     this.localBackend = new LocalStorageBackend();
-    this.isLocalMode = process.env.NODE_ENV === 'development';
+    // Forzar modo local para desarrollo y cuando no hay servidor backend
+    this.isLocalMode = true; // Siempre usar modo local para simplicidad
   }
 
   async request(endpoint, options = {}) {

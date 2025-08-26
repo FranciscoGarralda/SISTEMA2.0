@@ -1,7 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { apiService } from '../../services';
-import { serverWakeService } from '../../services/dataService';
 
 export default function LoginPage({ onLoginSuccess }) {
   const [formData, setFormData] = useState({
@@ -11,31 +10,6 @@ export default function LoginPage({ onLoginSuccess }) {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [serverAwake, setServerAwake] = useState(false);
-  
-  // Despertar servidor al cargar la página (solo una vez)
-  useEffect(() => {
-    let isMounted = true;
-    
-    const wakeServer = async () => {
-      try {
-        await serverWakeService.wakeServer();
-        if (isMounted) {
-          setServerAwake(true);
-        }
-      } catch (err) {
-        if (isMounted) {
-          setError('El servidor está iniciándose. Por favor espera unos segundos.');
-        }
-      }
-    };
-    
-    wakeServer();
-    
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -50,46 +24,31 @@ export default function LoginPage({ onLoginSuccess }) {
     setLoading(true);
 
     try {
-      // Asegurarse de que el servidor esté despierto
-      if (!serverAwake) {
-        setError('Conectando con el servidor...');
-        await serverWakeService.wakeServer();
-        setServerAwake(true);
-        setError('');
-      }
+      // Simplificar el proceso de login para modo local
+      console.log('Intentando login con:', formData.username);
       
       const response = await apiService.login(formData.username, formData.password);
       
       console.log('Login response:', response);
       
       // Verificar si la respuesta es exitosa y tiene un usuario
-      if (response && response.user) {
+      if (response && response.success && response.user) {
         console.log('Login exitoso, usuario:', response.user);
         onLoginSuccess(response.user);
       } else if (response && response.success === false) {
         // Mensajes de error más específicos
-        if (response.message?.includes('credentials') || response.message?.includes('Credenciales')) {
-          setError('Usuario o contraseña incorrectos');
-        } else if (response.message?.includes('not found')) {
-          setError('Usuario no encontrado');
-        } else {
-          setError(response.message || 'Error al iniciar sesión. Intenta nuevamente.');
-        }
+        setError(response.message || 'Usuario o contraseña incorrectos');
       } else {
         // Si la respuesta no tiene la estructura esperada
         console.error('Respuesta inesperada:', response);
-        setError('Error al procesar la respuesta del servidor. Intenta nuevamente.');
+        setError('Error al procesar la respuesta. Intenta nuevamente.');
       }
     } catch (err) {
       console.error('Error de login:', err);
       
-      // Manejo específico de errores
+      // Manejo específico de errores para modo local
       if (err.message?.includes('Failed to fetch') || err.message?.includes('NetworkError')) {
         setError('Error de conexión. Verifica tu internet.');
-      } else if (err.message?.includes('credentials') || err.message?.includes('Credenciales')) {
-        setError('Usuario o contraseña incorrectos');
-      } else if (err.message?.includes('timeout') || err.message?.includes('Timeout')) {
-        setError('Tiempo de espera agotado. Intenta nuevamente.');
       } else {
         setError('Error al iniciar sesión. Intenta nuevamente.');
       }
@@ -113,23 +72,12 @@ export default function LoginPage({ onLoginSuccess }) {
             Sistema Financiero
           </h2>
           
-          {!serverAwake && !error && (
-            <div className="text-center mb-6">
-              <div className="inline-flex items-center gap-2 text-sm description-text">
-                <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-300 border-t-gray-600"></div>
-                Conectando con el servidor...
-              </div>
+          <div className="text-center mb-6">
+            <div className="inline-flex items-center gap-2 text-sm text-blue-600">
+              <div className="h-2 w-2 bg-blue-500 rounded-full"></div>
+              Modo local activo
             </div>
-          )}
-          
-          {serverAwake && (
-            <div className="text-center mb-6">
-              <div className="inline-flex items-center gap-2 text-sm text-green-600">
-                <div className="h-2 w-2 bg-green-500 rounded-full"></div>
-                Servidor conectado
-              </div>
-            </div>
-          )}
+          </div>
           
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
