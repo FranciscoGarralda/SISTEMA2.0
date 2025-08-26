@@ -1,23 +1,15 @@
 [build]
   command = "npm run build"
   publish = ".next"
-  functions = "netlify/functions"
 
-[dev]
-  command = "npm run dev"
-  framework = "next"
-  port = 3000
-  functions_port = 8888
-  target_port = 3000
+[build.environment]
+  NODE_VERSION = "18"
 
-[functions]
-  directory = "netlify/functions"
-  node_bundler = "esbuild"
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
 
-[[plugins]]
-  package = "@netlify/plugin-nextjs"
-
-# Configuración de seguridad
 [[headers]]
   for = "/*"
   [headers.values]
@@ -25,15 +17,19 @@
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
 
-# Redirecciones para API
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
+[[headers]]
+  for = "/manifest.json"
+  [headers.values]
+    Content-Type = "application/manifest+json"
 
-# Redirecciones para Next.js
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+[[headers]]
+  for = "*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
