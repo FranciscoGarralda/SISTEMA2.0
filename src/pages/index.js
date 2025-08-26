@@ -17,70 +17,23 @@ const WelcomePage = lazy(() =>
   }))
 );
 
-// Lazy load feature components
-const FinancialOperationsApp = lazy(() => 
-  import(/* webpackChunkName: "financial-operations" */ '../features/financial-operations/FinancialOperationsApp')
-);
-
-const ClientesApp = lazy(() => 
-  import(/* webpackChunkName: "clients" */ '../features/clients/ClientesApp')
-);
-
-const MovimientosApp = lazy(() => 
-  import(/* webpackChunkName: "movements" */ '../features/movements/MovimientosApp')
-);
-
-const PendientesRetiroApp = lazy(() => 
-  import(/* webpackChunkName: "pending-withdrawals" */ '../features/pending-withdrawals/PendientesRetiroApp')
-);
-
-const GastosApp = lazy(() => 
-  import(/* webpackChunkName: "expenses" */ '../features/expenses/GastosApp')
-);
-
-const CuentasCorrientesApp = lazy(() => 
-  import(/* webpackChunkName: "current-accounts" */ '../features/current-accounts/CuentasCorrientesApp')
-);
-
-const PrestamistasApp = lazy(() => 
-  import(/* webpackChunkName: "lenders" */ '../features/lenders/PrestamistasApp')
-);
-
-const ComisionesApp = lazy(() => 
-  import(/* webpackChunkName: "commissions" */ '../features/commissions/ComisionesApp')
-);
-
-const UtilidadApp = lazy(() => 
-  import(/* webpackChunkName: "utility" */ '../features/utility/UtilidadApp')
-);
-
-const ArbitrajeApp = lazy(() => 
-  import(/* webpackChunkName: "arbitrage" */ '../features/arbitrage/ArbitrajeApp')
-);
-
-const SaldosApp = lazy(() => 
-  import(/* webpackChunkName: "balances" */ '../features/balances/SaldosApp')
-);
-
-const CajaApp = lazy(() => 
-  import(/* webpackChunkName: "cash-register" */ '../features/cash-register/CajaApp')
-);
-
-const RentabilidadApp = lazy(() => 
-  import(/* webpackChunkName: "profitability" */ '../features/profitability/RentabilidadApp')
-);
-
-const StockApp = lazy(() => 
-  import(/* webpackChunkName: "stock" */ '../features/stock/StockApp')
-);
-
-const SaldosInicialesApp = lazy(() => 
-  import(/* webpackChunkName: "initial-balances" */ '../features/initial-balances/SaldosInicialesApp')
-);
-
-const UserManagementApp = lazy(() => 
-  import(/* webpackChunkName: "user-management" */ '../features/user-management/UserManagementApp')
-);
+// Lazy load feature components (simplificado para evitar errores de chunks)
+const FinancialOperationsApp = lazy(() => import('../features/financial-operations/FinancialOperationsApp'));
+const ClientesApp = lazy(() => import('../features/clients/ClientesApp'));
+const MovimientosApp = lazy(() => import('../features/movements/MovimientosApp'));
+const PendientesRetiroApp = lazy(() => import('../features/pending-withdrawals/PendientesRetiroApp'));
+const GastosApp = lazy(() => import('../features/expenses/GastosApp'));
+const CuentasCorrientesApp = lazy(() => import('../features/current-accounts/CuentasCorrientesApp'));
+const PrestamistasApp = lazy(() => import('../features/lenders/PrestamistasApp'));
+const ComisionesApp = lazy(() => import('../features/commissions/ComisionesApp'));
+const UtilidadApp = lazy(() => import('../features/utility/UtilidadApp'));
+const ArbitrajeApp = lazy(() => import('../features/arbitrage/ArbitrajeApp'));
+const SaldosApp = lazy(() => import('../features/balances/SaldosApp'));
+const CajaApp = lazy(() => import('../features/cash-register/CajaApp'));
+const RentabilidadApp = lazy(() => import('../features/profitability/RentabilidadApp'));
+const StockApp = lazy(() => import('../features/stock/StockApp'));
+const SaldosInicialesApp = lazy(() => import('../features/initial-balances/SaldosInicialesApp'));
+const UserManagementApp = lazy(() => import('../features/user-management/UserManagementApp'));
 
 // Component map
 const componentMap = {

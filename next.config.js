@@ -20,24 +20,12 @@ const nextConfig = {
     ignoreBuildErrors: true, // Deshabilitado temporalmente hasta migrar a TypeScript
   },
   webpack: (config, { dev, isServer }) => {
-    // Configuración simplificada y estable
-    if (!dev && !isServer) {
-      // Configuración básica de chunks sin optimizaciones complejas
-      config.optimization.splitChunks = {
-        chunks: 'all',
-        cacheGroups: {
-          default: {
-            minChunks: 1,
-            priority: -20,
-            reuseExistingChunk: true,
-          },
-          vendor: {
-            test: /[\\/]node_modules[\\/]/,
-            name: 'vendors',
-            priority: -10,
-            chunks: 'all',
-          },
-        },
+    // Configuración mínima para evitar errores de chunks
+    if (dev) {
+      // En desarrollo, usar configuración simple
+      config.optimization = {
+        ...config.optimization,
+        splitChunks: false, // Deshabilitar split chunks en desarrollo
       };
     }
     
