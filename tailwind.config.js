@@ -15,42 +15,58 @@ module.exports = {
     extend: {
       colors: {
         // ========================
-        // 🎨 Paleta Tema Claro - Nueva
+        // 🎨 Paleta Tema Claro - Profesional y Elegante
         // ========================
         light: {
-          background: '#FFFFFF',        // Fondo principal: blanco puro
-          text: '#1A1A1A',             // Texto primario: negro suave
-          textSecondary: '#4D4D4D',    // Texto secundario: gris medio elegante
-          primary: '#0D3B66',          // Color primario: azul marino profundo
-          secondary: '#3A6EA5',        // Color secundario: azul medio
-          border: '#E6E6E6',           // Detalles/bordes: gris claro
-          success: '#3B9C6D',          // Éxito: verde sutil
-          error: '#B23A48',            // Error: rojo elegante
-          warning: '#F59E0B',          // Advertencia
-          info: '#3B82F6',             // Información
-          card: '#F8F9FA',             // Cards
-          input: '#FFFFFF',            // Inputs
-          header: '#FFFFFF',           // Header
-          sidebar: '#0D3B66',          // Sidebar
+          background: '#FAFAFA',        // Fondo principal: blanco suave
+          surface: '#FFFFFF',           // Superficies: blanco puro
+          text: '#1F2937',             // Texto primario: gris muy oscuro
+          textSecondary: '#6B7280',    // Texto secundario: gris medio
+          textMuted: '#9CA3AF',        // Texto atenuado: gris claro
+          primary: '#2563EB',          // Color primario: azul moderno
+          primaryHover: '#1D4ED8',     // Primario hover: azul más oscuro
+          secondary: '#64748B',        // Color secundario: slate gris
+          accent: '#F59E0B',           // Acento: ámbar
+          border: '#E5E7EB',           // Bordes: gris muy claro
+          borderHover: '#D1D5DB',      // Bordes hover: gris claro
+          success: '#10B981',          // Éxito: verde esmeralda
+          error: '#EF4444',            // Error: rojo moderno
+          warning: '#F59E0B',          // Advertencia: ámbar
+          info: '#3B82F6',             // Información: azul
+          card: '#FFFFFF',             // Cards: blanco
+          cardHover: '#F9FAFB',        // Cards hover: gris muy claro
+          input: '#FFFFFF',            // Inputs: blanco
+          inputFocus: '#F3F4F6',       // Inputs focus: gris muy claro
+          header: '#FFFFFF',           // Header: blanco
+          sidebar: '#1F2937',          // Sidebar: gris muy oscuro
+          sidebarText: '#F9FAFB',      // Texto sidebar: blanco
         },
         // ========================
-        // 🌙 Paleta Tema Oscuro - Nueva
+        // 🌙 Paleta Tema Oscuro - Profesional y Elegante
         // ========================
         dark: {
-          background: '#0D1B2A',       // Fondo principal: azul petróleo/marino oscuro
-          text: '#F5F5F5',             // Texto primario: blanco humo
-          textSecondary: '#B0B0B0',    // Texto secundario: gris claro elegante
-          primary: '#1D4E89',          // Color primario: azul marino sofisticado
-          secondary: '#3A6EA5',        // Color secundario: azul medio contrastante
-          border: '#1E2E3D',           // Detalles/bordes: gris azulado profundo
-          success: '#3B9C6D',          // Éxito: verde sutil
-          error: '#B23A48',            // Error: rojo elegante
-          warning: '#F39C12',          // Advertencia
-          info: '#3498DB',             // Información
-          card: '#112240',             // Cards
-          input: '#1E2E3D',            // Inputs
-          header: '#0D1B2A',           // Header
-          sidebar: '#0D1B2A',          // Sidebar
+          background: '#111827',       // Fondo principal: gris muy oscuro
+          surface: '#1F2937',          // Superficies: gris oscuro
+          text: '#F9FAFB',             // Texto primario: blanco
+          textSecondary: '#D1D5DB',    // Texto secundario: gris claro
+          textMuted: '#9CA3AF',        // Texto atenuado: gris medio
+          primary: '#3B82F6',          // Color primario: azul moderno
+          primaryHover: '#2563EB',     // Primario hover: azul más oscuro
+          secondary: '#64748B',        // Color secundario: slate gris
+          accent: '#F59E0B',           // Acento: ámbar
+          border: '#374151',           // Bordes: gris oscuro
+          borderHover: '#4B5563',      // Bordes hover: gris medio
+          success: '#10B981',          // Éxito: verde esmeralda
+          error: '#EF4444',            // Error: rojo moderno
+          warning: '#F59E0B',          // Advertencia: ámbar
+          info: '#3B82F6',             // Información: azul
+          card: '#1F2937',             // Cards: gris oscuro
+          cardHover: '#374151',        // Cards hover: gris medio
+          input: '#374151',            // Inputs: gris oscuro
+          inputFocus: '#4B5563',       // Inputs focus: gris medio
+          header: '#111827',           // Header: gris muy oscuro
+          sidebar: '#111827',          // Sidebar: gris muy oscuro
+          sidebarText: '#F9FAFB',      // Texto sidebar: blanco
         },
       },
       fontFamily: {
