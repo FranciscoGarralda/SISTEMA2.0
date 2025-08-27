@@ -2,7 +2,7 @@ import React from 'react';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
-  const version = "V109"; // Paso 3 iniciado - Refactorización de componentes monolíticos
+  const version = "V110"; // Arregladas páginas con funciones antiguas, iniciada refactorización de MovimientosApp
 
   return (
     <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-sm mt-auto">

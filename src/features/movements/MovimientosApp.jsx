@@ -1,94 +1,72 @@
-import React, { useState, useMemo } from 'react';
-import {
-  Search,
-  Edit3,
-  Trash2,
-  ArrowLeft,
-  List,
-  Calendar,
-  User,
-  DollarSign,
-  Filter,
-  Eye
-} from 'lucide-react';
-import { FormSelect, formatAmountWithCurrency, estados } from '../../components/forms';
-import { getClientName } from '../../services/utilityService';
-import { safeParseFloat } from '../../services/utilityService';
+import React, { useMemo } from 'react';
+import { List } from 'lucide-react';
+import { useMovements } from './hooks/useMovements';
+import MovementTable from './components/MovementTable';
+import MovementFilters from './components/MovementFilters';
+import MovementStats from './components/MovementStats';
 
-/** COMPONENTE PRINCIPAL DE MOVIMIENTOS */
-function MovimientosApp({ movements = [], clients = [], onEditMovement, onDeleteMovement, onNavigate }) {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState('');
-  const [filterStatus, setFilterStatus] = useState('');
-  const [currentView, setCurrentView] = useState('list'); // 'list' | 'detail'
-  const [selectedMovement, setSelectedMovement] = useState(null);
+/** COMPONENTE PRINCIPAL DE MOVIMIENTOS - REFACTORIZADO */
+function MovimientosApp({ clients = [] }) {
+  const {
+    // Estado
+    busqueda,
+    filtroTipo,
+    filtroEstado,
+    ordenarPor,
+    orden,
+    isLoading,
+    error,
+    
+    // Datos
+    movements,
+    movimientosFiltrados,
+    estadisticas,
+    
+    // Acciones
+    updateMovement,
+    deleteMovement,
+    loadMovements,
+    
+    // Filtros
+    setBusqueda,
+    setFiltroTipo,
+    setFiltroEstado,
+    setOrdenarPor,
+    setOrden,
+    limpiarFiltros,
+    
+    // Utilidades
+    hasMovements,
+    movementCount,
+    filteredCount
+  } = useMovements();
 
   // Opciones para el filtro de tipo de operación
   const operationTypeOptions = useMemo(() => {
     const types = new Set(movements.map(mov => mov.operacion));
-    return [
-      { value: '', label: 'Todos los tipos' },
-      ...Array.from(types).map(type => ({ 
-        value: type, 
-        label: type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())
-      }))
-    ];
+    return Array.from(types).map(type => ({ 
+      value: type, 
+      label: type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())
+    }));
   }, [movements]);
 
-  // Filtrar y ordenar movimientos
-  const filteredAndSortedMovements = useMemo(() => {
-    let filtered = movements;
-
-    // Búsqueda por término
-    if (searchTerm) {
-      const lowerCaseSearchTerm = searchTerm.toLowerCase();
-      filtered = filtered.filter(mov =>
-        (mov.cliente && mov.cliente.toLowerCase().includes(lowerCaseSearchTerm)) ||
-        (mov.detalle && mov.detalle.toLowerCase().includes(lowerCaseSearchTerm)) ||
-        (mov.operacion && mov.operacion.toLowerCase().includes(lowerCaseSearchTerm)) ||
-        (mov.subOperacion && mov.subOperacion.toLowerCase().includes(lowerCaseSearchTerm)) ||
-        (mov.proveedorCC && mov.proveedorCC.toLowerCase().includes(lowerCaseSearchTerm))
-      );
-    }
-
-    // Filtro por tipo de operación
-    if (filterType) {
-      filtered = filtered.filter(mov => mov.operacion === filterType);
-    }
-
-    // Filtro por estado
-    if (filterStatus) {
-      filtered = filtered.filter(mov => mov.estado === filterStatus);
-    }
-
-    // Ordenar por fecha (más reciente primero)
-    return filtered.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
-  }, [movements, searchTerm, filterType, filterStatus]);
-
   const handleViewDetail = (movement) => {
-    setSelectedMovement(movement);
-    setCurrentView('detail');
+    // TODO: Implementar vista de detalle
+    console.log('Ver detalle:', movement);
   };
 
-  const handleBackToList = () => {
-    setCurrentView('list');
-    setSelectedMovement(null);
+  const handleEdit = (movement) => {
+    // TODO: Implementar edición
+    console.log('Editar:', movement);
   };
 
-  // Renderizar vista de detalle
-  if (currentView === 'detail') {
-    return (
-      <MovimientoDetail 
-        movement={selectedMovement} 
-        clients={clients}
-        onBack={handleBackToList}
-        onEdit={onEditMovement}
-        onDeleteMovement={onDeleteMovement}
-      />
-    );
-  }
+  const handleDelete = (movementId) => {
+    const confirmacion = window.confirm('¿Estás seguro de eliminar este movimiento?');
+    if (confirmacion) {
+      deleteMovement(movementId);
+    }
+  };
 
-  // Vista principal - Lista de movimientos
   return (
     <div className="main-container p-1 sm:p-2 lg:p-3 safe-top safe-bottom pt-24">
       {/* Header */}
@@ -100,497 +78,86 @@ function MovimientosApp({ movements = [], clients = [], onEditMovement, onDelete
                 <List size={20} className="sm:w-6 sm:h-6 text-success-600" />
               </div>
               <div className="min-w-0 flex-1">
-                <h1 className="text-lg sm:text-xl font-semibold table-cell truncate">
-                  Gestión de Movimientos
-                </h1>
+                <h1 className="text-lg sm:text-xl font-semibold table-cell truncate">Gestión de Movimientos</h1>
                 <p className="description-text">
-                  {filteredAndSortedMovements.length} de {movements.length} movimiento{movements.length !== 1 ? 's' : ''}
+                  {movementCount} movimiento{movementCount !== 1 ? 's' : ''} registrado{movementCount !== 1 ? 's' : ''}
                 </p>
               </div>
             </div>
-
           </div>
         </div>
 
-        {/* Controles de búsqueda y filtro */}
-        <div className="section-header space-y-3 sm:space-y-4">
-          {/* Barra de búsqueda */}
-          <div className="relative">
-            <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 description-text" />
-            <input
-              type="text"
-              placeholder="Buscar por cliente, detalle, operación o proveedor..."
-              className="w-full pl-10 pr-4 py-3 text-sm form-input focus:ring-1 focus:ring-light-primary dark:focus:ring-dark-primary focus:border-transparent transition-all"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+        {/* Loading state */}
+        {isLoading && (
+          <div className="flex items-center justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-2 border-light-primary dark:border-dark-primary border-t-transparent"></div>
+            <span className="ml-2 description-text">Cargando movimientos...</span>
           </div>
-          
-          {/* Filtros */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-            <FormSelect
-              label="Filtrar por Tipo de Operación"
-              value={filterType}
-              onChange={setFilterType}
-              options={operationTypeOptions}
-            />
-            <FormSelect
-              label="Filtrar por Estado"
-              value={filterStatus}
-              onChange={setFilterStatus}
-              options={estados}
-            />
+        )}
+
+        {/* Error state */}
+        {error && (
+          <div className="bg-error-100 border border-error-300 text-error-700 px-4 py-3 rounded-lg mb-4">
+            Error al cargar movimientos: {error}
           </div>
+        )}
 
-          {/* Indicadores de filtros activos */}
-          {(searchTerm || filterType || filterStatus) && (
-            <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-light-border dark:border-dark-border">
-              <Filter size={14} className="description-text" />
-              <span className="text-xs sm:text-sm description-text">Filtros activos:</span>
-              {searchTerm && (
-                <span className="px-3 py-1.5 bg-light-surface dark:bg-dark-surface empty-state-text rounded-full text-sm">
-                  Búsqueda: "{searchTerm}"
-                </span>
-              )}
-              {filterType && (
-                <span className="px-3 py-1.5 bg-success-100 text-success-700 rounded-full text-sm">
-                  Tipo: {filterType.replace('_', ' ')}
-                </span>
-              )}
-              {filterStatus && (
-                <span className="px-3 py-1.5 bg-warning-100 text-warning-700 rounded-full text-sm">
-                  Estado: {filterStatus}
-                </span>
-              )}
-              <button
-                onClick={() => {
-                  setSearchTerm('');
-                  setFilterType('');
-                  setFilterStatus('');
-                }}
-                className="text-xs empty-state-text hover:empty-state-text underline ml-2"
-              >
-                Limpiar filtros
-              </button>
-            </div>
-          )}
-        </div>
+        {/* Contenido principal */}
+        {!isLoading && !error && (
+          <div className="space-y-6">
+            {/* Estadísticas */}
+            <MovementStats 
+              estadisticas={estadisticas}
+              filteredCount={filteredCount}
+              totalCount={movementCount}
+            />
 
-        {/* Lista de movimientos */}
-        <div className="p-3 sm:p-4 lg:p-6">
-          {filteredAndSortedMovements.length === 0 ? (
-            <div className="text-center py-8 sm:py-12">
-              <List size={40} className="sm:w-12 sm:h-12 mx-auto empty-state-text mb-3 sm:mb-4" />
-              {searchTerm || filterType || filterStatus ? (
-                <div className="px-2">
-                  <p className="text-sm sm:text-base empty-state-text mb-2">No se encontraron movimientos con los filtros aplicados</p>
-                  <button
-                    onClick={() => {
-                      setSearchTerm('');
-                      setFilterType('');
-                      setFilterStatus('');
-                    }}
-                    className="description-text hover:empty-state-text text-sm underline"
-                  >
-                    Limpiar filtros y ver todos
-                  </button>
-                </div>
-              ) : (
-                <div className="px-2">
-                  <p className="text-sm sm:text-base empty-state-text">No hay movimientos registrados</p>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {/* Header de columnas - solo visible en desktop */}
-              <div className="hidden sm:block table-header border border-light-border dark:border-dark-border rounded-lg px-3 py-2 text-sm font-medium description-text">
-                <div className="flex items-center gap-3">
-                  <div className="flex-shrink-0 w-12 text-center">Fecha</div>
-                  <div className="flex-shrink-0 w-36">Cliente</div>
-                  <div className="flex-shrink-0 w-24">Operación</div>
-                  <div className="flex-1 min-w-0">Monto</div>
-                  <div className="flex-shrink-0 w-20">Estado</div>
-                  <div className="flex-shrink-0 w-20 text-center">Acciones</div>
-                </div>
+            {/* Filtros */}
+            <div className="card">
+              <div className="card-header">
+                <h2 className="card-title">Filtros y Búsqueda</h2>
               </div>
-              
-              {/* Lista de movimientos */}
-              {filteredAndSortedMovements.map((movement) => (
-                <MovimientoCard
-                  key={movement.id}
-                  movement={movement}
-                  clients={clients}
-                  onEdit={onEditMovement}
-                  onDeleteMovement={onDeleteMovement}
-                  onViewDetail={handleViewDetail}
+              <div className="card-content">
+                <MovementFilters
+                  busqueda={busqueda}
+                  filtroTipo={filtroTipo}
+                  filtroEstado={filtroEstado}
+                  ordenarPor={ordenarPor}
+                  orden={orden}
+                  onBusquedaChange={setBusqueda}
+                  onFiltroTipoChange={setFiltroTipo}
+                  onFiltroEstadoChange={setFiltroEstado}
+                  onOrdenarPorChange={setOrdenarPor}
+                  onOrdenChange={setOrden}
+                  onLimpiarFiltros={limpiarFiltros}
+                  operationTypeOptions={operationTypeOptions}
                 />
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/** COMPONENTE LÍNEA DE MOVIMIENTO - FORMATO COMPACTO */
-function MovimientoCard({ movement, onEdit, onDeleteMovement, onViewDetail, clients = [] }) {
-  const formattedDate = movement.fecha ? 
-    new Date(movement.fecha).toLocaleDateString('es-ES', { 
-      day: '2-digit', 
-      month: 'short'
-    }) : 'Sin fecha';
-
-  // Determinar el monto principal a mostrar
-  const getDisplayAmount = () => {
-    if (movement.comision && safeParseFloat(movement.comision) > 0) {
-      return {
-        amount: movement.comision,
-        currency: movement.monedaComision || movement.moneda
-      };
-    }
-    if (movement.total && safeParseFloat(movement.total) > 0) {
-      return {
-        amount: movement.total,
-        currency: movement.monedaTC || movement.moneda
-      };
-    }
-    if (movement.monto) {
-      return {
-        amount: movement.monto,
-        currency: movement.moneda
-      };
-    }
-    return null;
-  };
-
-  const displayAmount = getDisplayAmount();
-
-  const handleDelete = () => {
-    if (!onDeleteMovement || typeof onDeleteMovement !== 'function') {
-      console.error('onDeleteMovement is not a function:', onDeleteMovement);
-      alert('Error: Función de eliminación no disponible');
-      return;
-    }
-    
-    const confirmacion = window.confirm(
-      `¿Estás seguro de eliminar este movimiento de ${getClientName(movement.cliente, clients)}?`
-    );
-    if (confirmacion) {
-      onDeleteMovement(movement.id);
-    }
-  };
-
-  return (
-              <div className="bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border hover:border-light-primary dark:hover:border-dark-primary hover:shadow-sm transition-all duration-150 rounded-lg overflow-hidden">
-      <div className="px-2 py-2 flex items-center gap-2 sm:gap-3">
-        {/* Fecha */}
-        <div className="flex-shrink-0 w-12 text-center hidden sm:block">
-          <div className="text-sm empty-state-text font-medium">{formattedDate}</div>
-        </div>
-
-        {/* Cliente */}
-        <div className="flex-1 min-w-0">
-          <div className="text-sm font-medium table-cell truncate">
-            {getClientName(movement.cliente, clients)}
-          </div>
-          <div className="text-xs description-text sm:hidden">{formattedDate}</div>
-        </div>
-
-        {/* Operación */}
-        <div className="flex-shrink-0 hidden sm:block w-24">
-                      <span className="px-1.5 py-0.5 bg-light-surface dark:bg-dark-surface empty-state-text rounded text-sm font-medium truncate block">
-            {movement.subOperacion || movement.operacion?.replace('_', ' ') || 'N/A'}
-          </span>
-        </div>
-
-        {/* Monto */}
-        <div className="flex-shrink-0">
-          {displayAmount && (
-            <div className="text-sm font-semibold description-text">
-              {formatAmountWithCurrency(displayAmount.amount, displayAmount.currency)}
-            </div>
-          )}
-        </div>
-
-        {/* Estado */}
-        <div className="flex-shrink-0 hidden sm:block">
-          <span className={`inline-block px-2 py-0.5 rounded text-sm font-medium ${
-            movement.estado === 'realizado' 
-              ? 'bg-light-success dark:bg-dark-success text-white' 
-              : movement.estado === 'pendiente'
-              ? 'bg-light-warning dark:bg-dark-warning text-white'
-              : 'bg-light-surface dark:bg-dark-surface empty-state-text'
-          }`}>
-            {movement.estado === 'realizado' ? 'OK' : movement.estado === 'pendiente' ? 'PEND' : 'N/A'}
-          </span>
-        </div>
-
-        {/* Acciones */}
-        <div className="flex-shrink-0 flex gap-1">
-          <button 
-            onClick={() => onViewDetail(movement)} 
-            className="p-1 description-text hover:table-header rounded transition-colors"
-            title="Ver detalles"
-          >
-            <Eye size={14} />
-          </button>
-          <button 
-            onClick={() => onEdit(movement)} 
-            className="p-1 description-text hover:table-header rounded transition-colors"
-            title="Editar"
-          >
-            <Edit3 size={14} />
-          </button>
-          <button 
-            onClick={handleDelete} 
-            className="p-1 text-error-600 hover:bg-error-50 rounded transition-colors"
-            title="Eliminar"
-          >
-            <Trash2 size={14} />
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/** COMPONENTE DETALLE DE MOVIMIENTO */
-function MovimientoDetail({ movement, onBack, onEdit, onDelete, clients = [] }) {
-  if (!movement) {
-    return (
-      <div className="min-h-screen flex items-center justify-center description-text p-4 safe-top safe-bottom">
-        <div className="text-center max-w-md mx-auto">
-          <List size={40} className="sm:w-12 sm:h-12 mx-auto empty-state-text mb-4" />
-          <p className="text-lg sm:text-xl font-semibold mb-2">Movimiento no encontrado</p>
-          <p className="text-sm sm:text-base mb-4 empty-state-text">El movimiento que buscas no existe o ha sido eliminado.</p>
-          <button 
-            onClick={onBack} 
-            className="btn-secondary touch-target"
-          >
-            Volver a movimientos
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  const formatField = (label, value, currency = null) => (
-    <div className="flex flex-col sm:flex-row sm:justify-between py-2 sm:py-3 border-b border-light-border dark:border-dark-border last:border-b-0">
-      <span className="text-xs sm:text-sm font-medium empty-state-text mb-1 sm:mb-0">{label}:</span>
-      <span className="text-xs sm:text-sm table-cell font-mono break-words">
-        {currency ? formatAmountWithCurrency(value, currency) : (value || 'N/A')}
-      </span>
-    </div>
-  );
-
-  const formatDateField = (label, dateValue) => {
-    if (!dateValue) return formatField(label, 'N/A');
-    
-    try {
-      const date = new Date(dateValue);
-      const formattedDate = date.toLocaleDateString('es-ES', { 
-        weekday: 'long', 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric' 
-      });
-      return formatField(label, formattedDate);
-    } catch {
-      return formatField(label, dateValue);
-    }
-  };
-
-  const handleDelete = () => {
-    const confirmacion = window.confirm(
-      `¿Estás seguro de eliminar este movimiento de ${getClientName(movement.cliente, clients)}?`
-    );
-    if (confirmacion) {
-      onDelete(movement.id);
-      onBack();
-    }
-  };
-
-  return (
-    <div className="main-container p-1 sm:p-2 lg:p-3 safe-top safe-bottom pt-24">
-      <div className="w-full px-2 sm:px-3 lg:px-4">
-        <div className="">
-          {/* Header */}
-          <div className="section-header">
-            <div className="flex items-center gap-3 mb-3 sm:mb-0">
-              <button 
-                onClick={onBack} 
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors touch-target flex-shrink-0"
-              >
-                <ArrowLeft size={18} />
-              </button>
-              <div className="flex-1 min-w-0">
-                <h1 className="text-lg sm:text-xl font-semibold table-cell truncate">
-                  Detalle del Movimiento
-                </h1>
-                <p className="description-text truncate">
-                  {movement.operacion?.replace('_', ' ')} - {movement.subOperacion || 'N/A'}
-                </p>
-              </div>
-              {/* Indicador de estado */}
-              <span className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium flex-shrink-0 ${
-                movement.estado === 'realizado' 
-                  ? 'bg-success-100 text-success-700' 
-                  : movement.estado === 'pendiente'
-                  ? 'bg-light-warning dark:bg-dark-warning text-white'
-                  : 'bg-light-surface dark:bg-dark-surface empty-state-text'
-              }`}>
-                {movement.estado || 'Sin estado'}
-              </span>
-            </div>
-
-            {/* Botones de acción en header */}
-            <div className="flex justify-end gap-2 pt-3 border-t border-light-border dark:border-dark-border">
-              <button 
-                onClick={() => onEdit(movement)} 
-                className="btn-secondary flex items-center gap-2 touch-target"
-              >
-                <Edit3 size={14} />
-                <span className="hidden sm:inline">Editar</span>
-              </button>
-              <button 
-                onClick={handleDelete} 
-                className="btn-error flex items-center gap-2 touch-target"
-              >
-                <Trash2 size={14} />
-                <span className="hidden sm:inline">Eliminar</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Contenido del detalle */}
-          <div className="p-3 sm:p-4 lg:p-6 space-y-6 sm:space-y-8">
-            {/* Información General */}
-            <div>
-              <h3 className="font-semibold text-base sm:text-lg table-cell mb-3 sm:mb-4 flex items-center gap-2">
-                <User size={16} className="sm:w-5 sm:h-5 description-text flex-shrink-0" />
-                Información General
-              </h3>
-              <div className="table-header rounded-lg p-3 sm:p-4 space-y-1">
-                {formatDateField('Fecha', movement.fecha)}
-                {formatField('Cliente', getClientName(movement.cliente, clients))}
-                {formatField('Operación', movement.operacion?.replace('_', ' '))}
-                {formatField('Sub-Operación', movement.subOperacion)}
-                {formatField('Detalle', movement.detalle)}
-                {movement.proveedorCC && formatField('Proveedor CC', movement.proveedorCC)}
               </div>
             </div>
 
-            {/* Valores Monetarios */}
-            <div>
-              <h3 className="font-semibold text-base sm:text-lg table-cell mb-3 sm:mb-4 flex items-center gap-2">
-                <DollarSign size={16} className="sm:w-5 sm:h-5 text-success-600 flex-shrink-0" />
-                Valores Monetarios
-              </h3>
-              <div className="table-header rounded-lg p-3 sm:p-4 space-y-1">
-                {movement.monto && formatField('Monto', movement.monto, movement.moneda)}
-                {movement.tc && formatField('Tipo de Cambio (TC)', movement.tc)}
-                {movement.monedaTC && formatField('Moneda TC', movement.monedaTC)}
-                {movement.monedaTCCmpra && formatField('Moneda TC Compra', movement.monedaTCCmpra)}
-                {movement.monedaVenta && formatField('Moneda Venta', movement.monedaVenta)}
-                {movement.monedaTCVenta && formatField('Moneda TC Venta', movement.monedaTCVenta)}
-                {movement.tcVenta && formatField('TC Venta', movement.tcVenta)}
-                {movement.total && formatField('Total', movement.total, movement.monedaTC || movement.moneda)}
-                {movement.totalCompra && formatField('Total Compra', movement.totalCompra, movement.monedaTCCmpra || movement.moneda)}
-                {movement.totalVenta && formatField('Total Venta', movement.totalVenta, movement.monedaTCVenta || movement.monedaVenta)}
-                {movement.montoVenta && formatField('Monto Venta', movement.montoVenta, movement.monedaVenta)}
-                {movement.comision && formatField('Comisión', movement.comision, movement.monedaComision || movement.moneda)}
+            {/* Tabla de movimientos */}
+            <div className="card">
+              <div className="card-header">
+                <h2 className="card-title">Lista de Movimientos</h2>
+                <span className="text-sm description-text">
+                  {filteredCount} de {movementCount} movimiento{filteredCount !== 1 ? 's' : ''}
+                </span>
               </div>
-            </div>
-
-            {/* Pago Mixto */}
-            {movement.walletTC === 'pago_mixto' && movement.mixedPayments && movement.mixedPayments.length > 0 && (
-              <div>
-                <h3 className="font-semibold text-base sm:text-lg table-cell mb-3 sm:mb-4">Detalle de Pago Mixto</h3>
-                <div className="table-header rounded-lg p-3 sm:p-4">
-                  <div className="space-y-2 mb-4">
-                    {movement.mixedPayments.map((pago, index) => (
-                      <div key={index} className="flex flex-col sm:flex-row sm:justify-between sm:items-center py-2 px-3 bg-white rounded border gap-1 sm:gap-0">
-                        <span className="text-xs sm:text-sm font-medium empty-state-text">
-                          Cuenta {index + 1}: {pago.cuenta || 'N/A'}
-                        </span>
-                        <span className="text-xs sm:text-sm font-mono table-cell">
-                          {formatAmountWithCurrency(pago.monto, movement.monedaTC || 'PESO')}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                  {movement.expectedTotalForMixedPayments && (
-                    <div className="border-t pt-3">
-                      {formatField(
-                        'Valor de la Operación', 
-                        movement.expectedTotalForMixedPayments, 
-                        movement.monedaTC || 'PESO'
-                      )}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Cuentas y Estados */}
-            <div>
-              <h3 className="font-semibold text-base sm:text-lg table-cell mb-3 sm:mb-4">Cuentas y Estados</h3>
-              <div className="table-header rounded-lg p-3 sm:p-4 space-y-1">
-                {movement.cuenta && formatField('Cuenta Principal', movement.cuenta)}
-                {movement.cuentaSalida && formatField('Cuenta de Salida', movement.cuentaSalida)}
-                {movement.cuentaIngreso && formatField('Cuenta de Ingreso', movement.cuentaIngreso)}
-                {movement.cuentaComision && formatField('Cuenta Comisión', movement.cuentaComision)}
-                {formatField('Estado', movement.estado)}
-                {formatField('Autorizado/Ejecutado por', movement.por)}
-                {movement.nombreOtro && formatField('Nombre (Otro)', movement.nombreOtro)}
-              </div>
-            </div>
-
-            {/* Información Específica de Prestamistas */}
-            {(movement.interes || movement.lapso || movement.fechaLimite) && (
-              <div>
-                <h3 className="font-semibold text-base sm:text-lg table-cell mb-3 sm:mb-4">Información de Préstamo</h3>
-                <div className="bg-warning-50 rounded-lg p-3 sm:p-4 space-y-1">
-                  {movement.interes && formatField('Interés Anual (%)', movement.interes)}
-                  {movement.lapso && formatField('Lapso (días)', movement.lapso)}
-                  {movement.fechaLimite && formatDateField('Fecha Límite', movement.fechaLimite)}
-                </div>
-              </div>
-            )}
-
-            {/* Información de Socios */}
-            {movement.socioSeleccionado && (
-              <div>
-                <h3 className="font-semibold text-base sm:text-lg table-cell mb-3 sm:mb-4">Información de Socios</h3>
-                <div className="bg-warning-50 rounded-lg p-3 sm:p-4 space-y-1">
-                  {formatField('Socio Seleccionado', movement.socioSeleccionado)}
-                </div>
-              </div>
-            )}
-
-            {/* Metadatos */}
-            <div className="border-t pt-24 sm:pt-6">
-              <h3 className="font-semibold text-base sm:text-lg table-cell mb-3 sm:mb-4">Información del Sistema</h3>
-              <div className="table-header rounded-lg p-3 sm:p-4 space-y-1 text-xs">
-                {formatField('ID del Movimiento', movement.id)}
-                {formatField(
-                  'Fecha de Creación', 
-                  movement.createdAt ? new Date(movement.createdAt).toLocaleString('es-ES') : 'N/A'
-                )}
-                {formatField(
-                  'Última Modificación', 
-                  movement.updatedAt ? new Date(movement.updatedAt).toLocaleString('es-ES') : 'N/A'
-                )}
+              <div className="card-content">
+                <MovementTable
+                  movements={movimientosFiltrados}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                  onViewDetail={handleViewDetail}
+                  clients={clients}
+                />
               </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
 }
 
 export default MovimientosApp;
-export { MovimientoCard, MovimientoDetail };
