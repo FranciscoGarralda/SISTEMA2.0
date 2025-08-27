@@ -41,7 +41,7 @@ function StockApp() {
           <div className="section-header">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                <div className="w-10 h-10 bg-light-surface dark:bg-dark-surface rounded-lg flex items-center justify-center">
                   <Package className="w-6 h-6 description-text" />
                 </div>
                 <div>
@@ -51,7 +51,7 @@ function StockApp() {
               </div>
               <button
                 onClick={loadStock}
-                className="p-2 description-text hover:table-cell hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 description-text hover:table-cell hover:bg-light-surface dark:hover:bg-dark-surface rounded-lg transition-colors"
                 title="Actualizar"
               >
                 <RefreshCw size={20} />
@@ -85,7 +85,7 @@ function StockApp() {
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-gray-200">
+                    <tr className="border-b border-light-border dark:border-dark-border">
                       <th className="text-left py-3 px-4 text-sm font-medium empty-state-text">
                         Moneda
                       </th>
@@ -109,13 +109,13 @@ function StockApp() {
                       const valorItem = item.cantidad * item.costoPromedio;
                       
                       return (
-                        <tr key={item.moneda} className="border-b border-gray-100 hover:table-header">
+                        <tr key={item.moneda} className="border-b border-light-border dark:border-dark-border hover:table-header">
                           <td className="py-3 px-4">
                             <div className="flex items-center gap-2">
                               <span className="text-2xl">{monedaInfo?.emoji || '💰'}</span>
                               <div>
                                 <p className="font-medium table-cell">{item.moneda}</p>
-                                <p className="text-xs text-gray-500">{monedaInfo?.label || item.moneda}</p>
+                                <p className="text-xs text-light-textSecondary dark:text-dark-textSecondary">{monedaInfo?.label || item.moneda}</p>
                               </div>
                             </div>
                           </td>
@@ -131,7 +131,7 @@ function StockApp() {
                             <p className="font-medium table-cell">
                               {formatAmountWithCurrency(item.costoPromedio, 'PESO')}
                             </p>
-                            <p className="text-xs text-gray-500">por unidad</p>
+                            <p className="text-xs text-light-textSecondary dark:text-dark-textSecondary">por unidad</p>
                           </td>
                           <td className="py-3 px-4 text-right">
                             <p className="font-bold table-cell">
@@ -139,7 +139,7 @@ function StockApp() {
                             </p>
                           </td>
                           <td className="py-3 px-4 text-center">
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-light-textSecondary dark:text-dark-textSecondary">
                               {item.ultimaActualizacion 
                                 ? new Date(item.ultimaActualizacion).toLocaleDateString('es-AR')
                                 : '-'
@@ -156,7 +156,7 @@ function StockApp() {
               <div className="text-center py-12">
                 <Package size={48} className="mx-auto empty-state-text mb-4" />
                 <p className="description-text">No hay stock registrado</p>
-                <p className="text-sm text-gray-500 mt-2">
+                <p className="text-sm text-light-textSecondary dark:text-dark-textSecondary mt-2">
                   El stock se actualizará automáticamente con las operaciones de compra y venta
                 </p>
               </div>
