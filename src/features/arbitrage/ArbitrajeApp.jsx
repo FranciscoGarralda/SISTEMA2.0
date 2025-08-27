@@ -181,7 +181,7 @@ const ArbitrajeApp = ({ movements = [], onNavigate }) => {
           <div className="section-header">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-light-surface dark:bg-dark-surface rounded-xl flex items-center justify-center flex-shrink-0">
                   <ArrowRightLeft size={20} className="sm:w-6 sm:h-6 lg:w-7 lg:h-7 description-text" />
                 </div>
                 <div className="min-w-0 flex-1">
@@ -218,7 +218,7 @@ const ArbitrajeApp = ({ movements = [], onNavigate }) => {
                 totalArbitrageProfits,
                 'table-header',
                 'empty-state-text',
-                'border-gray-500',
+                'border-light-border dark:border-dark-border',
                 Wallet,
                 'Acumulado histórico'
               )}
@@ -228,7 +228,7 @@ const ArbitrajeApp = ({ movements = [], onNavigate }) => {
                 currentMonthArbitrageProfits,
                 'table-header',
                 'empty-state-text',
-                'border-gray-500',
+                'border-light-border dark:border-dark-border',
                 CalendarIcon,
                 'Mes en curso'
               )}
@@ -355,7 +355,7 @@ const ArbitrajeApp = ({ movements = [], onNavigate }) => {
             <div className="space-y-3 sm:space-y-4">
               {filteredArbitrageMovements.length > 0 ? (
                 filteredArbitrageMovements.map((mov) => (
-                  <div key={mov.id} className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200 p-3 sm:p-4 hover:shadow-medium transition-all duration-200">
+                  <div key={mov.id} className="bg-gradient-to-r from-light-surface to-light-cardHover dark:from-dark-surface dark:to-dark-cardHover rounded-xl border border-light-border dark:border-dark-border p-3 sm:p-4 hover:shadow-medium transition-all duration-200">
                     {/* Header de la operación */}
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-3">
                       <div className="flex-1 min-w-0">
@@ -372,7 +372,7 @@ const ArbitrajeApp = ({ movements = [], onNavigate }) => {
                         </div>
 
                         <h3 className="font-semibold table-cell text-sm sm:text-base flex items-center gap-2 truncate">
-                          <Wallet size={16} className="text-gray-500 flex-shrink-0" />
+                          <Wallet size={16} className="text-light-textSecondary dark:text-dark-textSecondary flex-shrink-0" />
                           <span className="truncate">{mov.cliente || 'Sin Cliente'}</span>
                         </h3>
                       </div>
@@ -387,7 +387,7 @@ const ArbitrajeApp = ({ movements = [], onNavigate }) => {
                     </div>
 
                     {/* Detalles de la operación */}
-                    <div className="bg-white rounded-lg p-3 space-y-2">
+                    <div className="bg-light-card dark:bg-dark-card rounded-lg p-3 space-y-2">
                       {mov.detalle && (
                         <div>
                           <span className="text-xs font-medium description-text">Detalle:</span>
@@ -443,13 +443,13 @@ const ArbitrajeApp = ({ movements = [], onNavigate }) => {
                     </div>
 
                     {/* Estado de la operación */}
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pt-3 border-t border-gray-200 gap-2">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pt-3 border-t border-light-border dark:border-dark-border gap-2">
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                         mov.estado === 'realizado'
                           ? 'bg-success-100 text-success-700'
                           : mov.estado === 'pendiente'
                           ? 'bg-warning-100 text-warning-700'
-                          : 'bg-gray-100 empty-state-text'
+                          : 'bg-light-surface dark:bg-dark-surface empty-state-text'
                       }`}>
                         {mov.estado || 'Sin estado'}
                       </span>
@@ -518,7 +518,7 @@ const ArbitrajeApp = ({ movements = [], onNavigate }) => {
           <div className="">
             <div className="p-3 sm:p-4 lg:p-6">
               <h3 className="section-title mb-3 sm:mb-4 flex items-center gap-2">
-                <Calculator size={16} className="text-emerald-600" />
+                <Calculator size={16} className="text-light-success dark:text-dark-success" />
                 Optimización de Arbitraje
               </h3>
               <div className="space-y-1 sm:space-y-2 text-xs sm:text-sm description-text">

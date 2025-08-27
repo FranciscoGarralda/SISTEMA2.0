@@ -68,18 +68,18 @@ const PendientesRetiroApp = ({ movements = [], clients = [], onEditMovement, onD
   const getEstadoBadge = (estado) => {
     const badges = {
       'pendiente_retiro': { 
-        bg: 'bg-gray-100', 
+        bg: 'bg-light-surface dark:bg-dark-surface', 
         text: 'description-text', 
         label: 'P. Retiro' 
       },
       'pendiente_entrega': { 
-        bg: 'bg-gray-200', 
+        bg: 'bg-light-card dark:bg-dark-card', 
         text: 'table-cell', 
         label: 'P. Entrega' 
       }
     };
     
-    const badge = badges[estado] || { bg: 'bg-gray-100', text: 'description-text', label: estado };
+    const badge = badges[estado] || { bg: 'bg-light-surface dark:bg-dark-surface', text: 'description-text', label: estado };
     
     return (
       <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${badge.bg} ${badge.text}`}>
@@ -167,7 +167,7 @@ const PendientesRetiroApp = ({ movements = [], clients = [], onEditMovement, onD
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                  <div className="w-10 h-10 bg-light-surface dark:bg-dark-surface rounded-full flex items-center justify-center">
                     <DollarSign className="w-5 h-5 description-text" />
                   </div>
                   <div>
@@ -223,17 +223,17 @@ const PendientesRetiroApp = ({ movements = [], clients = [], onEditMovement, onD
               </div>
 
               {/* Acciones */}
-              <div className="flex items-center justify-end space-x-2 pt-3 border-t border-gray-100">
+              <div className="flex items-center justify-end space-x-2 pt-3 border-t border-light-border dark:border-dark-border">
                 <button
                   onClick={() => onEditMovement && onEditMovement(movement)}
-                  className="inline-flex items-center px-3 py-1.5 text-sm font-medium empty-state-text table-header rounded-md hover:bg-gray-100 transition-colors"
+                  className="inline-flex items-center px-3 py-1.5 text-sm font-medium empty-state-text table-header rounded-md hover:bg-light-surface dark:hover:bg-dark-surface transition-colors"
                 >
                   <Edit className="w-4 h-4 mr-1" />
                   Editar
                 </button>
                 <button
                   onClick={() => onDeleteMovement && onDeleteMovement(movement.id)}
-                  className="inline-flex items-center px-3 py-1.5 text-sm font-medium empty-state-text bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+                  className="inline-flex items-center px-3 py-1.5 text-sm font-medium empty-state-text bg-light-surface dark:bg-dark-surface rounded-md hover:bg-light-card dark:hover:bg-dark-card transition-colors"
                 >
                   <Trash2 className="w-4 h-4 mr-1" />
                   Eliminar

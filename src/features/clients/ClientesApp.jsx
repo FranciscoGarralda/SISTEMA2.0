@@ -110,7 +110,7 @@ function ClientesApp({ clientes = [], onSaveClient = () => {}, onDeleteClient = 
 
   // Función para determinar estado de contacto
   const getEstadoContacto = (cliente) => {
-    if (!cliente.ultimaOperacion) return { color: 'bg-gray-100 description-text', texto: 'Sin datos' };
+    if (!cliente.ultimaOperacion) return { color: 'bg-light-surface dark:bg-dark-surface description-text', texto: 'Sin datos' };
 
     const dias = Math.floor((new Date() - new Date(cliente.ultimaOperacion)) / (1000 * 60 * 60 * 24));
     const frecuencia = calcularFrecuencia(cliente);
@@ -171,7 +171,7 @@ function ClientesApp({ clientes = [], onSaveClient = () => {}, onDeleteClient = 
         <div className="section-header">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-light-surface dark:bg-dark-surface rounded-lg flex items-center justify-center flex-shrink-0">
                 <User size={20} className="sm:w-6 sm:h-6 description-text" />
               </div>
               <div className="min-w-0 flex-1">
@@ -313,7 +313,7 @@ function ClienteCard({ cliente, onEdit, onViewAnalytics, onDelete, calcularFrecu
               {cliente.tipoCliente && (
                 <span className={`px-2 py-1 rounded-full text-sm font-medium ${
                   cliente.tipoCliente === 'operaciones' 
-                    ? 'bg-gray-100 empty-state-text' 
+                    ? 'bg-light-surface dark:bg-dark-surface empty-state-text' 
                     : 'bg-warning-100 text-warning-700'
                 }`}>
                   {cliente.tipoCliente === 'operaciones' ? 'Operaciones' : 'Prestamista'}
@@ -465,7 +465,7 @@ function FormularioCliente({ cliente, onSave, onCancel }) {
             <div className="flex items-center gap-3">
               <button 
                 onClick={onCancel} 
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors touch-target flex-shrink-0"
+                className="p-2 hover:bg-light-surface dark:hover:bg-dark-surface rounded-lg transition-colors touch-target flex-shrink-0"
               >
                 <ArrowLeft size={18} />
               </button>
@@ -562,7 +562,7 @@ function FormularioCliente({ cliente, onSave, onCancel }) {
               </div>
 
               {/* Botones de acción */}
-              <div className="flex flex-col gap-3 pt-24 border-t border-gray-200 sm:flex-row">
+              <div className="flex flex-col gap-3 pt-24 border-t border-light-border dark:border-dark-border sm:flex-row">
                 <button 
                   onClick={onCancel} 
                   className="btn-secondary flex-1 touch-target"
@@ -610,7 +610,7 @@ function AnalyticsCliente({ cliente, onBack, calcularFrecuencia }) {
             <div className="flex items-center gap-3">
               <button 
                 onClick={onBack} 
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors touch-target flex-shrink-0"
+                className="p-2 hover:bg-light-surface dark:hover:bg-dark-surface rounded-lg transition-colors touch-target flex-shrink-0"
               >
                 <ArrowLeft size={18} />
               </button>

@@ -100,7 +100,7 @@ function SaldosInicialesApp() {
           <div className="section-header">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                <div className="w-10 h-10 bg-light-surface dark:bg-dark-surface rounded-lg flex items-center justify-center">
                   <Wallet className="w-6 h-6 description-text" />
                 </div>
                 <div>
@@ -115,7 +115,7 @@ function SaldosInicialesApp() {
               <div className="flex gap-2">
                 <button
                   onClick={loadBalances}
-                  className="p-2 description-text hover:table-cell hover:bg-gray-100 rounded-lg transition-colors"
+                  className="p-2 description-text hover:table-cell hover:bg-light-surface dark:hover:bg-dark-surface rounded-lg transition-colors"
                   title="Recargar"
                 >
                   <RefreshCw size={20} />
@@ -125,8 +125,8 @@ function SaldosInicialesApp() {
                   disabled={activeTab === 'cuentas' ? !hasChanges : !hasCCChanges}
                   className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${
                     (activeTab === 'cuentas' ? hasChanges : hasCCChanges)
-                      ? 'bg-gray-800 text-white hover:bg-gray-700'
-                      : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                      ? 'bg-light-primary dark:bg-dark-primary text-light-text dark:text-dark-text hover:bg-light-primaryHover dark:hover:bg-dark-primaryHover'
+                      : 'bg-light-surface dark:bg-dark-surface text-light-textMuted dark:text-dark-textMuted cursor-not-allowed'
                   }`}
                 >
                   <Save size={18} />
@@ -137,13 +137,13 @@ function SaldosInicialesApp() {
           </div>
 
           {/* Tabs */}
-          <div className="flex border-b border-gray-200">
+          <div className="flex border-b border-light-border dark:border-dark-border">
             <button
               onClick={() => setActiveTab('cuentas')}
               className={`px-6 py-3 font-medium transition-colors flex items-center gap-2 ${
                 activeTab === 'cuentas'
-                  ? 'table-cell border-b-2 border-gray-900'
-                  : 'text-gray-500 hover:empty-state-text'
+                  ? 'table-cell border-b-2 border-light-primary dark:border-dark-primary'
+                  : 'text-light-textSecondary dark:text-dark-textSecondary hover:empty-state-text'
               }`}
             >
               <Users size={18} />
@@ -153,8 +153,8 @@ function SaldosInicialesApp() {
               onClick={() => setActiveTab('cc')}
               className={`px-6 py-3 font-medium transition-colors flex items-center gap-2 ${
                 activeTab === 'cc'
-                  ? 'table-cell border-b-2 border-gray-900'
-                  : 'text-gray-500 hover:empty-state-text'
+                  ? 'table-cell border-b-2 border-light-primary dark:border-dark-primary'
+                  : 'text-light-textSecondary dark:text-dark-textSecondary hover:empty-state-text'
               }`}
             >
               <Building2 size={18} />
@@ -166,7 +166,7 @@ function SaldosInicialesApp() {
           {activeTab === 'cuentas' ? (
             <>
               {/* Selector de moneda */}
-              <div className="p-3 sm:p-4 border-b border-gray-100">
+              <div className="p-3 sm:p-4 border-b border-light-border dark:border-dark-border">
                 <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
                   {monedas.filter(m => m.value !== '').map(moneda => (
                     <button
@@ -174,8 +174,8 @@ function SaldosInicialesApp() {
                       onClick={() => setSelectedMoneda(moneda.value)}
                       className={`px-2 py-3 rounded-lg font-medium transition-colors flex flex-col items-center justify-center ${
                         selectedMoneda === moneda.value
-                          ? 'bg-gray-800 text-white'
-                          : 'bg-gray-100 empty-state-text hover:bg-gray-200'
+                          ? 'bg-light-primary dark:bg-dark-primary text-light-text dark:text-dark-text'
+                          : 'bg-light-surface dark:bg-dark-surface empty-state-text hover:bg-light-card dark:hover:bg-dark-card'
                       }`}
                     >
                       <span className="text-2xl mb-1">{moneda.emoji}</span>
@@ -210,7 +210,7 @@ function SaldosInicialesApp() {
                             value={balance}
                             onChange={(e) => handleBalanceChange(wallet, selectedMoneda, e.target.value)}
                             placeholder="0.00"
-                            className="w-32 px-3 py-1.5 text-right border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 bg-white dark:bg-gray-700 table-cell dark:text-white"
+                            className="w-32 px-3 py-1.5 text-right border border-light-border dark:border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-light-primary dark:focus:ring-dark-primary bg-light-card dark:bg-dark-card table-cell"
                           />
                           <span className="text-sm description-text w-12">{selectedMoneda}</span>
                         </div>
@@ -221,7 +221,7 @@ function SaldosInicialesApp() {
 
                 {/* Totales - Solo monedas con saldo */}
                 {Object.entries(totalesPorMoneda).filter(([_, total]) => total > 0).length > 0 && (
-                  <div className="mt-6 p-4 bg-gray-100 rounded-lg">
+                  <div className="mt-6 p-4 bg-light-surface dark:bg-dark-surface rounded-lg">
                     <h3 className="font-semibold description-text mb-3">Totales por Moneda</h3>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                       {Object.entries(totalesPorMoneda)
@@ -229,7 +229,7 @@ function SaldosInicialesApp() {
                         .map(([moneda, total]) => {
                           const monedaObj = monedas.find(m => m.value === moneda);
                           return (
-                            <div key={moneda} className="flex items-center justify-between p-2 bg-white rounded">
+                            <div key={moneda} className="flex items-center justify-between p-2 bg-light-card dark:bg-dark-card rounded">
                               <span className="text-sm font-medium">{monedaObj?.label || moneda}:</span>
                               <span className="text-sm font-bold">{formatAmountWithCurrency(total, moneda)}</span>
                             </div>
@@ -257,7 +257,7 @@ function SaldosInicialesApp() {
                 {/* Lista de proveedores */}
                 <div className="space-y-4">
                   {proveedoresCC.filter(p => p.value !== '').map(proveedor => (
-                    <div key={proveedor.value} className="border border-gray-200 rounded-lg p-4">
+                    <div key={proveedor.value} className="border border-light-border dark:border-dark-border rounded-lg p-4">
                       <h3 className="font-semibold table-cell mb-3">{proveedor.label}</h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {proveedor.allowedCurrencies.map(moneda => {
@@ -275,7 +275,7 @@ function SaldosInicialesApp() {
                                 value={balance}
                                 onChange={(e) => handleCCBalanceChange(proveedor.value, moneda, e.target.value)}
                                 placeholder="0.00"
-                                className="w-32 px-3 py-1.5 text-right border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 bg-white dark:bg-gray-700 table-cell dark:text-white"
+                                className="w-32 px-3 py-1.5 text-right border border-light-border dark:border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-light-primary dark:focus:ring-dark-primary bg-light-card dark:bg-dark-card table-cell"
                               />
                             </div>
                           );
