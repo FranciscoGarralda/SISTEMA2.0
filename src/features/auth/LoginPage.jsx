@@ -73,8 +73,8 @@ export default function LoginPage({ onLoginSuccess }) {
           </h2>
           
           <div className="text-center mb-6">
-            <div className="inline-flex items-center gap-2 text-sm text-blue-600">
-              <div className="h-2 w-2 bg-blue-500 rounded-full"></div>
+            <div className="inline-flex items-center gap-2 text-sm text-light-primary dark:text-dark-primary">
+              <div className="h-2 w-2 bg-light-primary dark:bg-dark-primary rounded-full"></div>
               Modo local activo
             </div>
           </div>
@@ -106,7 +106,7 @@ export default function LoginPage({ onLoginSuccess }) {
                 autoFocus
                 value={formData.username}
                 onChange={handleChange}
-                className="w-full px-3 py-2 form-input focus:outline-none focus:ring-2 focus:ring-gray-500"
+                className="w-full px-3 py-2 form-input focus:outline-none focus:ring-2 focus:ring-light-primary dark:focus:ring-dark-primary"
                 placeholder="Ingresa tu usuario"
                 disabled={loading}
               />
@@ -125,7 +125,7 @@ export default function LoginPage({ onLoginSuccess }) {
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 form-input focus:outline-none focus:ring-2 focus:ring-gray-500 pr-10"
+                  className="w-full px-3 py-2 form-input focus:outline-none focus:ring-2 focus:ring-light-primary dark:focus:ring-dark-primary pr-10"
                   placeholder="Ingresa tu contraseña"
                   disabled={loading}
                   onKeyDown={(e) => {
@@ -149,8 +149,8 @@ export default function LoginPage({ onLoginSuccess }) {
               disabled={loading}
               className={`w-full py-3 px-4 rounded-lg font-medium text-white transition-colors ${
                 loading 
-                  ? 'bg-gray-400 cursor-not-allowed' 
-                  : 'bg-gray-900 hover:bg-gray-800'
+                  ? 'bg-light-textMuted dark:bg-dark-textMuted cursor-not-allowed' 
+                  : 'bg-light-primary dark:bg-dark-primary hover:bg-light-secondary dark:hover:bg-dark-secondary'
               }`}
             >
               {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}

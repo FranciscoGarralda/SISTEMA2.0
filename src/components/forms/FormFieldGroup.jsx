@@ -310,14 +310,14 @@ const FormFieldGroup = ({
               rows={3}
               className={[
                 'w-full px-3 py-2 text-sm border rounded-lg transition-all duration-200',
-                'focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-transparent',
+                'focus:outline-none focus:ring-1 focus:ring-light-primary dark:focus:ring-dark-primary focus:border-transparent',
                 'placeholder:description-text resize-vertical min-h-[80px]',
                 'sm:px-4 sm:py-2.5',
                 readOnly || calculated
-                  ? 'table-header description-text cursor-not-allowed border-gray-200'
-                  : 'bg-white table-cell border-gray-300 hover:border-gray-400',
+                  ? 'bg-light-surface dark:bg-dark-surface text-light-textSecondary dark:text-dark-textSecondary cursor-not-allowed border-light-border dark:border-dark-border'
+                  : 'bg-light-card dark:bg-dark-card text-light-textPrimary dark:text-dark-textPrimary border-light-border dark:border-dark-border hover:border-light-primary dark:hover:border-dark-primary',
                 fieldError
-                  ? 'border-error-500 focus:ring-error-500'
+                  ? 'border-light-error dark:border-dark-error focus:ring-light-error dark:focus:ring-dark-error'
                   : ''
               ].filter(Boolean).join(' ')}
               {...fieldProps}

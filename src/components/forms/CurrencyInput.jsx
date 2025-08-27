@@ -101,14 +101,14 @@ const CurrencyInput = forwardRef(({
   const inputClasses = [
     'w-full px-2 py-2 text-sm sm:text-base font-medium border rounded-lg transition-all duration-200',
     'focus:outline-none focus:ring-2 focus:ring-offset-0',
-    'placeholder-gray-500 focus:placeholder-gray-600',
-    'bg-white hover:table-header focus:bg-white',
+    'placeholder-light-textMuted dark:placeholder-dark-textMuted focus:placeholder-light-textSecondary dark:focus:placeholder-dark-textSecondary',
+    'bg-light-card dark:bg-dark-card hover:bg-light-surface dark:hover:bg-dark-surface focus:bg-light-card dark:focus:bg-dark-card',
     'text-right', // Currency inputs are always right-aligned
     error 
-      ? 'border-red-400 focus:border-red-500 focus:ring-red-500/20 text-red-900' 
-      : 'border-gray-200 hover:border-gray-300 focus:border-gray-500 focus:ring-gray-500/20 table-cell',
+      ? 'border-light-error dark:border-dark-error focus:border-light-error dark:focus:border-dark-error focus:ring-light-error/20 dark:focus:ring-dark-error/20 text-light-error dark:text-dark-error' 
+      : 'border-light-border dark:border-dark-border hover:border-light-primary dark:hover:border-dark-primary focus:border-light-primary dark:focus:border-dark-primary focus:ring-light-primary/20 dark:focus:ring-dark-primary/20 text-light-textPrimary dark:text-dark-textPrimary',
     readOnly 
-      ? 'bg-gray-100 cursor-not-allowed opacity-60 hover:bg-gray-100' 
+      ? 'bg-light-surface dark:bg-dark-surface cursor-not-allowed opacity-60 hover:bg-light-surface dark:hover:bg-dark-surface' 
       : '',
     className
   ].filter(Boolean).join(' ');

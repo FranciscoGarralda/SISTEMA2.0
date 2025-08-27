@@ -120,7 +120,7 @@ function MovimientosApp({ movements = [], clients = [], onEditMovement, onDelete
             <input
               type="text"
               placeholder="Buscar por cliente, detalle, operación o proveedor..."
-              className="w-full pl-10 pr-4 py-3 text-sm form-input focus:ring-1 focus:ring-gray-500 focus:border-transparent transition-all"
+              className="w-full pl-10 pr-4 py-3 text-sm form-input focus:ring-1 focus:ring-light-primary dark:focus:ring-dark-primary focus:border-transparent transition-all"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -144,11 +144,11 @@ function MovimientosApp({ movements = [], clients = [], onEditMovement, onDelete
 
           {/* Indicadores de filtros activos */}
           {(searchTerm || filterType || filterStatus) && (
-            <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-gray-100">
+            <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-light-border dark:border-dark-border">
               <Filter size={14} className="description-text" />
               <span className="text-xs sm:text-sm description-text">Filtros activos:</span>
               {searchTerm && (
-                <span className="px-3 py-1.5 bg-gray-100 empty-state-text rounded-full text-sm">
+                <span className="px-3 py-1.5 bg-light-surface dark:bg-dark-surface empty-state-text rounded-full text-sm">
                   Búsqueda: "{searchTerm}"
                 </span>
               )}
@@ -204,7 +204,7 @@ function MovimientosApp({ movements = [], clients = [], onEditMovement, onDelete
           ) : (
             <div className="space-y-2">
               {/* Header de columnas - solo visible en desktop */}
-              <div className="hidden sm:block table-header border border-gray-200 rounded-lg px-3 py-2 text-sm font-medium description-text">
+              <div className="hidden sm:block table-header border border-light-border dark:border-dark-border rounded-lg px-3 py-2 text-sm font-medium description-text">
                 <div className="flex items-center gap-3">
                   <div className="flex-shrink-0 w-12 text-center">Fecha</div>
                   <div className="flex-shrink-0 w-36">Cliente</div>
@@ -283,7 +283,7 @@ function MovimientoCard({ movement, onEdit, onDeleteMovement, onViewDetail, clie
   };
 
   return (
-    <div className="bg-white border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all duration-150 rounded-lg overflow-hidden">
+              <div className="bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border hover:border-light-primary dark:hover:border-dark-primary hover:shadow-sm transition-all duration-150 rounded-lg overflow-hidden">
       <div className="px-2 py-2 flex items-center gap-2 sm:gap-3">
         {/* Fecha */}
         <div className="flex-shrink-0 w-12 text-center hidden sm:block">
@@ -300,7 +300,7 @@ function MovimientoCard({ movement, onEdit, onDeleteMovement, onViewDetail, clie
 
         {/* Operación */}
         <div className="flex-shrink-0 hidden sm:block w-24">
-          <span className="px-1.5 py-0.5 bg-gray-100 empty-state-text rounded text-sm font-medium truncate block">
+                      <span className="px-1.5 py-0.5 bg-light-surface dark:bg-dark-surface empty-state-text rounded text-sm font-medium truncate block">
             {movement.subOperacion || movement.operacion?.replace('_', ' ') || 'N/A'}
           </span>
         </div>
@@ -318,10 +318,10 @@ function MovimientoCard({ movement, onEdit, onDeleteMovement, onViewDetail, clie
         <div className="flex-shrink-0 hidden sm:block">
           <span className={`inline-block px-2 py-0.5 rounded text-sm font-medium ${
             movement.estado === 'realizado' 
-              ? 'bg-success-100 text-success-700' 
+              ? 'bg-light-success dark:bg-dark-success text-white' 
               : movement.estado === 'pendiente'
-              ? 'bg-warning-100 text-warning-700'
-              : 'bg-gray-100 empty-state-text'
+              ? 'bg-light-warning dark:bg-dark-warning text-white'
+              : 'bg-light-surface dark:bg-dark-surface empty-state-text'
           }`}>
             {movement.estado === 'realizado' ? 'OK' : movement.estado === 'pendiente' ? 'PEND' : 'N/A'}
           </span>
@@ -377,7 +377,7 @@ function MovimientoDetail({ movement, onBack, onEdit, onDelete, clients = [] }) 
   }
 
   const formatField = (label, value, currency = null) => (
-    <div className="flex flex-col sm:flex-row sm:justify-between py-2 sm:py-3 border-b border-gray-100 last:border-b-0">
+    <div className="flex flex-col sm:flex-row sm:justify-between py-2 sm:py-3 border-b border-light-border dark:border-dark-border last:border-b-0">
       <span className="text-xs sm:text-sm font-medium empty-state-text mb-1 sm:mb-0">{label}:</span>
       <span className="text-xs sm:text-sm table-cell font-mono break-words">
         {currency ? formatAmountWithCurrency(value, currency) : (value || 'N/A')}
@@ -438,15 +438,15 @@ function MovimientoDetail({ movement, onBack, onEdit, onDelete, clients = [] }) 
                 movement.estado === 'realizado' 
                   ? 'bg-success-100 text-success-700' 
                   : movement.estado === 'pendiente'
-                  ? 'bg-warning-100 text-warning-700'
-                  : 'bg-gray-100 empty-state-text'
+                  ? 'bg-light-warning dark:bg-dark-warning text-white'
+                  : 'bg-light-surface dark:bg-dark-surface empty-state-text'
               }`}>
                 {movement.estado || 'Sin estado'}
               </span>
             </div>
 
             {/* Botones de acción en header */}
-            <div className="flex justify-end gap-2 pt-3 border-t border-gray-100">
+            <div className="flex justify-end gap-2 pt-3 border-t border-light-border dark:border-dark-border">
               <button 
                 onClick={() => onEdit(movement)} 
                 className="btn-secondary flex items-center gap-2 touch-target"

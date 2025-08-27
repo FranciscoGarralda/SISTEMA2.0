@@ -250,7 +250,7 @@ function UserManagementApp() {
         <div className="bg-white rounded-xl shadow-soft p-6 mb-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 bg-light-surface dark:bg-dark-surface rounded-lg flex items-center justify-center">
                 <Users className="w-6 h-6 description-text" />
               </div>
               <div>
@@ -378,7 +378,7 @@ function UserManagementApp() {
                       >
                         Seleccionar todos
                       </button>
-                      <span className="text-gray-400">|</span>
+                      <span className="text-light-textMuted dark:text-dark-textMuted">|</span>
                       <button
                         type="button"
                         onClick={clearAllPermissions}
@@ -399,7 +399,7 @@ function UserManagementApp() {
                           type="checkbox"
                           checked={formData.permissions.includes(module.id)}
                           onChange={() => togglePermission(module.id)}
-                          className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 flex-shrink-0"
+                          className="w-4 h-4 rounded border-light-border dark:border-dark-border text-light-primary dark:text-dark-primary focus:ring-light-primary dark:focus:ring-dark-primary flex-shrink-0"
                         />
                         <span className="text-sm flex-shrink-0">{module.icon}</span>
                         <span className="text-sm empty-state-text truncate">{module.name}</span>
@@ -416,7 +416,7 @@ function UserManagementApp() {
                   id="active"
                   checked={formData.active}
                   onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  className="rounded border-light-border dark:border-dark-border text-light-primary dark:text-dark-primary focus:ring-light-primary dark:focus:ring-dark-primary"
                 />
                 <label htmlFor="active" className="text-sm empty-state-text">
                   Usuario activo
@@ -456,16 +456,16 @@ function UserManagementApp() {
 
         {/* Users List */}
         <div className="bg-white rounded-xl shadow-soft overflow-hidden">
-          <div className="p-4 border-b border-gray-200">
+          <div className="p-4 border-b border-light-border dark:border-dark-border">
             <h2 className="text-lg font-semibold">Usuarios del Sistema</h2>
           </div>
           
           {loading ? (
-            <div className="p-8 text-center text-gray-500">
+            <div className="p-8 text-center text-light-textSecondary dark:text-dark-textSecondary">
               Cargando usuarios...
             </div>
           ) : (users && users.length === 0) ? (
-            <div className="p-8 text-center text-gray-500">
+            <div className="p-8 text-center text-light-textSecondary dark:text-dark-textSecondary">
               No hay usuarios registrados
             </div>
           ) : (
@@ -473,10 +473,10 @@ function UserManagementApp() {
               {/* Vista móvil */}
               <div className="lg:hidden">
                 {users.map(user => (
-                  <div key={user.id} className="p-4 border-b border-gray-200 last:border-b-0">
+                  <div key={user.id} className="p-4 border-b border-light-border dark:border-dark-border last:border-b-0">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                        <div className="w-10 h-10 bg-light-surface dark:bg-dark-surface rounded-full flex items-center justify-center">
                           <span className="text-sm font-medium description-text">
                             {user.name.charAt(0).toUpperCase()}
                           </span>
@@ -506,13 +506,13 @@ function UserManagementApp() {
                     
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-500">Rol:</span>
+                        <span className="text-sm text-light-textSecondary dark:text-dark-textSecondary">Rol:</span>
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           user.role === 'admin' 
                             ? 'bg-purple-100 text-purple-800'
                             : user.role === 'operator'
                             ? 'bg-blue-100 text-blue-800'
-                            : 'bg-gray-100 description-text'
+                            : 'bg-light-surface dark:bg-dark-surface description-text'
                         }`}>
                           <Shield size={12} className="mr-1" />
                           {ROLES.find(r => r.id === user.role)?.name || user.role}
@@ -520,7 +520,7 @@ function UserManagementApp() {
                       </div>
                       
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-500">Estado:</span>
+                        <span className="text-sm text-light-textSecondary dark:text-dark-textSecondary">Estado:</span>
                         {user.active !== false ? (
                           <span className="inline-flex items-center gap-1 text-green-600 text-sm">
                             <Check size={14} />
@@ -536,14 +536,14 @@ function UserManagementApp() {
                       
                       {user.role !== 'admin' && user.permissions && Array.isArray(user.permissions) && user.permissions.length > 0 && (
                         <div>
-                          <span className="text-sm text-gray-500">Permisos:</span>
+                          <span className="text-sm text-light-textSecondary dark:text-dark-textSecondary">Permisos:</span>
                           <div className="flex flex-wrap gap-1 mt-1">
                             {user.permissions.map(perm => {
                               const moduleItem = SYSTEM_MODULES.find(m => m.id === perm);
                               return moduleItem ? (
                                 <span
                                   key={perm}
-                                  className="inline-flex items-center px-2 py-1 rounded text-xs bg-gray-100 empty-state-text"
+                                  className="inline-flex items-center px-2 py-1 rounded text-xs bg-light-surface dark:bg-dark-surface empty-state-text"
                                 >
                                   {moduleItem.icon} {moduleItem.name}
                                 </span>

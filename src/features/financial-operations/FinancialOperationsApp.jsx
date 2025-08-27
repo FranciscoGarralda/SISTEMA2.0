@@ -768,9 +768,9 @@ const FinancialOperationsApp = ({ onSaveMovement, initialMovementData, onCancelE
       <div className="max-w-2xl mx-auto">
         <div className="bg-white rounded-lg shadow-sm">
             {/* Header */}
-            <div className="p-1 sm:p-2 lg:p-3 border-b border-gray-200">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <div className="p-1 sm:p-2 lg:p-3 border-b border-light-border dark:border-dark-border">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-light-surface dark:bg-dark-surface rounded-lg flex items-center justify-center flex-shrink-0">
                   <DollarSign size={20} className="sm:w-6 sm:h-6 description-text" />
                 </div>
                 <div>
@@ -858,7 +858,7 @@ const FinancialOperationsApp = ({ onSaveMovement, initialMovementData, onCancelE
 
           {/* Línea divisoria */}
           {formData.operacion && (
-            <div className="my-6 border-t-2 border-gray-200"></div>
+            <div className="my-6 border-t-2 border-light-border dark:border-dark-border"></div>
           )}
 
           {/* Selector de Detalle de Operación */}
@@ -897,24 +897,24 @@ const FinancialOperationsApp = ({ onSaveMovement, initialMovementData, onCancelE
 
           {/* Resumen para operaciones COMPRA/VENTA */}
           {(['COMPRA', 'VENTA'].includes(formData.subOperacion) && formData.total) && (
-            <div className="bg-gradient-to-br from-gray-50 to-gray-50 border-2 border-gray-200 rounded-xl p-6 shadow-md">
+            <div className="bg-gradient-to-br from-light-surface dark:from-dark-surface to-light-surface dark:to-dark-surface border-2 border-light-border dark:border-dark-border rounded-xl p-6 shadow-md">
               <h3 className="text-lg font-bold table-cell mb-4">Resumen de la Operación</h3>
               <div className="space-y-3">
-                <div className="flex justify-between items-center bg-white rounded-lg p-3 shadow-sm">
+                <div className="flex justify-between items-center bg-light-card dark:bg-dark-card rounded-lg p-3 shadow-sm">
                   <span className="description-text text-sm">Monto:</span>
                   <span className="font-bold table-cell text-lg whitespace-nowrap">
                     {formatAmountWithCurrency(formData.monto, formData.moneda)}
                   </span>
                 </div>
-                <div className="flex justify-between items-center bg-white rounded-lg p-3 shadow-sm">
+                <div className="flex justify-between items-center bg-light-card dark:bg-dark-card rounded-lg p-3 shadow-sm">
                   <span className="description-text text-sm">Tipo de Cambio:</span>
                   <span className="font-bold table-cell text-lg whitespace-nowrap">
                     {formatAmountWithCurrency(formData.tc, formData.monedaTC)}
                   </span>
                 </div>
-                <div className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-lg p-4 shadow-lg">
+                <div className="bg-gradient-to-r from-light-primary dark:from-dark-primary to-light-secondary dark:to-dark-secondary rounded-lg p-4 shadow-lg">
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-100 text-sm">Total Final:</span>
+                    <span className="text-white text-sm">Total Final:</span>
                     <span className="text-2xl font-bold text-white whitespace-nowrap">
                       {formatAmountWithCurrency(formData.total, formData.monedaTC)}
                     </span>
@@ -925,7 +925,7 @@ const FinancialOperationsApp = ({ onSaveMovement, initialMovementData, onCancelE
           )}
 
           {/* Botones de acción */}
-          <div className="flex flex-col sm:flex-row justify-between pt-6 border-t border-gray-200 gap-3">
+          <div className="flex flex-col sm:flex-row justify-between pt-6 border-t border-light-border dark:border-dark-border gap-3">
             <button
               ref={createElementRef('guardar', { type: 'button', order: 100 })}
               onClick={handleGuardar}
