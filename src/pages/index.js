@@ -280,8 +280,8 @@ export default function Home() {
         <Suspense fallback={
           <div className="flex items-center justify-center min-h-[60vh]">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-blue-600 mx-auto mb-4"></div>
-              <p className="description-text dark:text-gray-400 font-medium">Cargando módulo...</p>
+                      <div className="animate-spin rounded-full h-12 w-12 border-4 border-light-border dark:border-dark-border border-t-light-primary dark:border-t-dark-primary mx-auto mb-4"></div>
+        <p className="description-text font-medium">Cargando módulo...</p>
             </div>
           </div>
         }>
@@ -302,11 +302,11 @@ export default function Home() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-200 border-t-blue-600 mx-auto shadow-lg"></div>
-          <p className="mt-6 text-lg empty-state-text dark:text-gray-200 font-semibold">Conectando con el servidor...</p>
-          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Verificando autenticación</p>
+                  <div className="animate-spin rounded-full h-16 w-16 border-4 border-light-border dark:border-dark-border border-t-light-primary dark:border-t-dark-primary mx-auto shadow-lg"></div>
+        <p className="mt-6 text-lg empty-state-text font-semibold">Conectando con el servidor...</p>
+        <p className="mt-2 text-sm text-light-textSecondary dark:text-dark-textSecondary">Verificando autenticación</p>
           <div className="mt-6">
-            <div className="w-32 h-2 bg-gray-200 dark:bg-gray-700 rounded-full mx-auto overflow-hidden shadow-inner">
+                          <div className="w-32 h-2 bg-light-surface dark:bg-dark-surface rounded-full mx-auto overflow-hidden shadow-inner">
               <div className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full animate-pulse" style={{width: '60%'}}></div>
             </div>
           </div>
@@ -329,7 +329,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className="main-container dark:bg-gray-900">
+      <div className="main-container">
         <NavigationApp 
           currentPage={currentPage} 
           onNavigate={navigateTo}

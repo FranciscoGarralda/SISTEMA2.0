@@ -347,7 +347,7 @@ function UtilidadApp({ movements = [], onNavigate = () => {} }) {
                 currentMonthUtility.venta,
                 'table-header',
                 'empty-state-text',
-                'border-gray-500',
+                'border-light-primary dark:border-dark-primary',
                 Calendar,
                 'Cuánto ganaste y en qué divisa'
               )}
@@ -357,7 +357,7 @@ function UtilidadApp({ movements = [], onNavigate = () => {} }) {
                 todayUtility.venta,
                 'table-header',
                 'empty-state-text',
-                'border-gray-500',
+                'border-light-primary dark:border-dark-primary',
                 Clock,
                 'Cuánto ganaste y en qué divisa'
               )}
@@ -508,7 +508,7 @@ function UtilidadApp({ movements = [], onNavigate = () => {} }) {
                         </div>
                       </div>
                       
-                                              <div className="pt-2 border-t border-gray-200">
+                                              <div className="pt-2 border-t border-light-border dark:border-dark-border">
                           <div className="flex justify-between items-center">
                             <span className="text-xs empty-state-text">Valuación</span>
                             <span className="font-medium description-text text-sm">

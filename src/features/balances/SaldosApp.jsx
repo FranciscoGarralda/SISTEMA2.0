@@ -284,7 +284,7 @@ function SaldosApp({ movements = [] }) {
         <div className="bg-white rounded-lg shadow-sm">
           <div className="section-header">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 bg-light-surface dark:bg-dark-surface rounded-lg flex items-center justify-center">
                 <Wallet className="w-6 h-6 description-text" />
               </div>
               <div>
@@ -306,8 +306,8 @@ function SaldosApp({ movements = [] }) {
                       onClick={() => setFilterSocio('all')}
                       className={`px-3 py-2 text-sm font-medium rounded-lg border transition-colors ${
                         filterSocio === 'all'
-                          ? 'bg-gray-900 text-white border-gray-900'
-                          : 'bg-white description-text border-gray-200 hover:table-header'
+                          ? 'bg-light-primary dark:bg-dark-primary text-white border-light-primary dark:border-dark-primary'
+                          : 'bg-light-card dark:bg-dark-card description-text border-light-border dark:border-dark-border hover:bg-light-surface dark:hover:bg-dark-surface'
                       }`}
                     >
                       Todos
@@ -316,8 +316,8 @@ function SaldosApp({ movements = [] }) {
                       onClick={() => setFilterSocio('socio1')}
                       className={`px-3 py-2 text-sm font-medium rounded-lg border transition-colors ${
                         filterSocio === 'socio1'
-                          ? 'bg-gray-900 text-white border-gray-900'
-                          : 'bg-white description-text border-gray-200 hover:table-header'
+                          ? 'bg-light-primary dark:bg-dark-primary text-white border-light-primary dark:border-dark-primary'
+                          : 'bg-light-card dark:bg-dark-card description-text border-light-border dark:border-dark-border hover:bg-light-surface dark:hover:bg-dark-surface'
                       }`}
                     >
                       Socio 1
@@ -326,8 +326,8 @@ function SaldosApp({ movements = [] }) {
                       onClick={() => setFilterSocio('socio2')}
                       className={`px-3 py-2 text-sm font-medium rounded-lg border transition-colors ${
                         filterSocio === 'socio2'
-                          ? 'bg-gray-900 text-white border-gray-900'
-                          : 'bg-white description-text border-gray-200 hover:table-header'
+                          ? 'bg-light-primary dark:bg-dark-primary text-white border-light-primary dark:border-dark-primary'
+                          : 'bg-light-card dark:bg-dark-card description-text border-light-border dark:border-dark-border hover:bg-light-surface dark:hover:bg-dark-surface'
                       }`}
                     >
                       Socio 2
@@ -336,8 +336,8 @@ function SaldosApp({ movements = [] }) {
                       onClick={() => setFilterSocio('all_wallet')}
                       className={`px-3 py-2 text-sm font-medium rounded-lg border transition-colors ${
                         filterSocio === 'all_wallet'
-                          ? 'bg-gray-900 text-white border-gray-900'
-                          : 'bg-white description-text border-gray-200 hover:table-header'
+                          ? 'bg-light-primary dark:bg-dark-primary text-white border-light-primary dark:border-dark-primary'
+                          : 'bg-light-card dark:bg-dark-card description-text border-light-border dark:border-dark-border hover:bg-light-surface dark:hover:bg-dark-surface'
                       }`}
                     >
                       ALL
@@ -353,8 +353,8 @@ function SaldosApp({ movements = [] }) {
                       onClick={() => setFilterTipo('all')}
                       className={`px-3 py-2 text-sm font-medium rounded-lg border transition-colors ${
                         filterTipo === 'all'
-                          ? 'bg-gray-900 text-white border-gray-900'
-                          : 'bg-white description-text border-gray-200 hover:table-header'
+                          ? 'bg-light-primary dark:bg-dark-primary text-white border-light-primary dark:border-dark-primary'
+                          : 'bg-light-card dark:bg-dark-card description-text border-light-border dark:border-dark-border hover:bg-light-surface dark:hover:bg-dark-surface'
                       }`}
                     >
                       Todos
@@ -363,8 +363,8 @@ function SaldosApp({ movements = [] }) {
                       onClick={() => setFilterTipo('digital')}
                       className={`px-3 py-2 text-sm font-medium rounded-lg border transition-colors flex items-center justify-center gap-2 ${
                         filterTipo === 'digital'
-                          ? 'bg-gray-900 text-white border-gray-900'
-                          : 'bg-white description-text border-gray-200 hover:table-header'
+                          ? 'bg-light-primary dark:bg-dark-primary text-white border-light-primary dark:border-dark-primary'
+                          : 'bg-light-card dark:bg-dark-card description-text border-light-border dark:border-dark-border hover:bg-light-surface dark:hover:bg-dark-surface'
                       }`}
                     >
                       <CreditCard size={16} />
@@ -374,8 +374,8 @@ function SaldosApp({ movements = [] }) {
                       onClick={() => setFilterTipo('efectivo')}
                       className={`px-3 py-2 text-sm font-medium rounded-lg border transition-colors flex items-center justify-center gap-2 ${
                         filterTipo === 'efectivo'
-                          ? 'bg-gray-900 text-white border-gray-900'
-                          : 'bg-white description-text border-gray-200 hover:table-header'
+                          ? 'bg-light-primary dark:bg-dark-primary text-white border-light-primary dark:border-dark-primary'
+                          : 'bg-light-card dark:bg-dark-card description-text border-light-border dark:border-dark-border hover:bg-light-surface dark:hover:bg-dark-surface'
                       }`}
                     >
                       <Banknote size={16} />
@@ -394,7 +394,7 @@ function SaldosApp({ movements = [] }) {
                       <div 
                         key={total.moneda}
                         className={`p-4 rounded-lg border-2 ${
-                          total.total >= 0 ? 'border-gray-300 table-header' : 'border-gray-400 bg-gray-100'
+                          total.total >= 0 ? 'border-light-border dark:border-dark-border bg-light-card dark:bg-dark-card' : 'border-light-error dark:border-dark-error bg-light-surface dark:bg-dark-surface'
                         }`}
                       >
                         <div className="text-lg font-bold mb-1">
@@ -423,7 +423,7 @@ function SaldosApp({ movements = [] }) {
 
               {/* Detalle de Saldos */}
               <div className="bg-white rounded-lg shadow-sm">
-                <div className="p-4 border-b border-gray-200">
+                <div className="p-4 border-b border-light-border dark:border-dark-border">
                   <h2 className="text-lg font-semibold description-text">Detalle de Saldos</h2>
                 </div>
                 
@@ -436,7 +436,7 @@ function SaldosApp({ movements = [] }) {
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
-                        <tr className="border-b border-gray-200">
+                        <tr className="border-b border-light-border dark:border-dark-border">
                           <th className="px-2 py-2 text-left text-xs font-medium empty-state-text uppercase">Socio</th>
                           <th className="px-2 py-2 text-left text-xs font-medium empty-state-text uppercase">Tipo</th>
                           <th className="px-2 py-2 text-left text-xs font-medium empty-state-text uppercase">Moneda</th>
