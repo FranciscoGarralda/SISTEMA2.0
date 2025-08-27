@@ -209,7 +209,7 @@ function CajaApp({ movements = [] }) {
           <div className="section-header">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                <div className="w-10 h-10 bg-light-surface dark:bg-dark-surface rounded-lg flex items-center justify-center">
                   <Calculator className="w-6 h-6 description-text" />
                 </div>
                 <div>
@@ -219,7 +219,7 @@ function CajaApp({ movements = [] }) {
               </div>
               <button
                 onClick={generateReport}
-                className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-light-primary dark:bg-dark-primary text-light-text dark:text-dark-text rounded-lg hover:bg-light-primaryHover dark:hover:bg-dark-primaryHover transition-colors"
               >
                 <Printer size={18} />
                 <span className="hidden sm:inline">Generar Reporte</span>
@@ -228,10 +228,10 @@ function CajaApp({ movements = [] }) {
           </div>
 
           {/* Controles */}
-          <div className="p-3 sm:p-4 border-b border-gray-200">
+          <div className="p-3 sm:p-4 border-b border-light-border dark:border-dark-border">
             <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
               <div className="flex items-center gap-4">
-                <Calendar className="text-gray-500" size={20} />
+                <Calendar className="text-light-textSecondary dark:text-dark-textSecondary" size={20} />
                 <input
                   type="date"
                   value={selectedDate}
@@ -246,7 +246,7 @@ function CajaApp({ movements = [] }) {
               <div className="flex gap-2">
                 <button
                   onClick={handleRecargarApertura}
-                  className="px-3 py-1.5 bg-gray-100 empty-state-text rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors flex items-center gap-1"
+                  className="px-3 py-1.5 bg-light-surface dark:bg-dark-surface empty-state-text rounded-lg text-sm font-medium hover:bg-light-card dark:hover:bg-dark-card transition-colors flex items-center gap-1"
                   title="Recargar apertura del día anterior"
                 >
                   <RefreshCw size={14} />
@@ -258,8 +258,8 @@ function CajaApp({ movements = [] }) {
                   disabled={hayCierreHoy}
                   className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 ${
                     hayCierreHoy 
-                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
-                      : 'bg-gray-800 text-white hover:bg-gray-700'
+                      ? 'bg-light-surface dark:bg-dark-surface text-light-textMuted dark:text-dark-textMuted cursor-not-allowed' 
+                      : 'bg-light-primary dark:bg-dark-primary text-light-text dark:text-dark-text hover:bg-light-primaryHover dark:hover:bg-dark-primaryHover'
                   }`}
                   title={hayCierreHoy ? 'Ya existe un cierre para esta fecha' : 'Guardar cierre del día'}
                 >
@@ -292,7 +292,7 @@ function CajaApp({ movements = [] }) {
                 <div className={`px-2 py-1 rounded text-xs font-medium ${
                   Math.abs(caja.diferencia) < 0.01 
                     ? 'table-header empty-state-text' 
-                    : 'bg-gray-100 description-text'
+                    : 'bg-light-surface dark:bg-dark-surface description-text'
                 }`}>
                   {Math.abs(caja.diferencia) < 0.01 ? (
                     <Check size={14} className="inline" />
@@ -334,7 +334,7 @@ function CajaApp({ movements = [] }) {
                 </div>
 
                 {/* Línea divisoria */}
-                <div className="border-t border-gray-200 pt-2">
+                <div className="border-t border-light-border dark:border-dark-border pt-2">
                   {/* Esperado */}
                   <div className="flex justify-between">
                     <span className="description-text font-medium">Esperado:</span>
@@ -349,7 +349,7 @@ function CajaApp({ movements = [] }) {
                         type="number"
                         value={cashCounts[`${caja.moneda}-${caja.tipo}`] || ''}
                         onChange={(e) => handleCashCountChange(`${caja.moneda}-${caja.tipo}`, e.target.value)}
-                        className="w-32 px-2 py-1 border border-gray-300 rounded text-right focus:outline-none focus:ring-2 focus:ring-gray-500"
+                        className="w-32 px-2 py-1 border border-light-border dark:border-dark-border rounded text-right focus:outline-none focus:ring-2 focus:ring-light-primary dark:focus:ring-dark-primary"
                         placeholder="0.00"
                       />
                     </div>
@@ -359,7 +359,7 @@ function CajaApp({ movements = [] }) {
 
               {/* Detalles de movimientos */}
               {showDetails && caja.movimientos.length > 0 && (
-                <div className="mt-4 pt-4 border-t border-gray-200">
+                <div className="mt-4 pt-4 border-t border-light-border dark:border-dark-border">
                   <h4 className="text-xs font-medium empty-state-text mb-2">Movimientos:</h4>
                   <div className="space-y-1 max-h-40 overflow-y-auto">
                     {caja.movimientos.map((mov, idx) => (
