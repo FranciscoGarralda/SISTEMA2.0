@@ -292,7 +292,7 @@ function CuentasCorrientesApp({ movements = [], onNavigate = () => {} }) {
             <div className="section-header">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-light-surface dark:bg-dark-surface rounded-lg flex items-center justify-center flex-shrink-0">
                     <Building2 size={20} className="sm:w-6 sm:h-6 description-text" />
                   </div>
                   <div className="min-w-0 flex-1">
@@ -327,7 +327,7 @@ function CuentasCorrientesApp({ movements = [], onNavigate = () => {} }) {
                   {summaryTotals.map((providerSummary) => (
                     <div
                       key={providerSummary.proveedor}
-                      className="bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-200 rounded-xl p-4 sm:p-6 cursor-pointer hover:from-gray-100 hover:to-warning-100 transition-all duration-200 hover:scale-102 hover:shadow-medium"
+                      className="bg-gradient-to-br from-light-surface to-light-cardHover dark:from-dark-surface dark:to-dark-cardHover border border-light-border dark:border-dark-border rounded-xl p-4 sm:p-6 cursor-pointer hover:from-light-card dark:hover:from-dark-card hover:to-light-warning/20 dark:hover:to-dark-warning/20 transition-all duration-200 hover:scale-102 hover:shadow-medium"
                       onClick={() => handleSelectProvider(providerSummary.proveedor)}
                     >
                       {/* Header del proveedor */}
@@ -336,7 +336,7 @@ function CuentasCorrientesApp({ movements = [], onNavigate = () => {} }) {
                           {getProviderLabel(providerSummary.proveedor)}
                         </h3>
                         <div className="flex items-center gap-1 flex-shrink-0">
-                          <span className="text-xs description-text bg-gray-100 px-2 py-1 rounded-full">
+                          <span className="text-xs description-text bg-light-surface dark:bg-dark-surface px-2 py-1 rounded-full">
                             {providerSummary.cantidadMonedas} moneda{providerSummary.cantidadMonedas !== 1 ? 's' : ''}
                           </span>
                           <ChevronRight size={16} className="description-text" />
@@ -347,14 +347,14 @@ function CuentasCorrientesApp({ movements = [], onNavigate = () => {} }) {
                       <div className="space-y-2 sm:space-y-3 text-sm">
                         {/* Ingresos y Egresos */}
                         <div className="grid grid-cols-2 gap-2 sm:gap-3">
-                          <div className="bg-white rounded-lg p-3 sm:p-4 text-center">
+                          <div className="bg-light-card dark:bg-dark-card rounded-lg p-3 sm:p-4 text-center">
                             <TrendingUp size={14} className="text-success-500 mx-auto mb-2" />
                             <p className="text-xs empty-state-text">Ingresos</p>
                             <p className="font-semibold text-success-600 text-xs sm:text-sm">
                               {formatAmountWithCurrency(providerSummary.ingresos, 'PESO', { showSymbol: false, decimals: 0 })}
                             </p>
                           </div>
-                          <div className="bg-white rounded-lg p-3 sm:p-4 text-center">
+                          <div className="bg-light-card dark:bg-dark-card rounded-lg p-3 sm:p-4 text-center">
                             <TrendingDown size={14} className="text-error-500 mx-auto mb-2" />
                             <p className="text-xs empty-state-text">Egresos</p>
                             <p className="font-semibold text-error-600 text-xs sm:text-sm">
@@ -364,7 +364,7 @@ function CuentasCorrientesApp({ movements = [], onNavigate = () => {} }) {
                         </div>
 
                         {/* Saldo consolidado */}
-                        <div className="bg-white rounded-lg p-2 sm:p-3">
+                        <div className="bg-light-card dark:bg-dark-card rounded-lg p-2 sm:p-3">
                           <p className="text-xs empty-state-text text-center mb-1">Saldo Consolidado</p>
                           <p className={`font-bold text-center text-sm sm:text-base ${
                             providerSummary.saldo < 0 ? 'text-error-600' : 'text-success-600'
@@ -403,7 +403,7 @@ function CuentasCorrientesApp({ movements = [], onNavigate = () => {} }) {
                         )}
 
                         {/* Contador de movimientos */}
-                        <div className="text-center pt-2 border-t border-gray-200">
+                        <div className="text-center pt-2 border-t border-light-border dark:border-dark-border">
                           <p className="text-xs description-text">
                             {providerSummary.movimientosCount} movimiento{providerSummary.movimientosCount !== 1 ? 's' : ''}
                           </p>
@@ -440,12 +440,12 @@ function CuentasCorrientesApp({ movements = [], onNavigate = () => {} }) {
               <div className="flex items-center gap-3 mb-2 sm:mb-3">
                 <button
                   onClick={handleBackToSummary}
-                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200 touch-target"
+                  className="p-2 rounded-lg hover:bg-light-surface dark:hover:bg-dark-surface transition-colors duration-200 touch-target"
                   aria-label="Volver al resumen"
                 >
                   <ArrowLeft size={18} className="description-text" />
                 </button>
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-light-surface dark:bg-dark-surface rounded-lg flex items-center justify-center flex-shrink-0">
                   <Building2 size={20} className="sm:w-6 sm:h-6 description-text" />
                 </div>
                 <div className="min-w-0 flex-1">
@@ -534,7 +534,7 @@ function CuentasCorrientesApp({ movements = [], onNavigate = () => {} }) {
                                   Nos deben: {formatAmountWithCurrency(account.debeProveedor, account.moneda)}
                                 </span>
                               ) : (
-                                <span className="px-2 py-1 bg-gray-100 description-text rounded-full text-xs">
+                                <span className="px-2 py-1 bg-light-surface dark:bg-dark-surface description-text rounded-full text-xs">
                                   Sin saldo
                                 </span>
                               )}
@@ -608,7 +608,7 @@ function CuentasCorrientesApp({ movements = [], onNavigate = () => {} }) {
                             </div>
                           </div>
                           
-                          <div className="pt-2 border-t border-gray-100">
+                          <div className="pt-2 border-t border-light-border dark:border-dark-border">
                             <div className="flex items-center justify-between">
                               <span className="text-xs empty-state-text">Saldo</span>
                               <span className={`font-bold ${
@@ -631,7 +631,7 @@ function CuentasCorrientesApp({ movements = [], onNavigate = () => {} }) {
                     ))}
                     
                     {/* Card de totales para mobile */}
-                    <div className=" table-header border-gray-200">
+                    <div className=" table-header border-light-border dark:border-dark-border">
                       <div className="p-3 space-y-2">
                         <h3 className="font-bold table-cell">
                           TOTAL {getProviderLabel(selectedProviderForDetail)}
@@ -652,7 +652,7 @@ function CuentasCorrientesApp({ movements = [], onNavigate = () => {} }) {
                           </div>
                         </div>
                         
-                        <div className="pt-2 border-t border-gray-200">
+                        <div className="pt-2 border-t border-light-border dark:border-dark-border">
                           <div className="flex items-center justify-between">
                             <span className="text-xs description-text">Saldo Total</span>
                             <span className={`font-bold ${
