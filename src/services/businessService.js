@@ -251,6 +251,88 @@ class StockService {
       return [];
     }
   }
+
+  // Métodos específicos para operaciones de stock
+  registrarCompra(moneda, cantidad, precio) {
+    try {
+      const stock = this.getAllStock();
+      const existingItem = stock.find(item => item.moneda === moneda);
+      
+      if (existingItem) {
+        // Actualizar stock existente
+        const cantidadTotal = safeParseFloat(existingItem.cantidad, 0) + safeParseFloat(cantidad, 0);
+        const costoTotal = (safeParseFloat(existingItem.cantidad, 0) * safeParseFloat(existingItem.precio, 0)) + 
+                          (safeParseFloat(cantidad, 0) * safeParseFloat(precio, 0));
+        const precioPromedio = costoTotal / cantidadTotal;
+        
+        existingItem.cantidad = cantidadTotal;
+        existingItem.precio = precioPromedio;
+        existingItem.ultimaActualizacion = new Date().toISOString();
+      } else {
+        // Crear nuevo item de stock
+        stock.push({
+          moneda,
+          cantidad: safeParseFloat(cantidad, 0),
+          precio: safeParseFloat(precio, 0),
+          ultimaActualizacion: new Date().toISOString()
+        });
+      }
+      
+      dataService.storage.set(this.storageKey, stock);
+      return { success: true, stock };
+    } catch (error) {
+      console.error('Error registrando compra:', error);
+      return { success: false, error };
+    }
+  }
+
+  registrarVenta(moneda, cantidad, precio) {
+    try {
+      const stock = this.getAllStock();
+      const existingItem = stock.find(item => item.moneda === moneda);
+      
+      if (!existingItem || safeParseFloat(existingItem.cantidad, 0) < safeParseFloat(cantidad, 0)) {
+        return { 
+          success: false, 
+          error: 'Stock insuficiente',
+          utilidadTotal: 0,
+          utilidadPorcentaje: 0,
+          costoPromedio: 0
+        };
+      }
+      
+      // Calcular utilidad
+      const costoPromedio = safeParseFloat(existingItem.precio, 0);
+      const precioVenta = safeParseFloat(precio, 0);
+      const cantidadVenta = safeParseFloat(cantidad, 0);
+      
+      const utilidadTotal = (precioVenta - costoPromedio) * cantidadVenta;
+      const utilidadPorcentaje = costoPromedio > 0 ? ((precioVenta - costoPromedio) / costoPromedio) * 100 : 0;
+      
+      // Actualizar stock
+      existingItem.cantidad = safeParseFloat(existingItem.cantidad, 0) - cantidadVenta;
+      existingItem.ultimaActualizacion = new Date().toISOString();
+      
+      dataService.storage.set(this.storageKey, stock);
+      
+      return { 
+        success: true, 
+        utilidadTotal,
+        utilidadPorcentaje,
+        costoPromedio,
+        stock: existingItem
+      };
+    } catch (error) {
+      console.error('Error registrando venta:', error);
+      return { 
+        success: false, 
+        error,
+        utilidadTotal: 0,
+        utilidadPorcentaje: 0,
+        costoPromedio: 0
+      };
+    }
+  }
 }
 
 // ========================

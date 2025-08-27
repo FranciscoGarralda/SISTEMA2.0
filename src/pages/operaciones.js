@@ -1,22 +1,22 @@
-import React, { lazy, Suspense } from 'react';
+import React from 'react';
+import { useClients, useMovements } from '../hooks/useData';
+import FinancialOperationsApp from '../features/financial-operations/FinancialOperationsApp';
 import MainLayout from '../components/layouts/MainLayout';
-import { useClients } from '../store/ClientsContext';
-
-const FinancialOperationsApp = lazy(() => import('../features/financial-operations/FinancialOperationsApp'));
 
 export default function OperacionesPage() {
-  const { clients, saveClient, loadClients } = useClients();
+  const { clients, addClient, loadClients } = useClients();
+  const { movements, addMovement, loadMovements } = useMovements();
+
   return (
     <MainLayout>
-      <Suspense fallback={<div className="min-h-screen flex items-center justify-center description-text">Cargando módulo...</div>}>
-        <FinancialOperationsApp 
-          onSaveMovement={() => {}}
-          onCancelEdit={() => {}}
-          clients={clients}
-          onSaveClient={saveClient}
-          reloadClients={loadClients}
-        />
-      </Suspense>
+      <FinancialOperationsApp 
+        clients={clients}
+        movements={movements}
+        onSaveClient={addClient}
+        onSaveMovement={addMovement}
+        onReloadClients={loadClients}
+        onReloadMovements={loadMovements}
+      />
     </MainLayout>
   );
 }
