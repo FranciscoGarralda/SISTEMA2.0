@@ -1,20 +1,18 @@
-import React, { lazy, Suspense } from 'react';
+import React from 'react';
+import { useMovements } from '../hooks/useData';
+import GastosApp from '../features/expenses/GastosApp';
 import MainLayout from '../components/layouts/MainLayout';
 
-const GastosApp = lazy(() => import('../features/expenses/GastosApp'));
-
 export default function GastosPage() {
+  const { movements, updateMovement, deleteMovement } = useMovements();
+
   return (
     <MainLayout>
-      <Suspense fallback={<div className="min-h-screen flex items-center justify-center description-text">Cargando módulo...</div>}>
-        <GastosApp 
-          movements={[]}
-          onEditMovement={() => {}}
-          onDeleteMovement={() => {}}
-          onViewMovementDetail={() => {}}
-          onNavigate={() => {}}
-        />
-      </Suspense>
+      <GastosApp 
+        movements={movements}
+        onEditMovement={updateMovement}
+        onDeleteMovement={deleteMovement}
+      />
     </MainLayout>
   );
 }

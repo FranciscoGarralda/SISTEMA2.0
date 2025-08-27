@@ -2,7 +2,7 @@ import React from 'react';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
-  const version = "V108"; // Paso 2 completado - Gestor de estado global con Zustand implementado
+  const version = "V109"; // Paso 3 iniciado - Refactorización de componentes monolíticos
 
   return (
     <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-sm mt-auto">

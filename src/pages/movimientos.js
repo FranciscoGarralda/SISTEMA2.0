@@ -1,20 +1,20 @@
-import React, { lazy, Suspense } from 'react';
+import React from 'react';
+import { useClients, useMovements } from '../hooks/useData';
+import MovimientosApp from '../features/movements/MovimientosApp';
 import MainLayout from '../components/layouts/MainLayout';
 
-const MovimientosApp = lazy(() => import('../features/movements/MovimientosApp'));
-
 export default function MovimientosPage() {
+  const { clients } = useClients();
+  const { movements, updateMovement, deleteMovement } = useMovements();
+
   return (
     <MainLayout>
-      <Suspense fallback={<div className="min-h-screen flex items-center justify-center description-text">Cargando módulo...</div>}>
-        <MovimientosApp 
-          movements={[]}
-          clients={[]}
-          onEditMovement={() => {}}
-          onDeleteMovement={() => {}}
-          onNavigate={() => {}}
-        />
-      </Suspense>
+      <MovimientosApp 
+        movements={movements}
+        clients={clients}
+        onEditMovement={updateMovement}
+        onDeleteMovement={deleteMovement}
+      />
     </MainLayout>
   );
 }

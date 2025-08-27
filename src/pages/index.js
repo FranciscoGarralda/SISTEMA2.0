@@ -58,16 +58,9 @@ export default function Home() {
   } = useAuth();
 
   const {
-    movements,
     clients,
-    editingMovement,
-    loadDataFromBackend,
-    handleSaveMovement,
-    handleDeleteMovement,
-    handleEditMovement,
-    handleCancelEdit,
-    handleSaveClient,
-    handleDeleteClient
+    movements,
+    refreshAll
   } = useData();
 
   // Navigation function
@@ -96,46 +89,43 @@ export default function Home() {
   // Load data when authenticated
   React.useEffect(() => {
     if (isAuthenticated) {
-      loadDataFromBackend();
+      refreshAll();
     }
-  }, [isAuthenticated, loadDataFromBackend]);
+  }, [isAuthenticated, refreshAll]);
 
   // Memoized props
   const commonProps = useMemo(() => ({
-    movements,
+    movements: movements.movements,
     onNavigate: navigateTo
-  }), [movements, navigateTo]);
+  }), [movements.movements, navigateTo]);
 
   const componentProps = useMemo(() => ({
     'operaciones': {
-      onSaveMovement: handleSaveMovement,
-      clients,
-      initialMovementData: editingMovement,
-      onCancelEdit: handleCancelEdit,
-      onSaveClient: handleSaveClient
+      onSaveMovement: movements.addMovement,
+      clients: clients.clients,
+      initialMovementData: null,
+      onCancelEdit: () => {},
+      onSaveClient: clients.addClient
     },
     'clientes': {
-      clientes: clients,
-      onSaveClient: handleSaveClient,
-      onDeleteClient: handleDeleteClient,
-      movements
+      // ClientesApp ya no necesita props
     },
     'movimientos': {
       ...commonProps,
-      onEditMovement: handleEditMovement,
-      onDeleteMovement: handleDeleteMovement,
-      clients
+      onEditMovement: movements.updateMovement,
+      onDeleteMovement: movements.deleteMovement,
+      clients: clients.clients
     },
     'pendientes': {
       ...commonProps,
-      clients,
-      onEditMovement: handleEditMovement,
-      onDeleteMovement: handleDeleteMovement
+      clients: clients.clients,
+      onEditMovement: movements.updateMovement,
+      onDeleteMovement: movements.deleteMovement
     },
     'gastos': {
       ...commonProps,
-      onEditMovement: handleEditMovement,
-      onDeleteMovement: handleDeleteMovement,
+      onEditMovement: movements.updateMovement,
+      onDeleteMovement: movements.deleteMovement,
       onViewMovementDetail: null
     },
     'cuentas-corrientes': {
@@ -144,7 +134,7 @@ export default function Home() {
     },
     'prestamistas': {
       ...commonProps,
-      clients,
+      clients: clients.clients,
       onNavigate: navigateTo
     },
     'comisiones': {
@@ -157,31 +147,31 @@ export default function Home() {
     },
     'arbitraje': {
       ...commonProps,
-      movements,
+      movements: movements.movements,
       onNavigate: navigateTo
     },
     'saldos': {
       ...commonProps,
-      movements,
+      movements: movements.movements,
       onNavigate: navigateTo
     },
     'caja': {
-      movements,
+      movements: movements.movements,
       onNavigate: navigateTo
     },
     'rentabilidad': {
       ...commonProps,
-      movements,
+      movements: movements.movements,
       onNavigate: navigateTo
     },
     'stock': {
       ...commonProps,
-      movements,
+      movements: movements.movements,
       onNavigate: navigateTo
     },
     'saldos-iniciales': {
       ...commonProps,
-      movements,
+      movements: movements.movements,
       onNavigate: navigateTo
     },
     'usuarios': {
@@ -192,13 +182,6 @@ export default function Home() {
     commonProps,
     movements,
     clients,
-    editingMovement,
-    handleSaveMovement,
-    handleCancelEdit,
-    handleSaveClient,
-    handleDeleteClient,
-    handleEditMovement,
-    handleDeleteMovement,
     navigateTo
   ]);
 
