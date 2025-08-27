@@ -367,7 +367,7 @@ function RentabilidadApp({ movements = [] }) {
         <div className="bg-white rounded-lg shadow-sm">
           <div className="section-header">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 bg-light-surface dark:bg-dark-surface rounded-lg flex items-center justify-center">
                 <TrendingUp className="w-6 h-6 description-text" />
               </div>
               <div>
@@ -385,8 +385,8 @@ function RentabilidadApp({ movements = [] }) {
                 onClick={() => handlePeriodChange('diario')}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   selectedPeriod === 'diario'
-                    ? 'bg-gray-800 text-white'
-                    : 'bg-gray-100 empty-state-text hover:bg-gray-200'
+                    ? 'bg-light-primary dark:bg-dark-primary text-white'
+                    : 'bg-light-surface dark:bg-dark-surface empty-state-text hover:bg-light-cardHover dark:hover:bg-dark-cardHover'
                 }`}
               >
                 Hoy
@@ -395,8 +395,8 @@ function RentabilidadApp({ movements = [] }) {
                 onClick={() => handlePeriodChange('semanal')}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   selectedPeriod === 'semanal'
-                    ? 'bg-gray-800 text-white'
-                    : 'bg-gray-100 empty-state-text hover:bg-gray-200'
+                    ? 'bg-light-primary dark:bg-dark-primary text-white'
+                    : 'bg-light-surface dark:bg-dark-surface empty-state-text hover:bg-light-cardHover dark:hover:bg-dark-cardHover'
                 }`}
               >
                 Semana
@@ -405,8 +405,8 @@ function RentabilidadApp({ movements = [] }) {
                 onClick={() => handlePeriodChange('mensual')}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   selectedPeriod === 'mensual'
-                    ? 'bg-gray-800 text-white'
-                    : 'bg-gray-100 empty-state-text hover:bg-gray-200'
+                    ? 'bg-light-primary dark:bg-dark-primary text-white'
+                    : 'bg-light-surface dark:bg-dark-surface empty-state-text hover:bg-light-cardHover dark:hover:bg-dark-cardHover'
                 }`}
               >
                 Mes
@@ -415,8 +415,8 @@ function RentabilidadApp({ movements = [] }) {
                 onClick={() => handlePeriodChange('anual')}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   selectedPeriod === 'anual'
-                    ? 'bg-gray-800 text-white'
-                    : 'bg-gray-100 empty-state-text hover:bg-gray-200'
+                    ? 'bg-light-primary dark:bg-dark-primary text-white'
+                    : 'bg-light-surface dark:bg-dark-surface empty-state-text hover:bg-light-cardHover dark:hover:bg-dark-cardHover'
                 }`}
               >
                 Año
@@ -425,8 +425,8 @@ function RentabilidadApp({ movements = [] }) {
                 onClick={() => handlePeriodChange('personalizado')}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   selectedPeriod === 'personalizado'
-                    ? 'bg-gray-800 text-white'
-                    : 'bg-gray-100 empty-state-text hover:bg-gray-200'
+                    ? 'bg-light-primary dark:bg-dark-primary text-white'
+                    : 'bg-light-surface dark:bg-dark-surface empty-state-text hover:bg-light-cardHover dark:hover:bg-dark-cardHover'
                 }`}
               >
                 Personalizado
@@ -436,19 +436,19 @@ function RentabilidadApp({ movements = [] }) {
             {/* Selector de fechas personalizado */}
             {selectedPeriod === 'personalizado' && (
               <div className="flex flex-wrap items-center gap-2">
-                <Calendar size={20} className="text-gray-500" />
+                <Calendar size={20} className="text-light-textSecondary dark:text-dark-textSecondary" />
                 <input
                   type="date"
                   value={dateRange.start}
                   onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
-                  className="px-3 py-2 form-input focus:outline-none focus:ring-2 focus:ring-gray-500"
+                  className="px-3 py-2 form-input focus:outline-none focus:ring-2 focus:ring-light-primary dark:focus:ring-dark-primary"
                 />
-                <span className="text-gray-500">hasta</span>
+                <span className="text-light-textSecondary dark:text-dark-textSecondary">hasta</span>
                 <input
                   type="date"
                   value={dateRange.end}
                   onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
-                  className="px-3 py-2 form-input focus:outline-none focus:ring-2 focus:ring-gray-500"
+                  className="px-3 py-2 form-input focus:outline-none focus:ring-2 focus:ring-light-primary dark:focus:ring-dark-primary"
                 />
               </div>
             )}
@@ -462,10 +462,10 @@ function RentabilidadApp({ movements = [] }) {
 
         {/* KPIs principales */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white rounded-lg shadow-sm p-4">
+          <div className="card p-4">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm description-text">Ganancia Total</span>
-              <DollarSign size={20} className="text-green-600" />
+              <DollarSign size={20} className="text-light-success dark:text-dark-success" />
             </div>
             <p className="main-title">
               {formatAmountWithCurrency(profitabilityData.general.gananciaTotal, 'PESO')}
@@ -474,20 +474,20 @@ function RentabilidadApp({ movements = [] }) {
               <div className="flex items-center gap-1 mt-1">
                 {profitabilityData.general.gananciaTotal > previousProfitabilityData.general.gananciaTotal ? (
                   <>
-                    <ArrowUpRight size={16} className="text-green-600" />
-                    <span className="text-xs text-green-600">
+                    <ArrowUpRight size={16} className="text-light-success dark:text-dark-success" />
+                    <span className="text-xs text-light-success dark:text-dark-success">
                       +{((profitabilityData.general.gananciaTotal - previousProfitabilityData.general.gananciaTotal) / previousProfitabilityData.general.gananciaTotal * 100).toFixed(1)}%
                     </span>
                   </>
                 ) : (
                   <>
-                    <ArrowDownRight size={16} className="text-red-600" />
-                    <span className="text-xs text-red-600">
+                    <ArrowDownRight size={16} className="text-light-error dark:text-dark-error" />
+                    <span className="text-xs text-light-error dark:text-dark-error">
                       {((profitabilityData.general.gananciaTotal - previousProfitabilityData.general.gananciaTotal) / previousProfitabilityData.general.gananciaTotal * 100).toFixed(1)}%
                     </span>
                   </>
                 )}
-                <span className="text-xs text-gray-500">vs período anterior</span>
+                                  <span className="text-xs text-light-textMuted dark:text-dark-textMuted">vs período anterior</span>
               </div>
             )}
           </div>

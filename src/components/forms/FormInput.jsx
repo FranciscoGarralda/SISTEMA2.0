@@ -19,18 +19,11 @@ const FormInput = forwardRef(({
   const inputId = `${name}-input`;
   const errorId = `${name}-error`;
 
-  const baseInputClasses = `
-    w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent 
-    bg-gray-700 dark:bg-gray-700 text-white dark:text-white 
-    placeholder-gray-400 dark:placeholder-gray-400 
-    transition-colors duration-200
-  `;
-
   const inputClasses = `
-    ${baseInputClasses}
+    form-input
     ${error 
-      ? 'border-red-500 dark:border-red-500' 
-      : 'border-gray-600 dark:border-gray-600'
+      ? 'border-light-error dark:border-dark-error' 
+      : ''
     }
     ${className}
   `;
@@ -41,10 +34,10 @@ const FormInput = forwardRef(({
       {label && (
         <label 
           htmlFor={inputId}
-          className="block text-sm font-medium empty-state-text dark:empty-state-text"
+          className="block text-sm font-medium empty-state-text"
         >
           {label}
-          {required && <span className="text-red-400 ml-1">*</span>}
+          {required && <span className="text-light-error dark:text-dark-error ml-1">*</span>}
         </label>
       )}
       
@@ -78,14 +71,14 @@ const FormInput = forwardRef(({
               }
             }}
           >
-            <Calendar size={18} className="text-gray-400 hover:text-gray-300 transition-colors" />
+            <Calendar size={18} className="text-light-textMuted dark:text-dark-textMuted hover:text-light-textSecondary dark:hover:text-dark-textSecondary transition-colors" />
           </div>
         )}
       </div>
       
       {/* Nombre del día para fechas - fuera del input */}
       {showDayName && dayName && type === 'date' && (
-        <div className="text-sm text-gray-400 dark:text-gray-400 font-medium mt-1">
+        <div className="text-sm text-light-textMuted dark:text-dark-textMuted font-medium mt-1">
           {dayName}
         </div>
       )}
@@ -94,7 +87,7 @@ const FormInput = forwardRef(({
       {error && (
         <p 
           id={errorId}
-          className="text-sm text-red-400 dark:text-red-400 flex items-center"
+          className="text-sm text-light-error dark:text-dark-error flex items-center"
         >
           <svg className="w-4 h-4 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />

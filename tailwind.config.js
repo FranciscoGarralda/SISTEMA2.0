@@ -42,31 +42,31 @@ module.exports = {
           sidebarText: '#F7FAFC',      // Texto sidebar: gris muy claro
         },
         // ========================
-        // 🌙 Paleta Tema Oscuro - Elegante y Sofisticada
+        // 🌙 Paleta Tema Oscuro - Alto Contraste y Legibilidad
         // ========================
         dark: {
-          background: '#1A202C',       // Fondo principal: gris muy oscuro
-          surface: '#2D3748',          // Superficies: gris oscuro
-          text: '#F7FAFC',             // Texto primario: gris muy claro
-          textSecondary: '#E2E8F0',    // Texto secundario: gris claro
-          textMuted: '#A0AEC0',        // Texto atenuado: gris medio
-          primary: '#63B3ED',          // Color primario: azul claro vibrante
-          primaryHover: '#4299E1',     // Primario hover: azul medio
-          secondary: '#B794F4',        // Color secundario: púrpura claro
-          accent: '#F6AD55',           // Acento: naranja claro
-          border: '#4A5568',           // Bordes: gris medio
-          borderHover: '#718096',      // Bordes hover: gris claro
-          success: '#68D391',          // Éxito: verde claro
-          error: '#FC8181',            // Error: rojo claro
-          warning: '#F6E05E',          // Advertencia: amarillo claro
-          info: '#63B3ED',             // Información: azul claro
-          card: '#2D3748',             // Cards: gris oscuro
-          cardHover: '#4A5568',        // Cards hover: gris medio
-          input: '#4A5568',            // Inputs: gris medio
-          inputFocus: '#718096',       // Inputs focus: gris claro
-          header: '#1A202C',           // Header: gris muy oscuro
-          sidebar: '#1A202C',          // Sidebar: gris muy oscuro
-          sidebarText: '#F7FAFC',      // Texto sidebar: gris muy claro
+          background: '#0F172A',       // Fondo principal: azul muy oscuro (mejor contraste)
+          surface: '#1E293B',          // Superficies: azul oscuro (más diferenciado)
+          text: '#F8FAFC',             // Texto primario: blanco puro (máximo contraste)
+          textSecondary: '#CBD5E1',    // Texto secundario: gris claro (buen contraste)
+          textMuted: '#94A3B8',        // Texto atenuado: gris medio (visible)
+          primary: '#3B82F6',          // Color primario: azul vibrante
+          primaryHover: '#2563EB',     // Primario hover: azul más oscuro
+          secondary: '#8B5CF6',        // Color secundario: violeta vibrante
+          accent: '#F59E0B',           // Acento: ámbar vibrante
+          border: '#334155',           // Bordes: gris oscuro (más visible)
+          borderHover: '#475569',      // Bordes hover: gris medio
+          success: '#10B981',          // Éxito: verde vibrante
+          error: '#EF4444',            // Error: rojo vibrante
+          warning: '#F59E0B',          // Advertencia: ámbar vibrante
+          info: '#3B82F6',             // Información: azul vibrante
+          card: '#1E293B',             // Cards: azul oscuro (contraste con texto)
+          cardHover: '#334155',        // Cards hover: gris oscuro
+          input: '#1E293B',            // Inputs: azul oscuro (contraste con texto)
+          inputFocus: '#334155',       // Inputs focus: gris oscuro
+          header: '#0F172A',           // Header: azul muy oscuro
+          sidebar: '#0F172A',          // Sidebar: azul muy oscuro
+          sidebarText: '#F8FAFC',      // Texto sidebar: blanco puro
         },
       },
       fontFamily: {

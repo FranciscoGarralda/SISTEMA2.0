@@ -56,16 +56,13 @@ const FormSelect = forwardRef(({
 
   // Select classes with responsive design and states
   const selectClasses = [
-    'w-full px-2 py-2 text-sm sm:text-base font-medium border rounded-lg transition-all duration-200 appearance-none',
-    'focus:outline-none focus:ring-2 focus:ring-offset-0',
-    'placeholder-gray-500 focus:placeholder-gray-600',
-    'bg-white hover:table-header focus:bg-white',
+    'form-input',
     // State-based styling
     error 
-      ? 'border-red-400 focus:border-red-500 focus:ring-red-500/20 text-red-900' 
-      : 'border-gray-200 hover:border-gray-300 focus:border-gray-500 focus:ring-gray-500/20 table-cell',
+      ? 'border-light-error dark:border-dark-error focus:ring-light-error/20 dark:focus:ring-dark-error/20' 
+      : '',
     disabled || readOnly
-      ? 'bg-gray-100 cursor-not-allowed opacity-60 hover:bg-gray-100' 
+      ? 'bg-light-surface/50 dark:bg-dark-surface/50 cursor-not-allowed opacity-60' 
       : '',
     // Additional classes
     className
@@ -80,7 +77,7 @@ const FormSelect = forwardRef(({
           className="block text-sm font-medium empty-state-text"
         >
           {label}
-          {required && <span className="text-error-500 ml-1">*</span>}
+          {required && <span className="text-light-error dark:text-dark-error ml-1">*</span>}
         </label>
       )}
       
@@ -120,11 +117,11 @@ const FormSelect = forwardRef(({
         
         {/* Custom dropdown arrow */}
         <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">
-          <ChevronDown 
-            className={`w-4 h-4 transition-colors duration-200 ${
-              disabled ? 'description-text' : 'empty-state-text'
-            }`} 
-          />
+                  <ChevronDown 
+          className={`w-4 h-4 transition-colors duration-200 ${
+            disabled ? 'text-light-textMuted dark:text-dark-textMuted' : 'text-light-textSecondary dark:text-dark-textSecondary'
+          }`} 
+        />
         </div>
       </div>
       
@@ -132,7 +129,7 @@ const FormSelect = forwardRef(({
       
       {/* Error Message */}
       {error && (
-        <p className="text-xs text-error-600 mt-2 flex items-center">
+        <p className="text-xs text-light-error dark:text-dark-error mt-2 flex items-center">
           <svg className="w-3 h-3 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
           </svg>
@@ -142,7 +139,7 @@ const FormSelect = forwardRef(({
       
       {/* No options message */}
       {filteredOptions.length === 0 && (
-        <p className="text-xs text-warning-600 mt-2 flex items-center">
+        <p className="text-xs text-light-warning dark:text-dark-warning mt-2 flex items-center">
           <svg className="w-3 h-3 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
           </svg>
