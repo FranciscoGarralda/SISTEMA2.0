@@ -235,7 +235,7 @@ export const useUtility = (movements = []) => {
     });
 
     return unsubscribe;
-  }, [listen]);
+  }, []); // Remover listen de dependencias
 
   // Emitir eventos cuando cambian los cálculos
   useEffect(() => {
@@ -247,14 +247,14 @@ export const useUtility = (movements = []) => {
         stats: utilityStats
       });
     }
-  }, [totalUtilityCombined, monthlyUtilityCombined, dailyUtilityCombined, utilityStats, emit]);
+  }, [totalUtilityCombined, monthlyUtilityCombined, dailyUtilityCombined, utilityStats]); // Remover emit
 
   // Emitir eventos cuando cambia el stock
   useEffect(() => {
     if (Object.keys(finalStockData).length > 0) {
       emit('calc:stock:updated', finalStockData);
     }
-  }, [finalStockData, emit]);
+  }, [finalStockData]); // Remover emit
 
   return {
     // Estado

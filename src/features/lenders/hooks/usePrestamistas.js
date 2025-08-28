@@ -157,7 +157,7 @@ export const usePrestamistas = (clients = [], movements = []) => {
     });
 
     return unsubscribe;
-  }, [listen]);
+  }, []); // Remover listen de dependencias
 
   // Emitir eventos cuando cambian los cálculos de prestamistas
   useEffect(() => {
@@ -167,7 +167,7 @@ export const usePrestamistas = (clients = [], movements = []) => {
         clients: prestamistaClients
       });
     }
-  }, [prestamistaSummary, prestamistaClients, emit]);
+  }, [prestamistaSummary, prestamistaClients]); // Remover emit
 
   return {
     // Estado

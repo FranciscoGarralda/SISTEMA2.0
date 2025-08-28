@@ -31,7 +31,7 @@ export const useClients = () => {
     if (clients.length === 0 && !isLoading) {
       loadClients();
     }
-  }, [clients.length, isLoading, loadClients]);
+  }, [clients.length, isLoading]); // Remover loadClients de dependencias
 
   return {
     // Estado

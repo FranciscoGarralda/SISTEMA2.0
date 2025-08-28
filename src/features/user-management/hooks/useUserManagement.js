@@ -73,7 +73,7 @@ export const useUserManagement = () => {
   // Cargar usuarios al montar
   useEffect(() => {
     loadUsers();
-  }, [loadUsers]);
+  }, []); // Remover loadUsers de dependencias
 
   // Función de auto-reparación
   const fixUserSystem = async () => {

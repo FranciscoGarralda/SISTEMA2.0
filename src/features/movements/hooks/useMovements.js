@@ -125,7 +125,7 @@ export const useMovements = () => {
     if (movements.length > 0) {
       emit('data:movements:updated', movements);
     }
-  }, [movements, emit]);
+  }, [movements]); // Remover emit de dependencias
 
   // Escuchar cambios en filtros para notificar a otros hooks
   useEffect(() => {
@@ -136,7 +136,7 @@ export const useMovements = () => {
       ordenarPor,
       orden
     });
-  }, [busqueda, filtroTipo, filtroEstado, ordenarPor, orden, emit]);
+  }, [busqueda, filtroTipo, filtroEstado, ordenarPor, orden]); // Remover emit de dependencias
 
   // Funciones de filtrado
   const limpiarFiltros = useCallback(() => {

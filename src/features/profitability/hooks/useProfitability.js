@@ -252,7 +252,7 @@ export const useProfitability = (movements = []) => {
       console.log('Movimientos actualizados, recalculando rentabilidad...');
     });
     return unsubscribe;
-  }, [listen]);
+  }, []); // Remover listen de dependencias
 
   // Emitir eventos cuando cambian los cálculos
   useEffect(() => {
@@ -265,7 +265,7 @@ export const useProfitability = (movements = []) => {
         selectedPeriod
       });
     }
-  }, [currentProfitability, previousProfitability, periodComparison, dateRange, selectedPeriod, emit]);
+  }, [currentProfitability, previousProfitability, periodComparison, dateRange, selectedPeriod]); // Remover emit
 
   return {
     // Estado
