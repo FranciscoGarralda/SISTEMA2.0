@@ -34,7 +34,7 @@ export const useAuth = () => {
     if (!isAuthenticated && !isLoading) {
       checkAuth();
     }
-  }, [isAuthenticated, isLoading]);
+  }, []); // Solo ejecutar al montar
 
   // Manejador para login exitoso
   const handleLoginSuccess = useCallback((user) => {

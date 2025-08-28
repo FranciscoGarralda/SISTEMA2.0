@@ -2,7 +2,7 @@ import React from 'react';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
-  const version = "V119"; // Sistema de comunicación entre hooks implementado
+  const version = "V121"; // Corregido bucle infinito en useAuth y useHookCommunication
 
   return (
     <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-sm mt-auto">
