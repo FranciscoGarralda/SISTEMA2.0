@@ -106,6 +106,9 @@ export const useAuthStore = create(
       // Verificar sesión actual
       checkAuth: async () => {
         try {
+          const currentState = get();
+          if (currentState.isLoading) return false;
+          
           set({ isLoading: true });
           
           const token = sessionStorage.getItem('authToken') || localStorage.getItem('authToken');
