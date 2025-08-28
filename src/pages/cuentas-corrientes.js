@@ -1,14 +1,11 @@
-import React, { lazy, Suspense } from 'react';
+import React from 'react';
+import CuentasCorrientesApp from '../features/current-accounts/CuentasCorrientesApp';
 import MainLayout from '../components/layouts/MainLayout';
-
-const CuentasCorrientesApp = lazy(() => import('../features/current-accounts/CuentasCorrientesApp'));
 
 export default function CuentasCorrientesPage() {
   return (
     <MainLayout>
-      <Suspense fallback={<div className="min-h-screen flex items-center justify-center description-text">Cargando módulo...</div>}>
-        <CuentasCorrientesApp />
-      </Suspense>
+      <CuentasCorrientesApp />
     </MainLayout>
   );
 }
