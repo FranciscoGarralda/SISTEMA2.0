@@ -2,7 +2,7 @@ import React from 'react';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
-  const version = "V113"; // Refactorización de FinancialOperationsApp completada
+  const version = "V114"; // Corregido problema de autenticación
 
   return (
     <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-sm mt-auto">
