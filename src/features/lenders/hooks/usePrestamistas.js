@@ -1,9 +1,13 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { safeParseFloat } from '../../../services/utilityService';
+import { useCommunicationContext } from '../../../hooks/useHookCommunication';
 
 export const usePrestamistas = (clients = [], movements = []) => {
   const [currentView, setCurrentView] = useState('summary');
   const [selectedPrestamista, setSelectedPrestamista] = useState(null);
+  
+  // Sistema de comunicación
+  const { emit, listen } = useCommunicationContext();
 
   // Filtrar clientes prestamistas
   const prestamistaClients = useMemo(() => {
@@ -145,6 +149,25 @@ export const usePrestamistas = (clients = [], movements = []) => {
     setCurrentView('summary');
     setSelectedPrestamista(null);
   };
+
+  // Escuchar cambios en movimientos para recalcular balances
+  useEffect(() => {
+    const unsubscribe = listen('data:movements:updated', (eventData) => {
+      console.log('Movimientos actualizados, recalculando balances de prestamistas...');
+    });
+
+    return unsubscribe;
+  }, [listen]);
+
+  // Emitir eventos cuando cambian los cálculos de prestamistas
+  useEffect(() => {
+    if (prestamistaSummary.length > 0) {
+      emit('calc:prestamistas:updated', {
+        summary: prestamistaSummary,
+        clients: prestamistaClients
+      });
+    }
+  }, [prestamistaSummary, prestamistaClients, emit]);
 
   return {
     // Estado

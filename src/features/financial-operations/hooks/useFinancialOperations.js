@@ -7,6 +7,7 @@ import {
 } from '../../../services/utilityService';
 import { getTodayLocalDate, getDayName } from '../../../utils/dateUtils';
 import { useMixedPayments } from '../../../hooks/useMixedPayments';
+import { operaciones } from '../../../constants/constants';
 
 export const useFinancialOperations = ({ 
   onSaveMovement, 

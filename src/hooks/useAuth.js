@@ -5,6 +5,7 @@
 
 import { useEffect, useCallback } from 'react';
 import { useAuthStore } from '../stores';
+import { useCommunicationContext } from './useHookCommunication';
 
 export const useAuth = () => {
   const {
@@ -25,6 +26,9 @@ export const useAuth = () => {
     setToken
   } = useAuthStore();
 
+  // Sistema de comunicación
+  const { emit } = useCommunicationContext();
+
   // Verificar autenticación al montar el componente
   useEffect(() => {
     if (!isAuthenticated && !isLoading) {
@@ -38,12 +42,16 @@ export const useAuth = () => {
     if (user.token) {
       setToken(user.token);
     }
-  }, [setUser, setToken]);
+    // Emitir evento de login exitoso
+    emit('auth:login:success', user);
+  }, [setUser, setToken, emit]);
 
   // Manejador para logout
   const handleLogout = useCallback(async () => {
     await logout();
-  }, [logout]);
+    // Emitir evento de logout
+    emit('auth:logout');
+  }, [logout, emit]);
 
   // Verificar si está verificando autenticación
   const checkingAuth = isLoading && !isAuthenticated;

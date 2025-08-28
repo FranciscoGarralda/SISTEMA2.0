@@ -1,8 +1,12 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { safeParseFloat } from '../../../services/utilityService';
+import { useCommunicationContext } from '../../../hooks/useHookCommunication';
 
 export const useUtility = (movements = []) => {
   const [selectedDate, setSelectedDate] = useState('');
+  
+  // Sistema de comunicación
+  const { emit, listen } = useCommunicationContext();
 
   // Procesar movimientos para calcular WAC histórico y utilidad
   const processedMovements = useMemo(() => {
@@ -221,6 +225,36 @@ export const useUtility = (movements = []) => {
 
     return stats;
   }, [processedMovements, totalUtilityCombined, finalStockData]);
+
+  // Escuchar cambios en movimientos para recalcular utilidad
+  useEffect(() => {
+    const unsubscribe = listen('data:movements:updated', (eventData) => {
+      // Los movimientos se actualizan automáticamente a través de props
+      // Este listener permite reaccionar a cambios externos
+      console.log('Movimientos actualizados, recalculando utilidad...');
+    });
+
+    return unsubscribe;
+  }, [listen]);
+
+  // Emitir eventos cuando cambian los cálculos
+  useEffect(() => {
+    if (Object.keys(totalUtilityCombined).length > 0) {
+      emit('calc:utility:updated', {
+        totalUtility: totalUtilityCombined,
+        monthlyUtility: monthlyUtilityCombined,
+        dailyUtility: dailyUtilityCombined,
+        stats: utilityStats
+      });
+    }
+  }, [totalUtilityCombined, monthlyUtilityCombined, dailyUtilityCombined, utilityStats, emit]);
+
+  // Emitir eventos cuando cambia el stock
+  useEffect(() => {
+    if (Object.keys(finalStockData).length > 0) {
+      emit('calc:stock:updated', finalStockData);
+    }
+  }, [finalStockData, emit]);
 
   return {
     // Estado

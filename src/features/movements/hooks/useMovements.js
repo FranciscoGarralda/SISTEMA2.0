@@ -1,5 +1,6 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useMovementsStore } from '../../../stores';
+import { useCommunicationContext } from '../../../hooks/useHookCommunication';
 
 export const useMovements = () => {
   const {
@@ -15,6 +16,9 @@ export const useMovements = () => {
     clearError,
     stats
   } = useMovementsStore();
+
+  // Sistema de comunicación
+  const { emit, listen } = useCommunicationContext();
 
   const [busqueda, setBusqueda] = useState('');
   const [filtroTipo, setFiltroTipo] = useState('todos');
@@ -115,6 +119,24 @@ export const useMovements = () => {
       promedio: total > 0 ? totalMonto / total : 0
     };
   }, [movements]);
+
+  // Emitir eventos cuando cambian los movimientos
+  useEffect(() => {
+    if (movements.length > 0) {
+      emit('data:movements:updated', movements);
+    }
+  }, [movements, emit]);
+
+  // Escuchar cambios en filtros para notificar a otros hooks
+  useEffect(() => {
+    emit('ui:filter:changed', {
+      busqueda,
+      filtroTipo,
+      filtroEstado,
+      ordenarPor,
+      orden
+    });
+  }, [busqueda, filtroTipo, filtroEstado, ordenarPor, orden, emit]);
 
   // Funciones de filtrado
   const limpiarFiltros = useCallback(() => {

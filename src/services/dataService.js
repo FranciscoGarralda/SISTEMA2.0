@@ -336,24 +336,7 @@ class ApiService {
     return this.delete(`/users/${userId}`);
   }
 
-  // Métodos para gestión de movimientos
-  async getMovements() {
-    if (this.isLocalMode) {
-      return this.localBackend.get('movements') || [];
-    }
-    return this.get('/movements');
-  }
 
-  async saveMovement(movement) {
-    if (this.isLocalMode) {
-      const movements = await this.getMovements();
-      const newMovement = { ...movement, id: Date.now().toString() };
-      movements.push(newMovement);
-      await this.localBackend.set('movements', movements);
-      return newMovement;
-    }
-    return this.post('/movements', movement);
-  }
 
   async updateMovement(movementId, movementData) {
     if (this.isLocalMode) {
