@@ -3,7 +3,7 @@
  * Utiliza Zustand para el manejo de estado
  */
 
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useAuthStore } from '../stores';
 
 export const useAuth = () => {
@@ -20,7 +20,9 @@ export const useAuth = () => {
     updateUser,
     hasPermission,
     hasRole,
-    clearError
+    clearError,
+    setUser,
+    setToken
   } = useAuthStore();
 
   // Verificar autenticación al montar el componente
@@ -30,6 +32,22 @@ export const useAuth = () => {
     }
   }, [isAuthenticated, isLoading, checkAuth]);
 
+  // Manejador para login exitoso
+  const handleLoginSuccess = useCallback((user) => {
+    setUser(user);
+    if (user.token) {
+      setToken(user.token);
+    }
+  }, [setUser, setToken]);
+
+  // Manejador para logout
+  const handleLogout = useCallback(async () => {
+    await logout();
+  }, [logout]);
+
+  // Verificar si está verificando autenticación
+  const checkingAuth = isLoading && !isAuthenticated;
+
   return {
     // Estado
     user,
@@ -38,12 +56,15 @@ export const useAuth = () => {
     error,
     role,
     permissions,
+    checkingAuth,
 
     // Acciones
     login,
     logout,
     updateUser,
     clearError,
+    handleLoginSuccess,
+    handleLogout,
 
     // Utilidades
     hasPermission,
