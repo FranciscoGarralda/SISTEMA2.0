@@ -151,7 +151,7 @@ export const useCommissions = (movements = []) => {
     return unsubscribe;
   }, []); // Remover listen de dependencias
 
-  // Emitir eventos cuando cambian los cálculos de comisiones
+  // Emitir eventos cuando cambian los cálculos de comisiones - ESTABILIZADO
   useEffect(() => {
     if (commissionStats.totalMovements > 0) {
       emit('calc:commissions:updated', {
@@ -163,7 +163,7 @@ export const useCommissions = (movements = []) => {
         commissionsByOperation
       });
     }
-  }, [commissionStats, totalCommissions, totalProviderCommissions, monthlyCommissions, commissionsByProvider, commissionsByOperation]); // Remover emit
+  }, [commissionStats.totalMovements]); // Solo depender del número de movimientos
 
   return {
     // Estado

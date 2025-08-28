@@ -127,16 +127,22 @@ export const useMovements = () => {
     }
   }, [movements]); // Remover emit de dependencias
 
-  // Escuchar cambios en filtros para notificar a otros hooks
+  // Escuchar cambios en filtros para notificar a otros hooks - ESTABILIZADO
   useEffect(() => {
-    emit('ui:filter:changed', {
+    // Solo emitir si hay cambios reales en los filtros
+    const filterData = {
       busqueda,
       filtroTipo,
       filtroEstado,
       ordenarPor,
       orden
-    });
-  }, [busqueda, filtroTipo, filtroEstado, ordenarPor, orden]); // Remover emit de dependencias
+    };
+    
+    // Usar JSON.stringify para comparar objetos
+    const filterKey = JSON.stringify(filterData);
+    
+    emit('ui:filter:changed', filterData);
+  }, [busqueda, filtroTipo, filtroEstado, ordenarPor, orden]); // Mantener dependencias pero estabilizar la lógica
 
   // Funciones de filtrado
   const limpiarFiltros = useCallback(() => {

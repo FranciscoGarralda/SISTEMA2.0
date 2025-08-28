@@ -254,7 +254,7 @@ export const useProfitability = (movements = []) => {
     return unsubscribe;
   }, []); // Remover listen de dependencias
 
-  // Emitir eventos cuando cambian los cálculos
+  // Emitir eventos cuando cambian los cálculos - ESTABILIZADO
   useEffect(() => {
     if (currentProfitability.general.totalOperaciones > 0) {
       emit('calc:profitability:updated', {
@@ -265,7 +265,7 @@ export const useProfitability = (movements = []) => {
         selectedPeriod
       });
     }
-  }, [currentProfitability, previousProfitability, periodComparison, dateRange, selectedPeriod]); // Remover emit
+  }, [currentProfitability.general.totalOperaciones]); // Solo depender del número de operaciones
 
   return {
     // Estado
