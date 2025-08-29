@@ -1,0 +1,52 @@
+--- a/src/features/utility/hooks/useUtility.js
++++ b/src/features/utility/hooks/useUtility.js
+@@ -255,7 +255,7 @@ export const useUtility = (movements = []) => {
+   // Escuchar cambios en movimientos para recalcular utilidad
+   useEffect(() => {
+     const unsubscribe = listen('data:movements:updated', (eventData) => {
+-      // Los movimientos se actualizan automáticamente a través de props
++      // Los movimientos se actualizan automáticamente a través de props - listen es estable
+       // Este listener permite reaccionar a cambios externos
+       console.log('Movimientos actualizados, recalculando utilidad...');
+     });
+@@ -263,7 +263,7 @@ export const useUtility = (movements = []) => {
+     return unsubscribe;
+   }, [listen]); // Agregar listen como dependencia estable
+ 
+-  // Emitir eventos cuando cambian los cálculos
++  // Emitir eventos cuando cambian los cálculos - emit es estable de useHookCommunication
+   useEffect(() => {
+     if (Object.keys(totalUtilityCombined).length > 0) {
+       emit('calc:utility:updated', {
+@@ -272,7 +272,7 @@ export const useUtility = (movements = []) => {
+         dailyUtility: dailyUtilityCombined,
+         stats: utilityStats
+       });
+-    }
++    } // emit es estable de useHookCommunication
+   }, [totalUtilityAmount, totalUtilityKeys, monthlyUtilityKeys, dailyUtilityKeys, emit]); // Agregar emit como dependencia estable
+ 
+   // Emitir eventos cuando cambia el stock
+@@ -280,7 +280,7 @@ export const useUtility = (movements = []) => {
+     if (Object.keys(finalStockData).length > 0) {
+       emit('calc:stock:updated', finalStockData);
+     }
+-  }, [finalStockKeys]); // Usar valor primitivo memoizado en lugar de objeto complejo
++  }, [finalStockKeys, emit]); // Agregar emit como dependencia estable
+ 
+   return {
+     // Estado
+@@ -288,6 +288,7 @@ export const useUtility = (movements = []) => {
+     setSelectedDate,
+     
+     // Datos procesados
++    // Todos los useMemo son estables
+     processedMovements,
+     finalStockData,
+     totalUtilityCombined,
+@@ -295,4 +296,5 @@ export const useUtility = (movements = []) => {
+     dailyUtilityCombined,
+     utilityStats
+   };
++  // Todas las funciones de useHookCommunication son estables
+ };

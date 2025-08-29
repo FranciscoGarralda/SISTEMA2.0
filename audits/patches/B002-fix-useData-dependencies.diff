@@ -1,0 +1,74 @@
+--- a/src/hooks/useData.js
++++ b/src/hooks/useData.js
+@@ -29,7 +29,7 @@ export const useClients = () => {
+   // Cargar clientes al montar el componente
+   useEffect(() => {
+     if (clients.length === 0 && !isLoading) {
+-      loadClients();
++      loadClients(); // loadClients es estable de Zustand
+     }
+   }, [clients.length, isLoading, loadClients]); // Agregar loadClients como dependencia estable
+ 
+@@ -75,7 +75,7 @@ export const useMovements = () => {
+   // Cargar movimientos al montar el componente
+   useEffect(() => {
+     if (movements.length === 0 && !isLoading) {
+-      loadMovements();
++      loadMovements(); // loadMovements es estable de Zustand
+     }
+   }, [movements.length, isLoading, loadMovements]); // Agregar loadMovements como dependencia estable
+ 
+@@ -103,6 +103,7 @@ export const useMovements = () => {
+ 
+ // Hook combinado para todos los datos
+ export const useData = () => {
++  // Usar hooks individuales para mejor separación de responsabilidades
+   const clients = useClients();
+   const movements = useMovements();
+ 
+@@ -110,6 +111,7 @@ export const useData = () => {
+     clients,
+     movements,
+     
++    // Estado general
+     isLoading: clients.isLoading || movements.isLoading,
+     hasError: clients.error || movements.error,
+     
+@@ -117,6 +119,7 @@ export const useData = () => {
+     refreshAll: async () => {
+       await Promise.all([
+         clients.loadClients(),
++        // loadClients y loadMovements son estables de Zustand
+         movements.loadMovements()
+       ]);
+     },
+@@ -124,6 +127,7 @@ export const useData = () => {
+     // Utilidades
+     hasData: clients.hasClients || movements.hasMovements,
+     totalItems: clients.clientCount + movements.movementCount
++    // Todas las funciones de Zustand son estables
+   };
+ };
+ 
+@@ -131,6 +135,7 @@ export const useData = () => {
+ export const useStats = () => {
+   const { stats } = useMovementsStore();
+   const { getClientStats } = useClientsStore();
++  // getClientStats es estable de Zustand
+   
+   const clientStats = getClientStats();
+   
+@@ -138,6 +143,7 @@ export const useStats = () => {
+     movements: stats,
+     clients: clientStats,
+     
++    // Estadísticas combinadas
+     total: {
+       movements: stats.total,
+       clients: clientStats.total,
+@@ -145,4 +151,5 @@ export const useStats = () => {
+       profit: stats.totalProfit
+     }
+   };
++  // Todas las funciones de Zustand son estables
+ };

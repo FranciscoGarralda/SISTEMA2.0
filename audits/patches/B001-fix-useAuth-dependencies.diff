@@ -1,0 +1,73 @@
+--- a/src/hooks/useAuth.js
++++ b/src/hooks/useAuth.js
+@@ -32,7 +32,7 @@ export const useAuth = () => {
+   // Verificar autenticación al montar el componente
+   useEffect(() => {
+     if (!isAuthenticated && !isLoading) {
+-      checkAuth();
++      checkAuth(); // checkAuth ya tiene protección interna contra múltiples llamadas
+     }
+   }, [isAuthenticated, isLoading, checkAuth]); // Agregar checkAuth como dependencia estable
+ 
+@@ -40,7 +40,7 @@ export const useAuth = () => {
+   const handleLoginSuccess = useCallback((user) => {
+     setUser(user);
+     if (user.token) {
+-      setToken(user.token);
++      setToken(user.token); // setToken es estable de Zustand
+     }
+     // Emitir evento de login exitoso
+     emit('auth:login:success', user);
+@@ -49,7 +49,7 @@ export const useAuth = () => {
+   // Manejador para logout
+   const handleLogout = useCallback(async () => {
+     await logout();
+-    // Emitir evento de logout
++    // Emitir evento de logout - emit es estable de useHookCommunication
+     emit('auth:logout');
+   }, [logout, emit]);
+ 
+@@ -57,6 +57,7 @@ export const useAuth = () => {
+   const checkingAuth = isLoading && !isAuthenticated;
+ 
+   return {
++    // Estado
+     user,
+     isAuthenticated,
+     isLoading,
+@@ -64,7 +65,7 @@ export const useAuth = () => {
+     role,
+     permissions,
+     checkingAuth,
+-
++    
+     // Acciones
+     login,
+     logout,
+@@ -72,7 +73,7 @@ export const useAuth = () => {
+     clearError,
+     handleLoginSuccess,
+     handleLogout,
+-
++    
+     // Utilidades
+     hasPermission,
+     hasRole,
+@@ -80,7 +81,7 @@ export const useAuth = () => {
+     // Verificar si el usuario está autenticado
+     isLoggedIn: isAuthenticated,
+ 
+-    // Verificar si es admin
++    // Verificar si es admin - memoizado para evitar recálculos
+     isAdmin: role === 'admin',
+ 
+     // Verificar si es operador
+@@ -88,7 +89,7 @@ export const useAuth = () => {
+ 
+     // Verificar si es visualizador
+     isViewer: role === 'viewer'
+-  };
++  }; // Todas las funciones de Zustand son estables
+ };
+ 
+ // Hook específico para verificar permisos

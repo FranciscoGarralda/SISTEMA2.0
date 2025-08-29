@@ -75,27 +75,31 @@ export const useFinancialOperations = ({
   // Navegación por teclado deshabilitada temporalmente
   const createElementRef = () => undefined;
 
-  // Agregar manejador global de teclado para el formulario
-  useEffect(() => {
-    // Función para actualizar tabIndex en elementos dinámicos
-    const updateTabIndexes = () => {
-      const formElement = document.getElementById('financial-operations-form');
-      if (!formElement) return;
-      
-      // Asegurar que todos los botones de sub-operaciones tengan tabIndex
-      const subOperationButtons = formElement.querySelectorAll('.grid button:not([tabindex])');
-      subOperationButtons.forEach(button => {
-        button.setAttribute('tabindex', '0');
-      });
-    };
+  // Función para actualizar tabIndex en elementos dinámicos
+  const updateTabIndexes = useCallback(() => {
+    const formElement = document.getElementById('financial-operations-form');
+    if (!formElement) return;
     
-    // Observer para detectar cambios en el DOM
+    // Asegurar que todos los botones de sub-operaciones tengan tabIndex
+    const subOperationButtons = formElement.querySelectorAll('.grid button:not([tabindex])');
+    subOperationButtons.forEach(button => {
+      button.setAttribute('tabindex', '0');
+    });
+  }, []);
+
+  // Configurar MutationObserver para detectar cambios en el DOM
+  useEffect(() => {
     const observer = new MutationObserver(updateTabIndexes);
     const formElement = document.getElementById('financial-operations-form');
     if (formElement) {
       observer.observe(formElement, { childList: true, subtree: true });
     }
     
+    return () => observer.disconnect();
+  }, [updateTabIndexes]);
+
+  // Configurar manejador de navegación por teclado
+  useEffect(() => {
     const handleKeyDown = (e) => {
       // Solo procesar si estamos dentro del formulario
       const formElement = document.getElementById('financial-operations-form');
@@ -186,9 +190,8 @@ export const useFinancialOperations = ({
     
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
-      observer.disconnect();
     };
-  }, []);
+  }, [handleCancel, handleSubmit]);
 
   // Manejadores de eventos del formulario
   const handleFieldChange = useCallback((field, value) => {

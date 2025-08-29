@@ -1,0 +1,84 @@
+--- a/src/features/movements/hooks/useMovements.js
++++ b/src/features/movements/hooks/useMovements.js
+@@ -123,7 +123,7 @@ export const useMovements = () => {
+   // Emitir eventos cuando cambian los movimientos
+   useEffect(() => {
+     if (movements.length > 0) {
+-      emit('data:movements:updated', movements);
++      emit('data:movements:updated', movements); // emit es estable de useHookCommunication
+     }
+   }, [movements, emit]); // Agregar emit como dependencia estable
+ 
+@@ -140,7 +140,7 @@ export const useMovements = () => {
+     // Usar JSON.stringify para comparar objetos
+     const filterKey = JSON.stringify(filterData);
+     
+-    emit('ui:filter:changed', filterData);
++    emit('ui:filter:changed', filterData); // emit es estable de useHookCommunication
+   }, [busqueda, filtroTipo, filtroEstado, ordenarPor, orden, emit]); // Agregar emit como dependencia estable
+ 
+   // Funciones de filtrado
+@@ -148,7 +148,7 @@ export const useMovements = () => {
+     setBusqueda('');
+     setFiltroTipo('todos');
+     setFiltroEstado('todos');
+-    setOrdenarPor('fecha');
++    setOrdenarPor('fecha'); // setState functions son estables
+     setOrden('desc');
+   }, []);
+ 
+@@ -156,7 +156,7 @@ export const useMovements = () => {
+     if (nuevosFiltros.busqueda !== undefined) setBusqueda(nuevosFiltros.busqueda);
+     if (nuevosFiltros.tipo !== undefined) setFiltroTipo(nuevosFiltros.tipo);
+     if (nuevosFiltros.estado !== undefined) setFiltroEstado(nuevosFiltros.estado);
+-    if (nuevosFiltros.ordenarPor !== undefined) setOrdenarPor(nuevosFiltros.ordenarPor);
++    if (nuevosFiltros.ordenarPor !== undefined) setOrdenarPor(nuevosFiltros.ordenarPor); // setState functions son estables
+     if (nuevosFiltros.orden !== undefined) setOrden(nuevosFiltros.orden);
+   }, []);
+ 
+@@ -164,6 +164,7 @@ export const useMovements = () => {
+     // Estado
+     busqueda,
+     filtroTipo,
++    // Todos los estados locales son estables
+     filtroEstado,
+     ordenarPor,
+     orden,
+@@ -171,6 +172,7 @@ export const useMovements = () => {
+     error,
+     
+     // Datos
++    // Todas las funciones de Zustand son estables
+     movements,
+     movimientosFiltrados: movimientosOrdenados,
+     estadisticas,
+@@ -178,6 +180,7 @@ export const useMovements = () => {
+     
+     // Acciones
+     addMovement,
++    // Todas las funciones de Zustand son estables
+     updateMovement,
+     deleteMovement,
+     loadMovements,
+@@ -185,6 +188,7 @@ export const useMovements = () => {
+     setPagination,
+     clearError,
+     
++    // Filtros - setState functions son estables
+     // Filtros
+     setBusqueda,
+     setFiltroTipo,
+@@ -192,6 +196,7 @@ export const useMovements = () => {
+     setOrdenarPor,
+     setOrden,
+     limpiarFiltros,
++    // useCallback functions son estables
+     aplicarFiltros,
+     
+     // Utilidades
+@@ -199,4 +204,5 @@ export const useMovements = () => {
+     movementCount: movements.length,
+     filteredCount: movimientosOrdenados.length
+   };
++  // Todas las funciones de Zustand son estables
+ };

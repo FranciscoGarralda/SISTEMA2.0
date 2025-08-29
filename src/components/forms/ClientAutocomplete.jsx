@@ -79,7 +79,7 @@ const ClientAutocomplete = forwardRef(({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleInputChange = (e) => {
+  const handleInputChange = useCallback((e) => {
     const newValue = e.target.value;
     setInputValue(newValue);
     setIsOpen(true);
@@ -89,7 +89,7 @@ const ClientAutocomplete = forwardRef(({
     if (!newValue.trim()) {
       onChange('');
     }
-  };
+  }, [onChange]);
 
   const handleClientSelect = useCallback((client) => {
     const clientValue = client.id || client.nombre;

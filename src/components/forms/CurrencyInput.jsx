@@ -33,7 +33,7 @@ const CurrencyInput = forwardRef(({
   }, [value, currency]);
 
   // Handle input change with real-time formatting
-  const handleChange = (e) => {
+  const handleChange = useCallback((e) => {
     let inputValue = e.target.value;
     
     // Sanitizar entrada
@@ -68,7 +68,7 @@ const CurrencyInput = forwardRef(({
       setDisplayValue(formatted);
       onChange(raw);
     }
-  };
+  }, [isFocused, currency, onChange]);
   
   // Función para sanitizar entrada de usuario
   const sanitizeInput = (value) => {
@@ -77,16 +77,16 @@ const CurrencyInput = forwardRef(({
   };
 
   // Handle focus
-  const handleFocus = (e) => {
+  const handleFocus = useCallback((e) => {
     setIsFocused(true);
     // When focused, show raw value for easier editing (only if not readOnly)
     if (value && !readOnly) {
       setDisplayValue(value);
     }
-  };
+  }, [value, readOnly]);
 
   // Handle blur
-  const handleBlur = (e) => {
+  const handleBlur = useCallback((e) => {
     setIsFocused(false);
     // When blurred, show formatted value (only if not readOnly)
     if (value && value !== '' && !readOnly) {
@@ -95,7 +95,7 @@ const CurrencyInput = forwardRef(({
       // IMPORTANTE: Asegurar que el valor sin formato se mantenga
       onChange(raw);
     }
-  };
+  }, [value, readOnly, currency, onChange]);
 
   // Input classes
   const inputClasses = [

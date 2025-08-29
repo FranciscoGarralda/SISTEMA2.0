@@ -85,7 +85,7 @@ export const useMovements = () => {
     if (movements.length === 0 && !isLoading) {
       loadMovements();
     }
-  }, [movements.length, isLoading, loadMovements]);
+  }, [movements.length, isLoading]); // Removido loadMovements de las dependencias porque las 'actions' de Zustand son estables y no necesitan ser dependencias
 
   return {
     // Estado

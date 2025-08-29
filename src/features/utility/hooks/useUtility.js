@@ -226,6 +226,32 @@ export const useUtility = (movements = []) => {
     return stats;
   }, [processedMovements, totalUtilityCombined, finalStockData]);
 
+  // Valores primitivos memoizados para dependencias estables
+  const totalUtilityAmount = useMemo(() => 
+    Object.values(totalUtilityCombined).reduce((sum, value) => sum + value, 0), 
+    [totalUtilityCombined]
+  );
+  
+  const totalUtilityKeys = useMemo(() => 
+    Object.keys(totalUtilityCombined).join(','), 
+    [totalUtilityCombined]
+  );
+  
+  const monthlyUtilityKeys = useMemo(() => 
+    monthlyUtilityCombined.length.toString(), 
+    [monthlyUtilityCombined]
+  );
+  
+  const dailyUtilityKeys = useMemo(() => 
+    dailyUtilityCombined.length.toString(), 
+    [dailyUtilityCombined]
+  );
+  
+  const finalStockKeys = useMemo(() => 
+    Object.keys(finalStockData).join(','), 
+    [finalStockData]
+  );
+
   // Escuchar cambios en movimientos para recalcular utilidad
   useEffect(() => {
     const unsubscribe = listen('data:movements:updated', (eventData) => {
@@ -247,14 +273,14 @@ export const useUtility = (movements = []) => {
         stats: utilityStats
       });
     }
-  }, [totalUtilityCombined, monthlyUtilityCombined, dailyUtilityCombined, utilityStats]); // Remover emit
+  }, [totalUtilityAmount, totalUtilityKeys, monthlyUtilityKeys, dailyUtilityKeys]); // Usar valores primitivos memoizados en lugar de objetos complejos
 
   // Emitir eventos cuando cambia el stock
   useEffect(() => {
     if (Object.keys(finalStockData).length > 0) {
       emit('calc:stock:updated', finalStockData);
     }
-  }, [finalStockData]); // Remover emit
+  }, [finalStockKeys]); // Usar valor primitivo memoizado en lugar de objeto complejo
 
   return {
     // Estado

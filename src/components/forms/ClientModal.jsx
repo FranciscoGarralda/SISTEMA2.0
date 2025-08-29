@@ -101,7 +101,7 @@ const ClientModal = ({
     };
   }, [isOpen, onClose]);
 
-  const handleInputChange = (field, value) => {
+  const handleInputChange = useCallback((field, value) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -114,9 +114,9 @@ const ClientModal = ({
         [field]: ''
       }));
     }
-  };
+  }, [errors]);
 
-  const validateForm = () => {
+  const validateForm = useCallback(() => {
     const newErrors = {};
 
     if (!formData.nombre.trim()) {
@@ -133,9 +133,9 @@ const ClientModal = ({
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  };
+  }, [formData.nombre, formData.telefono, formData.tipo]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
     e.stopPropagation(); // Prevenir propagación del evento
     
@@ -215,13 +215,13 @@ const ClientModal = ({
     }
     
     return false; // Prevenir envío del formulario
-  };
+  }, [validateForm, formData, onClientCreated, onClose]);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     if (!isLoading) {
       onClose();
     }
-  };
+  }, [isLoading, onClose]);
 
   if (!isOpen) return null;
 
