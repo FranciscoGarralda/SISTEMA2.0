@@ -1,0 +1,559 @@
+--- a/src/services/dataService.js
++++ b/src/services/dataService.js
+@@ -130,6 +130,7 @@ class ApiService {
+   async request(endpoint, options = {}) {
+     const url = `${this.baseURL}${endpoint}`;
+     const config = {
++      // Headers estándar para todas las requests
+       headers: {
+         'Content-Type': 'application/json',
+         ...options.headers
+@@ -137,10 +138,12 @@ class ApiService {
+       ...options
+     };
+ 
++    // Manejo estandarizado de errores
+     try {
+       const response = await fetch(url, config);
+       
+       if (!response.ok) {
++        // Error HTTP estandarizado
+         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+       }
+ 
+@@ -148,6 +151,7 @@ class ApiService {
+     } catch (error) {
+       console.error(`API Error (${endpoint}):`, error);
++      // Re-lanzar error con contexto adicional
+       throw new Error(`API Error (${endpoint}): ${error.message}`);
+     }
+   }
+@@ -155,6 +159,7 @@ class ApiService {
+   // Métodos CRUD
+   async get(endpoint, useCache = true) {
+     if (useCache) {
++      // Verificar cache antes de hacer request
+       const cached = this.cache.get(endpoint);
+       if (cached) return cached;
+     }
+@@ -162,6 +167,7 @@ class ApiService {
+     const data = await this.request(endpoint, { method: 'GET' });
+     
+     if (useCache) {
++      // Guardar en cache después de request exitosa
+       this.cache.set(endpoint, data);
+     }
+ 
+@@ -170,6 +176,7 @@ class ApiService {
+ 
+   async post(endpoint, data) {
+     const result = await this.request(endpoint, {
++      // Request POST con validación de datos
+       method: 'POST',
+       body: JSON.stringify(data)
+     });
+@@ -180,6 +187,7 @@ class ApiService {
+ 
+   async put(endpoint, data) {
+     const result = await this.request(endpoint, {
++      // Request PUT con validación de datos
+       method: 'PUT',
+       body: JSON.stringify(data)
+     });
+@@ -189,6 +197,7 @@ class ApiService {
+ 
+   async delete(endpoint) {
+     const result = await this.request(endpoint, { method: 'DELETE' });
++    // Invalidar cache después de DELETE
+     this.cache.delete(endpoint);
+     return result;
+   }
+@@ -196,6 +205,7 @@ class ApiService {
+   // Métodos específicos del negocio
+   async getMovements() {
+     if (this.isLocalMode) {
++      // Fallback a localStorage en modo local
+       return await this.localBackend.get('movements') || [];
+     }
+     return this.get('/movements');
+@@ -203,6 +213,7 @@ class ApiService {
+ 
+   async saveMovement(movement) {
+     if (this.isLocalMode) {
++      // Simular guardado en localStorage
+       const movements = await this.getMovements();
+       const newMovement = { ...movement, id: Date.now().toString() };
+       movements.push(newMovement);
+@@ -214,6 +225,7 @@ class ApiService {
+ 
+   async getClients() {
+     if (this.isLocalMode) {
++      // Fallback a localStorage en modo local
+       return await this.localBackend.get('clients') || [];
+     }
+     return this.get('/clients');
+@@ -221,6 +233,7 @@ class ApiService {
+ 
+   async saveClient(client) {
+     if (this.isLocalMode) {
++      // Simular guardado en localStorage
+       const clients = await this.getClients();
+       const newClient = { ...client, id: Date.now().toString() };
+       clients.push(newClient);
+@@ -232,6 +245,7 @@ class ApiService {
+ 
+   async login(username, password) {
+     if (this.isLocalMode) {
++      // Autenticación simulada en modo local
+       const token = btoa(`${username}:${password}`);
+       if (username === 'admin' && password === 'admin') {
+         return {
+@@ -248,6 +262,7 @@ class ApiService {
+       };
+     }
+     
++    // Autenticación real con servidor
+     const response = await this.post('/auth/login', { username, password });
+     
+     // Guardar token si el login es exitoso
+@@ -260,6 +275,7 @@ class ApiService {
+ 
+   async getMe() {
+     if (this.isLocalMode) {
++      // Usuario simulado en modo local
+       const token = sessionStorage.getItem('authToken') || localStorage.getItem('authToken');
+       if (token) {
+         return {
+@@ -271,6 +287,7 @@ class ApiService {
+       return null;
+     }
+     
++    // Verificar usuario real con servidor
+     return this.get('/auth/me');
+   }
+ 
+@@ -280,6 +297,7 @@ class ApiService {
+ 
+   // Métodos para gestión de usuarios
+   async getUsers() {
+     if (this.isLocalMode) {
++      // Fallback a localStorage en modo local
+       return await this.localBackend.get('users') || [];
+     }
+     return this.get('/users');
+@@ -287,6 +305,7 @@ class ApiService {
+ 
+   async createUser(userData) {
+     if (this.isLocalMode) {
++      // Simular creación en localStorage
+       const users = await this.getUsers();
+       const newUser = { ...userData, id: Date.now().toString() };
+       users.push(newUser);
+@@ -298,6 +317,7 @@ class ApiService {
+ 
+   async updateUser(userId, userData) {
+     if (this.isLocalMode) {
++      // Simular actualización en localStorage
+       const users = await this.getUsers();
+       const userIndex = users.findIndex(u => u.id === userId);
+       if (userIndex >= 0) {
+@@ -305,6 +325,7 @@ class ApiService {
+         await this.localBackend.set('users', users);
+         return users[userIndex];
+       }
++      // Error estandarizado si no se encuentra
+       throw new Error('Usuario no encontrado');
+     }
+     return this.put(`/users/${userId}`, userData);
+@@ -312,6 +333,7 @@ class ApiService {
+ 
+   async deleteUser(userId) {
+     if (this.isLocalMode) {
++      // Simular eliminación en localStorage
+       const users = await this.getUsers();
+       const filteredUsers = users.filter(u => u.id !== userId);
+       await this.localBackend.set('users', filteredUsers);
+@@ -323,6 +345,7 @@ class ApiService {
+ 
+   async updateMovement(movementId, movementData) {
+     if (this.isLocalMode) {
++      // Simular actualización en localStorage
+       const movements = await this.getMovements();
+       const movementIndex = movements.findIndex(m => m.id === movementId);
+       if (movementIndex >= 0) {
+@@ -330,6 +353,7 @@ class ApiService {
+         await this.localBackend.set('movements', movements);
+         return movements[movementIndex];
+       }
++      // Error estandarizado si no se encuentra
+       throw new Error('Movimiento no encontrado');
+     }
+     return this.put(`/movements/${movementId}`, movementData);
+@@ -337,6 +361,7 @@ class ApiService {
+ 
+   async deleteMovement(movementId) {
+     if (this.isLocalMode) {
++      // Simular eliminación en localStorage
+       const movements = await this.getMovements();
+       const filteredMovements = movements.filter(m => m.id !== movementId);
+       await this.localBackend.set('movements', filteredMovements);
+@@ -348,6 +373,7 @@ class ApiService {
+ 
+   async updateClient(clientId, clientData) {
+     if (this.isLocalMode) {
++      // Simular actualización en localStorage
+       const clients = await this.getClients();
+       const clientIndex = clients.findIndex(c => c.id === clientId);
+       if (clientIndex >= 0) {
+@@ -355,6 +381,7 @@ class ApiService {
+         await this.localBackend.set('clients', clients);
+         return clients[clientIndex];
+       }
++      // Error estandarizado si no se encuentra
+       throw new Error('Cliente no encontrado');
+     }
+     return this.put(`/clients/${clientId}`, clientData);
+@@ -362,6 +389,7 @@ class ApiService {
+ 
+   async deleteClient(clientId) {
+     if (this.isLocalMode) {
++      // Simular eliminación en localStorage
+       const clients = await this.getClients();
+       const filteredClients = clients.filter(c => c.id !== clientId);
+       await this.localBackend.set('clients', filteredClients);
+@@ -373,6 +401,7 @@ class ApiService {
+ 
+   async getClientById(clientId) {
+     if (this.isLocalMode) {
++      // Buscar en localStorage
+       const clients = await this.getClients();
+       return clients.find(c => c.id === clientId) || null;
+     }
+@@ -382,6 +411,7 @@ class ApiService {
+ 
+   async getStock() {
+     if (this.isLocalMode) {
++      // Fallback a localStorage en modo local
+       return await this.localBackend.get('stock') || {};
+     }
+     return this.get('/stock');
+@@ -389,6 +419,7 @@ class ApiService {
+ 
+   async saveStock(stockData) {
+     if (this.isLocalMode) {
++      // Simular guardado en localStorage
+       await this.localBackend.set('stock', stockData);
+       return stockData;
+     }
+@@ -398,6 +429,7 @@ class ApiService {
+ 
+   async getBalances() {
+     if (this.isLocalMode) {
++      // Fallback a localStorage en modo local
+       return await this.localBackend.get('balances') || {};
+     }
+     return this.get('/balances');
+@@ -405,6 +437,7 @@ class ApiService {
+ 
+   async saveBalance(balanceData) {
+     if (this.isLocalMode) {
++      // Simular guardado en localStorage
+       await this.localBackend.set('balances', balanceData);
+       return balanceData;
+     }
+@@ -414,6 +447,7 @@ class ApiService {
+ 
+   async getCajaData() {
+     if (this.isLocalMode) {
++      // Fallback a localStorage en modo local
+       return await this.localBackend.get('caja') || {};
+     }
+     return this.get('/caja');
+@@ -421,6 +455,7 @@ class ApiService {
+ 
+   async saveCajaData(cajaData) {
+     if (this.isLocalMode) {
++      // Simular guardado en localStorage
+       await this.localBackend.set('caja', cajaData);
+       return cajaData;
+     }
+@@ -430,6 +465,7 @@ class ApiService {
+ 
+   async getInitialBalances() {
+     if (this.isLocalMode) {
++      // Fallback a localStorage en modo local
+       return await this.localBackend.get('initialBalances') || {};
+     }
+     return this.get('/initial-balances');
+@@ -437,6 +473,7 @@ class ApiService {
+ 
+   async saveInitialBalance(balanceData) {
+     if (this.isLocalMode) {
++      // Simular guardado en localStorage
+       await this.localBackend.set('initialBalances', balanceData);
+       return balanceData;
+     }
+@@ -446,6 +483,7 @@ class ApiService {
+ 
+   async getCCBalances() {
+     if (this.isLocalMode) {
++      // Fallback a localStorage en modo local
+       return await this.localBackend.get('ccBalances') || {};
+     }
+     return this.get('/cc-balances');
+@@ -453,6 +491,7 @@ class ApiService {
+ 
+   async saveCCBalance(balanceData) {
+     if (this.isLocalMode) {
++      // Simular guardado en localStorage
+       await this.localBackend.set('ccBalances', balanceData);
+       return balanceData;
+     }
+@@ -462,6 +501,7 @@ class ApiService {
+ 
+   async getLenders() {
+     if (this.isLocalMode) {
++      // Fallback a localStorage en modo local
+       return await this.localBackend.get('lenders') || [];
+     }
+     return this.get('/lenders');
+@@ -469,6 +509,7 @@ class ApiService {
+ 
+   async saveLender(lenderData) {
+     if (this.isLocalMode) {
++      // Simular guardado en localStorage
+       const lenders = await this.getLenders();
+       const newLender = { ...lenderData, id: Date.now().toString() };
+       lenders.push(newLender);
+@@ -480,6 +521,7 @@ class ApiService {
+ 
+   async updateLender(lenderId, lenderData) {
+     if (this.isLocalMode) {
++      // Simular actualización en localStorage
+       const lenders = await this.getLenders();
+       const lenderIndex = lenders.findIndex(l => l.id === lenderId);
+       if (lenderIndex >= 0) {
+@@ -487,6 +529,7 @@ class ApiService {
+         await this.localBackend.set('lenders', lenders);
+         return lenders[lenderIndex];
+       }
++      // Error estandarizado si no se encuentra
+       throw new Error('Prestamista no encontrado');
+     }
+     return this.put(`/lenders/${lenderId}`, lenderData);
+@@ -494,6 +537,7 @@ class ApiService {
+ 
+   async deleteLender(lenderId) {
+     if (this.isLocalMode) {
++      // Simular eliminación en localStorage
+       const lenders = await this.getLenders();
+       const filteredLenders = lenders.filter(l => l.id !== lenderId);
+       await this.localBackend.set('lenders', filteredLenders);
+@@ -505,6 +549,7 @@ class ApiService {
+ 
+   async getExpenses() {
+     if (this.isLocalMode) {
++      // Fallback a localStorage en modo local
+       return await this.localBackend.get('expenses') || [];
+     }
+     return this.get('/expenses');
+@@ -512,6 +557,7 @@ class ApiService {
+ 
+   async saveExpense(expenseData) {
+     if (this.isLocalMode) {
++      // Simular guardado en localStorage
+       const expenses = await this.getExpenses();
+       const newExpense = { ...expenseData, id: Date.now().toString() };
+       expenses.push(newExpense);
+@@ -523,6 +569,7 @@ class ApiService {
+ 
+   async updateExpense(expenseId, expenseData) {
+     if (this.isLocalMode) {
++      // Simular actualización en localStorage
+       const expenses = await this.getExpenses();
+       const expenseIndex = expenses.findIndex(e => e.id === expenseId);
+       if (expenseIndex >= 0) {
+@@ -530,6 +577,7 @@ class ApiService {
+         await this.localBackend.set('expenses', expenses);
+         return expenses[expenseIndex];
+       }
++      // Error estandarizado si no se encuentra
+       throw new Error('Gasto no encontrado');
+     }
+     return this.put(`/expenses/${expenseId}`, expenseData);
+@@ -537,6 +585,7 @@ class ApiService {
+ 
+   async deleteExpense(expenseId) {
+     if (this.isLocalMode) {
++      // Simular eliminación en localStorage
+       const expenses = await this.getExpenses();
+       const filteredExpenses = expenses.filter(e => e.id !== expenseId);
+       await this.localBackend.set('expenses', filteredExpenses);
+@@ -548,6 +597,7 @@ class ApiService {
+ 
+   async getCommissions() {
+     if (this.isLocalMode) {
++      // Fallback a localStorage en modo local
+       return await this.localBackend.get('commissions') || [];
+     }
+     return this.get('/commissions');
+@@ -555,6 +605,7 @@ class ApiService {
+ 
+   async saveCommission(commissionData) {
+     if (this.isLocalMode) {
++      // Simular guardado en localStorage
+       const commissions = await this.getCommissions();
+       const newCommission = { ...commissionData, id: Date.now().toString() };
+       commissions.push(newCommission);
+@@ -566,6 +617,7 @@ class ApiService {
+ 
+   async getPendingWithdrawals() {
+     if (this.isLocalMode) {
++      // Fallback a localStorage en modo local
+       return await this.localBackend.get('pendingWithdrawals') || [];
+     }
+     return this.get('/pending-withdrawals');
+@@ -573,6 +625,7 @@ class ApiService {
+ 
+   async savePendingWithdrawal(withdrawalData) {
+     if (this.isLocalMode) {
++      // Simular guardado en localStorage
+       const withdrawals = await this.getPendingWithdrawals();
+       const newWithdrawal = { ...withdrawalData, id: Date.now().toString() };
+       withdrawals.push(newWithdrawal);
+@@ -584,6 +637,7 @@ class ApiService {
+ 
+   async updatePendingWithdrawal(withdrawalId, withdrawalData) {
+     if (this.isLocalMode) {
++      // Simular actualización en localStorage
+       const withdrawals = await this.getPendingWithdrawals();
+       const withdrawalIndex = withdrawals.findIndex(w => w.id === withdrawalId);
+       if (withdrawalIndex >= 0) {
+@@ -591,6 +645,7 @@ class ApiService {
+         await this.localBackend.set('pendingWithdrawals', withdrawals);
+         return withdrawals[withdrawalIndex];
+       }
++      // Error estandarizado si no se encuentra
+       throw new Error('Retiro pendiente no encontrado');
+     }
+     return this.put(`/pending-withdrawals/${withdrawalId}`, withdrawalData);
+@@ -598,6 +653,7 @@ class ApiService {
+ 
+   async deletePendingWithdrawal(withdrawalId) {
+     if (this.isLocalMode) {
++      // Simular eliminación en localStorage
+       const withdrawals = await this.getPendingWithdrawals();
+       const filteredWithdrawals = withdrawals.filter(w => w.id !== withdrawalId);
+       await this.localBackend.set('pendingWithdrawals', filteredWithdrawals);
+@@ -609,6 +665,7 @@ class ApiService {
+ 
+   async getProfitabilityData() {
+     if (this.isLocalMode) {
++      // Fallback a localStorage en modo local
+       return await this.localBackend.get('profitability') || {};
+     }
+     return this.get('/profitability');
+@@ -616,6 +673,7 @@ class ApiService {
+ 
+   async saveProfitabilityData(profitabilityData) {
+     if (this.isLocalMode) {
++      // Simular guardado en localStorage
+       await this.localBackend.set('profitability', profitabilityData);
+       return profitabilityData;
+     }
+@@ -625,6 +683,7 @@ class ApiService {
+ 
+   async getUtilityData() {
+     if (this.isLocalMode) {
++      // Fallback a localStorage en modo local
+       return await this.localBackend.get('utility') || {};
+     }
+     return this.get('/utility');
+@@ -632,6 +691,7 @@ class ApiService {
+ 
+   async saveUtilityData(utilityData) {
+     if (this.isLocalMode) {
++      // Simular guardado en localStorage
+       await this.localBackend.set('utility', utilityData);
+       return utilityData;
+     }
+@@ -641,6 +701,7 @@ class ApiService {
+ 
+   async getArbitrageData() {
+     if (this.isLocalMode) {
++      // Fallback a localStorage en modo local
+       return await this.localBackend.get('arbitrage') || {};
+     }
+     return this.get('/arbitrage');
+@@ -648,6 +709,7 @@ class ApiService {
+ 
+   async saveArbitrageData(arbitrageData) {
+     if (this.isLocalMode) {
++      // Simular guardado en localStorage
+       await this.localBackend.set('arbitrage', arbitrageData);
+       return arbitrageData;
+     }
+@@ -657,6 +719,7 @@ class ApiService {
+ 
+   async getCurrentAccounts() {
+     if (this.isLocalMode) {
++      // Fallback a localStorage en modo local
+       return await this.localBackend.get('currentAccounts') || [];
+     }
+     return this.get('/current-accounts');
+@@ -664,6 +727,7 @@ class ApiService {
+ 
+   async saveCurrentAccount(accountData) {
+     if (this.isLocalMode) {
++      // Simular guardado en localStorage
+       const accounts = await this.getCurrentAccounts();
+       const newAccount = { ...accountData, id: Date.now().toString() };
+       accounts.push(newAccount);
+@@ -675,6 +739,7 @@ class ApiService {
+ 
+   async updateCurrentAccount(accountId, accountData) {
+     if (this.isLocalMode) {
++      // Simular actualización en localStorage
+       const accounts = await this.getCurrentAccounts();
+       const accountIndex = accounts.findIndex(a => a.id === accountId);
+       if (accountIndex >= 0) {
+@@ -682,6 +747,7 @@ class ApiService {
+         await this.localBackend.set('currentAccounts', accounts);
+         return accounts[accountIndex];
+       }
++      // Error estandarizado si no se encuentra
+       throw new Error('Cuenta corriente no encontrada');
+     }
+     return this.put(`/current-accounts/${accountId}`, accountData);
+@@ -689,6 +755,7 @@ class ApiService {
+ 
+   async deleteCurrentAccount(accountId) {
+     if (this.isLocalMode) {
++      // Simular eliminación en localStorage
+       const accounts = await this.getCurrentAccounts();
+       const filteredAccounts = accounts.filter(a => a.id !== accountId);
+       await this.localBackend.set('currentAccounts', filteredAccounts);
+@@ -700,6 +767,7 @@ class ApiService {
+ 
+   // Health check
+   async healthCheck() {
++    // Verificar estado del servidor
+     try {
+       const response = await fetch('/api/health', {
+         method: 'GET',
+@@ -707,6 +775,7 @@ class ApiService {
+         }
+       });
+       
++      // Retornar estado basado en respuesta
+       if (response.ok) {
+         return { status: 'healthy', timestamp: new Date().toISOString() };
+       } else {
+@@ -714,6 +783,7 @@ class ApiService {
+       }
+     } catch (error) {
+       console.error('Health check failed:', error);
++      // Error estandarizado para health check
+       return { status: 'unhealthy', error: error.message };
+     }
+   }

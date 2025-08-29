@@ -1,0 +1,410 @@
+--- a/src/services/dataService.js
++++ b/src/services/dataService.js
+@@ -200,6 +200,7 @@ class ApiService {
+   // Métodos específicos del negocio
+   async getMovements() {
+     if (this.isLocalMode) {
++      // Validar contrato de respuesta
+       const movements = await this.localBackend.get('movements') || [];
+       return Array.isArray(movements) ? movements : [];
+     }
+@@ -208,6 +209,7 @@ class ApiService {
+ 
+   async saveMovement(movement) {
+     if (this.isLocalMode) {
++      // Validar contrato de entrada
+       if (!movement || typeof movement !== 'object') {
+         throw new Error('Datos de movimiento inválidos');
+       }
+@@ -218,6 +220,7 @@ class ApiService {
+ 
+   async getClients() {
+     if (this.isLocalMode) {
++      // Validar contrato de respuesta
+       const clients = await this.localBackend.get('clients') || [];
+       return Array.isArray(clients) ? clients : [];
+     }
+@@ -226,6 +229,7 @@ class ApiService {
+ 
+   async saveClient(client) {
+     if (this.isLocalMode) {
++      // Validar contrato de entrada
+       if (!client || typeof client !== 'object') {
+         throw new Error('Datos de cliente inválidos');
+       }
+@@ -236,6 +240,7 @@ class ApiService {
+ 
+   async login(username, password) {
+     if (this.isLocalMode) {
++      // Validar contrato de entrada
+       if (!username || !password) {
+         throw new Error('Usuario y contraseña son requeridos');
+       }
+@@ -262,6 +267,7 @@ class ApiService {
+     }
+     
+     // Autenticación real con servidor
++    // Validar contrato de entrada
+     if (!username || !password) {
+       throw new Error('Usuario y contraseña son requeridos');
+     }
+@@ -275,6 +281,7 @@ class ApiService {
+ 
+   async getMe() {
+     if (this.isLocalMode) {
++      // Validar contrato de respuesta
+       const token = sessionStorage.getItem('authToken') || localStorage.getItem('authToken');
+       if (token) {
+         return {
+@@ -290,6 +297,7 @@ class ApiService {
+ 
+   async logout() {
++    // Limpiar cache y tokens
+     this.cache.clear();
+     sessionStorage.removeItem('authToken');
+     localStorage.removeItem('authToken');
+@@ -298,6 +306,7 @@ class ApiService {
+ 
+   // Métodos para gestión de usuarios
+   async getUsers() {
+     if (this.isLocalMode) {
++      // Validar contrato de respuesta
+       const users = await this.localBackend.get('users') || [];
+       return Array.isArray(users) ? users : [];
+     }
+@@ -306,6 +315,7 @@ class ApiService {
+ 
+   async createUser(userData) {
+     if (this.isLocalMode) {
++      // Validar contrato de entrada
+       if (!userData || typeof userData !== 'object') {
+         throw new Error('Datos de usuario inválidos');
+       }
+@@ -317,6 +327,7 @@ class ApiService {
+ 
+   async updateUser(userId, userData) {
+     if (this.isLocalMode) {
++      // Validar contrato de entrada
+       if (!userId) {
+         throw new Error('ID de usuario es requerido');
+       }
+@@ -333,6 +344,7 @@ class ApiService {
+ 
+   async deleteUser(userId) {
+     if (this.isLocalMode) {
++      // Validar contrato de entrada
+       if (!userId) {
+         throw new Error('ID de usuario es requerido');
+       }
+@@ -345,6 +357,7 @@ class ApiService {
+ 
+   async updateMovement(movementId, movementData) {
+     if (this.isLocalMode) {
++      // Validar contrato de entrada
+       if (!movementId) {
+         throw new Error('ID de movimiento es requerido');
+       }
+@@ -361,6 +374,7 @@ class ApiService {
+ 
+   async deleteMovement(movementId) {
+     if (this.isLocalMode) {
++      // Validar contrato de entrada
+       if (!movementId) {
+         throw new Error('ID de movimiento es requerido');
+       }
+@@ -373,6 +387,7 @@ class ApiService {
+ 
+   async updateClient(clientId, clientData) {
+     if (this.isLocalMode) {
++      // Validar contrato de entrada
+       if (!clientId) {
+         throw new Error('ID de cliente es requerido');
+       }
+@@ -389,6 +404,7 @@ class ApiService {
+ 
+   async deleteClient(clientId) {
+     if (this.isLocalMode) {
++      // Validar contrato de entrada
+       if (!clientId) {
+         throw new Error('ID de cliente es requerido');
+       }
+@@ -401,6 +417,7 @@ class ApiService {
+ 
+   async getClientById(clientId) {
+     if (this.isLocalMode) {
++      // Validar contrato de entrada
+       if (!clientId) {
+         throw new Error('ID de cliente es requerido');
+       }
+@@ -411,6 +428,7 @@ class ApiService {
+ 
+   async getStock() {
+     if (this.isLocalMode) {
++      // Validar contrato de respuesta
+       const stock = await this.localBackend.get('stock') || {};
+       return typeof stock === 'object' ? stock : {};
+     }
+@@ -419,6 +437,7 @@ class ApiService {
+ 
+   async saveStock(stockData) {
+     if (this.isLocalMode) {
++      // Validar contrato de entrada
+       if (!stockData || typeof stockData !== 'object') {
+         throw new Error('Datos de stock inválidos');
+       }
+@@ -429,6 +448,7 @@ class ApiService {
+ 
+   async getBalances() {
+     if (this.isLocalMode) {
++      // Validar contrato de respuesta
+       const balances = await this.localBackend.get('balances') || {};
+       return typeof balances === 'object' ? balances : {};
+     }
+@@ -437,6 +457,7 @@ class ApiService {
+ 
+   async saveBalance(balanceData) {
+     if (this.isLocalMode) {
++      // Validar contrato de entrada
+       if (!balanceData || typeof balanceData !== 'object') {
+         throw new Error('Datos de balance inválidos');
+       }
+@@ -447,6 +468,7 @@ class ApiService {
+ 
+   async getCajaData() {
+     if (this.isLocalMode) {
++      // Validar contrato de respuesta
+       const caja = await this.localBackend.get('caja') || {};
+       return typeof caja === 'object' ? caja : {};
+     }
+@@ -455,6 +477,7 @@ class ApiService {
+ 
+   async saveCajaData(cajaData) {
+     if (this.isLocalMode) {
++      // Validar contrato de entrada
+       if (!cajaData || typeof cajaData !== 'object') {
+         throw new Error('Datos de caja inválidos');
+       }
+@@ -465,6 +488,7 @@ class ApiService {
+ 
+   async getInitialBalances() {
+     if (this.isLocalMode) {
++      // Validar contrato de respuesta
+       const balances = await this.localBackend.get('initialBalances') || {};
+       return typeof balances === 'object' ? balances : {};
+     }
+@@ -473,6 +497,7 @@ class ApiService {
+ 
+   async saveInitialBalance(balanceData) {
+     if (this.isLocalMode) {
++      // Validar contrato de entrada
+       if (!balanceData || typeof balanceData !== 'object') {
+         throw new Error('Datos de balance inicial inválidos');
+       }
+@@ -483,6 +508,7 @@ class ApiService {
+ 
+   async getCCBalances() {
+     if (this.isLocalMode) {
++      // Validar contrato de respuesta
+       const balances = await this.localBackend.get('ccBalances') || {};
+       return typeof balances === 'object' ? balances : {};
+     }
+@@ -491,6 +517,7 @@ class ApiService {
+ 
+   async saveCCBalance(balanceData) {
+     if (this.isLocalMode) {
++      // Validar contrato de entrada
+       if (!balanceData || typeof balanceData !== 'object') {
+         throw new Error('Datos de balance de cuenta corriente inválidos');
+       }
+@@ -501,6 +528,7 @@ class ApiService {
+ 
+   async getLenders() {
+     if (this.isLocalMode) {
++      // Validar contrato de respuesta
+       const lenders = await this.localBackend.get('lenders') || [];
+       return Array.isArray(lenders) ? lenders : [];
+     }
+@@ -509,6 +537,7 @@ class ApiService {
+ 
+   async saveLender(lenderData) {
+     if (this.isLocalMode) {
++      // Validar contrato de entrada
+       if (!lenderData || typeof lenderData !== 'object') {
+         throw new Error('Datos de prestamista inválidos');
+       }
+@@ -520,6 +549,7 @@ class ApiService {
+ 
+   async updateLender(lenderId, lenderData) {
+     if (this.isLocalMode) {
++      // Validar contrato de entrada
+       if (!lenderId) {
+         throw new Error('ID de prestamista es requerido');
+       }
+@@ -537,6 +567,7 @@ class ApiService {
+ 
+   async deleteLender(lenderId) {
+     if (this.isLocalMode) {
++      // Validar contrato de entrada
+       if (!lenderId) {
+         throw new Error('ID de prestamista es requerido');
+       }
+@@ -549,6 +580,7 @@ class ApiService {
+ 
+   async getExpenses() {
+     if (this.isLocalMode) {
++      // Validar contrato de respuesta
+       const expenses = await this.localBackend.get('expenses') || [];
+       return Array.isArray(expenses) ? expenses : [];
+     }
+@@ -557,6 +589,7 @@ class ApiService {
+ 
+   async saveExpense(expenseData) {
+     if (this.isLocalMode) {
++      // Validar contrato de entrada
+       if (!expenseData || typeof expenseData !== 'object') {
+         throw new Error('Datos de gasto inválidos');
+       }
+@@ -568,6 +601,7 @@ class ApiService {
+ 
+   async updateExpense(expenseId, expenseData) {
+     if (this.isLocalMode) {
++      // Validar contrato de entrada
+       if (!expenseId) {
+         throw new Error('ID de gasto es requerido');
+       }
+@@ -585,6 +619,7 @@ class ApiService {
+ 
+   async deleteExpense(expenseId) {
+     if (this.isLocalMode) {
++      // Validar contrato de entrada
+       if (!expenseId) {
+         throw new Error('ID de gasto es requerido');
+       }
+@@ -597,6 +632,7 @@ class ApiService {
+ 
+   async getCommissions() {
+     if (this.isLocalMode) {
++      // Validar contrato de respuesta
+       const commissions = await this.localBackend.get('commissions') || [];
+       return Array.isArray(commissions) ? commissions : [];
+     }
+@@ -605,6 +641,7 @@ class ApiService {
+ 
+   async saveCommission(commissionData) {
+     if (this.isLocalMode) {
++      // Validar contrato de entrada
+       if (!commissionData || typeof commissionData !== 'object') {
+         throw new Error('Datos de comisión inválidos');
+       }
+@@ -617,6 +654,7 @@ class ApiService {
+ 
+   async getPendingWithdrawals() {
+     if (this.isLocalMode) {
++      // Validar contrato de respuesta
+       const withdrawals = await this.localBackend.get('pendingWithdrawals') || [];
+       return Array.isArray(withdrawals) ? withdrawals : [];
+     }
+@@ -625,6 +663,7 @@ class ApiService {
+ 
+   async savePendingWithdrawal(withdrawalData) {
+     if (this.isLocalMode) {
++      // Validar contrato de entrada
+       if (!withdrawalData || typeof withdrawalData !== 'object') {
+         throw new Error('Datos de retiro pendiente inválidos');
+       }
+@@ -636,6 +675,7 @@ class ApiService {
+ 
+   async updatePendingWithdrawal(withdrawalId, withdrawalData) {
+     if (this.isLocalMode) {
++      // Validar contrato de entrada
+       if (!withdrawalId) {
+         throw new Error('ID de retiro pendiente es requerido');
+       }
+@@ -653,6 +693,7 @@ class ApiService {
+ 
+   async deletePendingWithdrawal(withdrawalId) {
+     if (this.isLocalMode) {
++      // Validar contrato de entrada
+       if (!withdrawalId) {
+         throw new Error('ID de retiro pendiente es requerido');
+       }
+@@ -665,6 +706,7 @@ class ApiService {
+ 
+   async getProfitabilityData() {
+     if (this.isLocalMode) {
++      // Validar contrato de respuesta
+       const profitability = await this.localBackend.get('profitability') || {};
+       return typeof profitability === 'object' ? profitability : {};
+     }
+@@ -673,6 +715,7 @@ class ApiService {
+ 
+   async saveProfitabilityData(profitabilityData) {
+     if (this.isLocalMode) {
++      // Validar contrato de entrada
+       if (!profitabilityData || typeof profitabilityData !== 'object') {
+         throw new Error('Datos de rentabilidad inválidos');
+       }
+@@ -683,6 +726,7 @@ class ApiService {
+ 
+   async getUtilityData() {
+     if (this.isLocalMode) {
++      // Validar contrato de respuesta
+       const utility = await this.localBackend.get('utility') || {};
+       return typeof utility === 'object' ? utility : {};
+     }
+@@ -691,6 +735,7 @@ class ApiService {
+ 
+   async saveUtilityData(utilityData) {
+     if (this.isLocalMode) {
++      // Validar contrato de entrada
+       if (!utilityData || typeof utilityData !== 'object') {
+         throw new Error('Datos de utilidad inválidos');
+       }
+@@ -701,6 +746,7 @@ class ApiService {
+ 
+   async getArbitrageData() {
+     if (this.isLocalMode) {
++      // Validar contrato de respuesta
+       const arbitrage = await this.localBackend.get('arbitrage') || {};
+       return typeof arbitrage === 'object' ? arbitrage : {};
+     }
+@@ -709,6 +755,7 @@ class ApiService {
+ 
+   async saveArbitrageData(arbitrageData) {
+     if (this.isLocalMode) {
++      // Validar contrato de entrada
+       if (!arbitrageData || typeof arbitrageData !== 'object') {
+         throw new Error('Datos de arbitraje inválidos');
+       }
+@@ -719,6 +766,7 @@ class ApiService {
+ 
+   async getCurrentAccounts() {
+     if (this.isLocalMode) {
++      // Validar contrato de respuesta
+       const accounts = await this.localBackend.get('currentAccounts') || [];
+       return Array.isArray(accounts) ? accounts : [];
+     }
+@@ -727,6 +775,7 @@ class ApiService {
+ 
+   async saveCurrentAccount(accountData) {
+     if (this.isLocalMode) {
++      // Validar contrato de entrada
+       if (!accountData || typeof accountData !== 'object') {
+         throw new Error('Datos de cuenta corriente inválidos');
+       }
+@@ -738,6 +787,7 @@ class ApiService {
+ 
+   async updateCurrentAccount(accountId, accountData) {
+     if (this.isLocalMode) {
++      // Validar contrato de entrada
+       if (!accountId) {
+         throw new Error('ID de cuenta corriente es requerido');
+       }
+@@ -755,6 +805,7 @@ class ApiService {
+ 
+   async deleteCurrentAccount(accountId) {
+     if (this.isLocalMode) {
++      // Validar contrato de entrada
+       if (!accountId) {
+         throw new Error('ID de cuenta corriente es requerido');
+       }

@@ -29,7 +29,7 @@ Verificar consistencia estructural, evitar duplicaciones o contradicciones en la
 ### 🔍 HALLAZGOS DE MEDIO RIESGO (1)
 1. **Script orfano**: `db:seed` en package.json referencia archivo inexistente
 
-### ℹ️ HALLAZGOS DE BAJO RIESGO (10)
+### ℹ️ HALLAZGOS DE BAJO RIESGO (13)
 1. **Duplicación de headers**: next.config.js y netlify.toml definen headers similares
 2. **Configuración de build**: netlify.toml usa `.next` como publish directory
 3. **Estructura de stores**: Existe tanto `src/stores/` como `src/store/`
@@ -40,6 +40,9 @@ Verificar consistencia estructural, evitar duplicaciones o contradicciones en la
 8. **Selectores no optimizados**: Zustand stores sin selectores específicos
 9. **useEffect con múltiples responsabilidades**: Algunos efectos hacen demasiadas cosas
 10. **Falta de estabilización**: Funciones en dependencias sin useCallback
+11. **Validación de contratos**: APIs sin validación completa de entrada/salida
+12. **Manejo de errores**: Falta estandarización en respuestas de error
+13. **Modo local forzado**: dataService siempre usa modo local sin configuración dinámica
 
 ### 📈 PRIORIDAD DE CORRECCIÓN
 
@@ -89,10 +92,16 @@ Verificar consistencia estructural, evitar duplicaciones o contradicciones en la
 - Zustand stores implementados adecuadamente
 - Sistema de comunicación entre hooks funcional
 
+#### ✅ DATA FLOW & API
+- Sistema híbrido local/remoto bien implementado
+- Netlify Functions para backend serverless
+- dataService centralizado para todas las operaciones
+- Cache y localStorage funcionando correctamente
+
 ### 🔄 PRÓXIMAS FASES
 
 **Fase B**: ✅ Auditoría de Hooks & Rendering Quality (React/Next) - COMPLETADA  
-**Fase C**: Análisis de Data Flow, API & Contracts  
+**Fase C**: ✅ Análisis de Data Flow, API & Contracts - COMPLETADA  
 **Fase D**: Detección de Código Muerto, Duplicado & Contradictorio  
 **Fase E**: Configuración, Tooling & Build  
 **Fase F**: Seguridad & Environment Config  
@@ -115,4 +124,8 @@ La estructura del proyecto es **SÓLIDA** con mínimos problemas detectados. Los
 
 Los hooks de React están **BIEN ORGANIZADOS** con algunos problemas menores de dependencias inestables. Se han identificado oportunidades de optimización con React.memo y selectores de Zustand.
 
-**Estado**: ✅ APROBADO PARA FASE C
+### ✅ CONCLUSIÓN FASE C
+
+El flujo de datos y APIs está **BIEN ESTRUCTURADO** con un sistema híbrido local/remoto funcional. Se han identificado oportunidades de mejora en validación de contratos y manejo de errores.
+
+**Estado**: ✅ APROBADO PARA FASE D
