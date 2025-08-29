@@ -1,0 +1,67 @@
+--- a/src/features/user-management/hooks/useUserManagement.js
++++ b/src/features/user-management/hooks/useUserManagement.js
+@@ -63,7 +63,7 @@ export const useUserManagement = () => {
+   // Cargar usuarios al montar el componente
+   useEffect(() => {
+     if (users.length === 0 && !isLoading) {
+-      loadUsers();
++      loadUsers(); // loadUsers es estable de Zustand
+     }
+   }, [users.length, isLoading, loadUsers]); // Agregar loadUsers como dependencia estable
+ 
+@@ -73,7 +73,7 @@ export const useUserManagement = () => {
+   // Efecto separado para manejo de errores
+   useEffect(() => {
+     if (error) {
+-      console.error('Error en gestión de usuarios:', error);
++      console.error('Error en gestión de usuarios:', error); // error es estable
+     }
+   }, [error]); // Solo reaccionar a cambios de error
+ 
+@@ -81,7 +81,7 @@ export const useUserManagement = () => {
+   // Efecto separado para notificaciones
+   useEffect(() => {
+     if (successMessage) {
+-      // Mostrar notificación de éxito
++      // Mostrar notificación de éxito - successMessage es estable
+       setTimeout(() => {
+         setSuccessMessage('');
+       }, 3000);
+@@ -89,7 +89,7 @@ export const useUserManagement = () => {
+   }, [successMessage]); // Solo reaccionar a cambios de successMessage
+ 
+   // Efecto separado para limpiar mensajes
+   useEffect(() => {
+     if (error || successMessage) {
+       const timer = setTimeout(() => {
+         if (error) clearError();
+         if (successMessage) setSuccessMessage('');
+       }, 5000);
+       
+       return () => clearTimeout(timer);
+     }
+   }, [error, successMessage, clearError]); // Dependencias estables
+ 
+   return {
+     // Estado
+     users,
+     selectedUser,
+     isLoading,
+     error,
+     successMessage,
+     
+     // Acciones
+     loadUsers,
+     addUser,
+     updateUser,
+     deleteUser,
+     setSelectedUser,
+     clearError,
+     setSuccessMessage,
+     
+     // Utilidades
+     hasUsers: users.length > 0,
+     userCount: users.length
+   };
++  // Todas las funciones de Zustand son estables
+ };

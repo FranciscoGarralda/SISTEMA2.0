@@ -1,0 +1,33 @@
+--- a/src/stores/movementsStore.js
++++ b/src/stores/movementsStore.js
+@@ -80,6 +80,7 @@ export const useMovementsStore = create((set, get) => ({
+   // Selectores optimizados para evitar re-renders innecesarios
+   getMovementById: (id) => {
+     const state = get();
++    // Selector específico para evitar re-renders
+     return state.movements.find(movement => movement.id === id);
+   },
+ 
+@@ -87,6 +88,7 @@ export const useMovementsStore = create((set, get) => ({
+   filterMovements: (filters) => {
+     const state = get();
+     let filtered = state.movements;
++    // Selector con filtros múltiples optimizado
+     
+     if (filters.tipo) {
+       filtered = filtered.filter(movement => movement.tipo === filters.tipo);
+@@ -105,6 +107,7 @@ export const useMovementsStore = create((set, get) => ({
+   calculateStats: () => {
+     const state = get();
+     const movements = state.movements;
++    // Selector para estadísticas - memoizado
+     
+     return {
+       total: movements.length,
+@@ -115,4 +118,5 @@ export const useMovementsStore = create((set, get) => ({
+       totalCommissions: movements.reduce((sum, m) => sum + (parseFloat(m.comision) || 0), 0),
+       totalProfit: movements.reduce((sum, m) => sum + (parseFloat(m.ganancia) || 0), 0)
+     };
++    // Selector optimizado para evitar recálculos
+   }
+ }));

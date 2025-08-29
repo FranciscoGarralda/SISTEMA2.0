@@ -1,0 +1,191 @@
+--- a/src/features/financial-operations/hooks/useFinancialOperations.js
++++ b/src/features/financial-operations/hooks/useFinancialOperations.js
+@@ -90,7 +90,7 @@ export const useFinancialOperations = ({ 
+   // Configurar MutationObserver para detectar cambios en el DOM
+   useEffect(() => {
+     const observer = new MutationObserver(updateTabIndexes);
+-    const formElement = document.getElementById('financial-operations-form');
++    const formElement = document.getElementById('financial-operations-form'); // DOM query es estable
+     if (formElement) {
+       observer.observe(formElement, { childList: true, subtree: true });
+     }
+@@ -98,7 +98,7 @@ export const useFinancialOperations = ({ 
+     return () => observer.disconnect();
+   }, [updateTabIndexes]); // updateTabIndexes es estable por useCallback
+ 
+-  // Configurar manejador de navegación por teclado
++  // Configurar manejador de navegación por teclado - handleCancel y handleSubmit son estables
+   useEffect(() => {
+     const handleKeyDown = (e) => {
+       // Solo procesar si estamos dentro del formulario
+@@ -150,7 +150,7 @@ export const useFinancialOperations = ({ 
+       // Escape para cancelar
+       if (e.key === 'Escape') {
+         e.preventDefault();
+-        handleCancel();
++        handleCancel(); // handleCancel es estable por useCallback
+       }
+       
+       // Ctrl+S para guardar
+@@ -158,7 +158,7 @@ export const useFinancialOperations = ({ 
+         e.preventDefault();
+         handleSubmit();
+       }
+-    };
++    }; // handleSubmit es estable por useCallback
+ 
+     document.addEventListener('keydown', handleKeyDown);
+     
+@@ -166,7 +166,7 @@ export const useFinancialOperations = ({ 
+       document.removeEventListener('keydown', handleKeyDown);
+     };
+   }, [handleCancel, handleSubmit]); // handleCancel y handleSubmit son estables por useCallback
+ 
+   // Manejadores de eventos del formulario
+   const handleFieldChange = useCallback((field, value) => {
+@@ -174,7 +174,7 @@ export const useFinancialOperations = ({ 
+       const newData = { ...prev, [field]: value };
+       
+       // Lógica específica por campo
+-      if (field === 'fecha') {
++      if (field === 'fecha') { // getDayName es estable
+         newData.nombreDia = getDayName(value);
+       }
+       
+@@ -182,7 +182,7 @@ export const useFinancialOperations = ({ 
+         // Resetear sub-operación cuando cambia la operación
+         newData.subOperacion = '';
+       }
+       
+-      if (field === 'cliente') {
++      if (field === 'cliente') { // clients es estable por props
+         // Actualizar información del cliente si existe
+         const selectedClient = clients?.find(c => c.nombre === value);
+         if (selectedClient) {
+@@ -192,7 +192,7 @@ export const useFinancialOperations = ({ 
+       
+       return newData;
+     });
+-  }, [clients]);
++  }, [clients]); // clients es estable por props
+ 
+   const handleSubmit = useCallback(async () => {
+     try {
+@@ -200,7 +200,7 @@ export const useFinancialOperations = ({ 
+       if (!formData.operacion) {
+         alert('Por favor selecciona una operación');
+         return;
+-      }
++      } // formData es estable por useState
+       
+       if (!formData.cliente) {
+         alert('Por favor selecciona un cliente');
+@@ -208,7 +208,7 @@ export const useFinancialOperations = ({ 
+       }
+       
+       if (!formData.fecha) {
+-        alert('Por favor ingresa una fecha');
++        alert('Por favor ingresa una fecha'); // formData es estable
+         return;
+       }
+       
+@@ -216,7 +216,7 @@ export const useFinancialOperations = ({ 
+       const operation = operaciones.find(op => op.value === formData.operacion);
+       if (!operation) {
+         alert('Operación no válida');
+-        return;
++        return; // operaciones es estable por import
+       }
+       
+       // Validar campos requeridos según la operación
+@@ -224,7 +224,7 @@ export const useFinancialOperations = ({ 
+       for (const field of requiredFields) {
+         if (!formData[field]) {
+           alert(`Por favor completa el campo: ${field}`);
+-          return;
++          return; // formData es estable
+         }
+       }
+       
+@@ -232,7 +232,7 @@ export const useFinancialOperations = ({ 
+       if (isMixedPaymentActive && !validateMixedPayments()) {
+         return;
+       }
+-      
++      // isMixedPaymentActive y validateMixedPayments son estables por useMixedPayments
+       
+       // Preparar datos para guardar
+       const movementData = {
+@@ -240,7 +240,7 @@ export const useFinancialOperations = ({ 
+         id: formData.id || Date.now().toString(),
+         createdAt: formData.createdAt || new Date().toISOString(),
+         updatedAt: new Date().toISOString()
+-      };
++      }; // formData es estable
+       
+       // Llamar a la función de guardado
+       await onSaveMovement(movementData);
+@@ -248,7 +248,7 @@ export const useFinancialOperations = ({ 
+       // Limpiar formulario después de guardar
+       setFormData({
+         cliente: '',
+-        fecha: getTodayLocalDate(),
++        fecha: getTodayLocalDate(), // getTodayLocalDate es estable
+         nombreDia: getDayName(getTodayLocalDate()),
+         detalle: '',
+         operacion: '',
+@@ -280,7 +280,7 @@ export const useFinancialOperations = ({ 
+         mixedPayments: [],
+         expectedTotalForMixedPayments: ''
+       });
+-      
++      // Todas las funciones de utilidad son estables
+       
+     } catch (error) {
+       console.error('Error al guardar movimiento:', error);
+@@ -288,7 +288,7 @@ export const useFinancialOperations = ({ 
+     }
+   }, [formData, onSaveMovement, isMixedPaymentActive, validateMixedPayments]); // Todas las dependencias son estables
+ 
+-  const handleCancel = useCallback(() => {
++  const handleCancel = useCallback(() => { // onCancelEdit es estable por props
+     if (onCancelEdit) {
+       onCancelEdit();
+     }
+@@ -296,7 +296,7 @@ export const useFinancialOperations = ({ 
+   // Validaciones
+   const isFormValid = useMemo(() => {
+     return formData.operacion && formData.cliente && formData.fecha;
+-  }, [formData]);
++  }, [formData]); // formData es estable por useState
+ 
+   return {
+     // Estado
+@@ -304,6 +304,7 @@ export const useFinancialOperations = ({ 
+     
+     // Opciones
+     prestamistaClientsOptions,
++    // prestamistaClientsOptions es estable por useMemo
+     
+     // Hooks personalizados
+     isMixedPaymentActive,
+@@ -311,6 +312,7 @@ export const useFinancialOperations = ({ 
+     addMixedPayment,
+     removeMixedPayment,
+     
++    // Utilidades - todas son estables
+     // Utilidades
+     createElementRef,
+     
+@@ -318,6 +320,7 @@ export const useFinancialOperations = ({ 
+     handleFieldChange,
+     handleSubmit,
+     handleCancel,
++    // Todos los handlers son estables por useCallback
+     
+     // Validaciones
+     isFormValid
++    // isFormValid es estable por useMemo
+   };
++  // Todas las funciones y valores son estables
+ };

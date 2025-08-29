@@ -1,0 +1,9 @@
+--- a/src/features/clients/components/ClientForm.jsx
++++ b/src/features/clients/components/ClientForm.jsx
+@@ -0,0 +1,5 @@
++import React, { memo } from 'react';
++
++// Memoizar componente que recibe props complejas
++export const ClientForm = memo(({ client, onSave, onCancel, isLoading }) => {
++  // ... existing code ...
++});

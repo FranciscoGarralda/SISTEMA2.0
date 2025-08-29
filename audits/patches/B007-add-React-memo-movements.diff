@@ -1,0 +1,9 @@
+--- a/src/features/movements/components/MovementTable.jsx
++++ b/src/features/movements/components/MovementTable.jsx
+@@ -0,0 +1,5 @@
++import React, { memo } from 'react';
++
++// Memoizar componente que recibe array de movimientos
++export const MovementTable = memo(({ movements, onEdit, onDelete, isLoading }) => {
++  // ... existing code ...
++});

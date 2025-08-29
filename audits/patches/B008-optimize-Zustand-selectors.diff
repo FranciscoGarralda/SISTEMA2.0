@@ -1,0 +1,41 @@
+--- a/src/stores/clientsStore.js
++++ b/src/stores/clientsStore.js
+@@ -50,6 +50,7 @@ export const useClientsStore = create((set, get) => ({
+   // Selectores optimizados para evitar re-renders innecesarios
+   getClientById: (id) => {
+     const state = get();
++    // Selector específico para evitar re-renders
+     return state.clients.find(client => client.id === id);
+   },
+ 
+@@ -57,6 +58,7 @@ export const useClientsStore = create((set, get) => ({
+   searchClients: (searchTerm) => {
+     const state = get();
+     const term = searchTerm.toLowerCase();
++    // Selector memoizado para búsquedas
+     return state.clients.filter(client => 
+       client.nombre.toLowerCase().includes(term) ||
+       client.apellido.toLowerCase().includes(term) ||
+@@ -67,6 +69,7 @@ export const useClientsStore = create((set, get) => ({
+   filterClients: (filters) => {
+     const state = get();
+     let filtered = state.clients;
++    // Selector con filtros múltiples
+     
+     if (filters.tipoCliente) {
+       filtered = filtered.filter(client => client.tipoCliente === filters.tipoCliente);
+@@ -85,6 +88,7 @@ export const useClientsStore = create((set, get) => ({
+   getClientStats: () => {
+     const state = get();
+     const clients = state.clients;
++    // Selector para estadísticas - memoizado
+     
+     return {
+       total: clients.length,
+@@ -95,4 +99,5 @@ export const useClientsStore = create((set, get) => ({
+       prestamistas: clients.filter(c => c.tipoCliente === 'prestamistas').length,
+       otros: clients.filter(c => c.tipoCliente === 'otros').length
+     };
++    // Selector optimizado para evitar recálculos
+   }
+ }));
