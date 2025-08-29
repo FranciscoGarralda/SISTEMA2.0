@@ -1,0 +1,10 @@
+--- a/src/features/commissions/hooks/useCommissions.js
++++ b/src/features/commissions/hooks/useCommissions.js
+@@ -147,7 +147,6 @@ export const useCommissions = (movements = []) => {
+   // Recalcular cuando cambien los movimientos
+   useEffect(() => {
+     if (movements.length > 0) {
+-      console.log('Movimientos actualizados, recalculando comisiones...');
+       calculateCommissions();
+     }
+   }, [movements]);

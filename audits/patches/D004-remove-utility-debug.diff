@@ -1,0 +1,18 @@
+--- a/src/features/utility/hooks/useUtility.js
++++ b/src/features/utility/hooks/useUtility.js
+@@ -47,7 +47,6 @@ export const useUtility = (movements = []) => {
+       const stockDisponible = stockInicial[currency] || 0;
+       
+       if (stockDisponible < amount) {
+-        console.warn(`Stock insuficiente para vender ${amount} de ${currency} en ${mov.fecha}`);
+         // Ajustar a stock disponible
+         amount = stockDisponible;
+       }
+@@ -258,7 +257,6 @@ export const useUtility = (movements = []) => {
+   // Recalcular cuando cambien los movimientos
+   useEffect(() => {
+     if (movements.length > 0) {
+-      console.log('Movimientos actualizados, recalculando utilidad...');
+       calculateUtility();
+     }
+   }, [movements]);

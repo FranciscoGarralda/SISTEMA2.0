@@ -1,0 +1,9 @@
+--- a/src/features/cash-register/CajaApp.jsx
++++ b/src/features/cash-register/CajaApp.jsx
+@@ -198,7 +198,6 @@ export default function CajaApp() {
+       }
+     }
+ 
+-    // Se omite el console.log en producción
+     return total;
+   };

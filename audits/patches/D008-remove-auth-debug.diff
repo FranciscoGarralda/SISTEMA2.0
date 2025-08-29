@@ -1,0 +1,26 @@
+--- a/src/features/auth/LoginPage.jsx
++++ b/src/features/auth/LoginPage.jsx
+@@ -26,7 +26,6 @@ const LoginPage = () => {
+     setError('');
+     setIsLoading(true);
+ 
+-    console.log('Intentando login con:', formData.username);
+-
+     try {
+       const response = await login(formData.username, formData.password);
+ 
+-      console.log('Login response:', response);
+-
+       if (response && response.success) {
+-        console.log('Login exitoso, usuario:', response.user);
+         // Redirigir al dashboard
+         router.push('/dashboard');
+       } else {
+-        console.error('Respuesta inesperada:', response);
+         setError(response?.message || 'Error de autenticación');
+       }
+     } catch (err) {
+-      console.error('Error de login:', err);
+       setError('Error de conexión. Verifica tu internet.');
+     } finally {
+       setIsLoading(false);

@@ -1,0 +1,10 @@
+--- a/src/features/profitability/hooks/useProfitability.js
++++ b/src/features/profitability/hooks/useProfitability.js
+@@ -250,7 +250,6 @@ export const useProfitability = (movements = []) => {
+   // Recalcular cuando cambien los movimientos
+   useEffect(() => {
+     if (movements.length > 0) {
+-      console.log('Movimientos actualizados, recalculando rentabilidad...');
+       calculateProfitability();
+     }
+   }, [movements]);

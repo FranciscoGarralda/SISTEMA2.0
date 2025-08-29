@@ -1,0 +1,56 @@
+--- a/src/components/forms/ClientModal.jsx
++++ b/src/components/forms/ClientModal.jsx
+@@ -140,7 +140,6 @@ const ClientModal = ({ isOpen, onClose, onClientCreated }) => {
+     e.preventDefault();
+ 
+     if (!validateForm()) {
+-      console.log('❌ Validación fallida');
+       setError('Por favor, completa todos los campos requeridos.');
+       return;
+     }
+@@ -150,8 +149,6 @@ const ClientModal = ({ isOpen, onClose, onClientCreated }) => {
+     setError('');
+     setIsSubmitting(true);
+ 
+-    console.log('🔧 Iniciando creación de cliente:', formData);
+-
+     try {
+       // Preparar datos del cliente
+       const clientData = {
+@@ -163,12 +160,8 @@ const ClientModal = ({ isOpen, onClose, onClientCreated }) => {
+         tipoCliente: formData.tipoCliente || 'regular'
+       };
+ 
+-      console.log('📋 Datos del cliente a guardar:', clientData);
+-
+       const result = await saveClient(clientData);
+ 
+-      console.log('📤 Resultado de guardado:', result);
+-
+       if (result && result.id) {
+         // Limpiar formulario
+         setFormData({
+@@ -181,7 +174,6 @@ const ClientModal = ({ isOpen, onClose, onClientCreated }) => {
+         });
+ 
+         setSuccessMessage('Cliente creado exitosamente');
+-        console.log('✅ Cliente creado exitosamente');
+ 
+         // Notificar al componente padre
+         if (onClientCreated) {
+@@ -190,7 +182,6 @@ const ClientModal = ({ isOpen, onClose, onClientCreated }) => {
+ 
+         // Cerrar modal después de un breve delay
+         setTimeout(() => {
+-          console.log('🔧 Formulario enviado, previniendo navegación HTTP');
+           onClose();
+         }, 1500);
+       } else {
+@@ -198,7 +189,6 @@ const ClientModal = ({ isOpen, onClose, onClientCreated }) => {
+       }
+     } catch (error) {
+       setError('Error al crear el cliente. Por favor, intenta nuevamente.');
+-      console.log('❌ No se pudo guardar el cliente');
+       console.error('❌ Error creating client:', error);
+     } finally {
+       setIsSubmitting(false);

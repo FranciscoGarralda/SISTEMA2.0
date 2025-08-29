@@ -1,0 +1,10 @@
+--- a/src/features/lenders/hooks/usePrestamistas.js
++++ b/src/features/lenders/hooks/usePrestamistas.js
+@@ -154,7 +154,6 @@ export const usePrestamistas = (movements = []) => {
+   // Recalcular cuando cambien los movimientos
+   useEffect(() => {
+     if (movements.length > 0) {
+-      console.log('Movimientos actualizados, recalculando balances de prestamistas...');
+       calculateBalances();
+     }
+   }, [movements]);

@@ -1,0 +1,26 @@
+--- a/src/features/user-management/hooks/useUserManagement.js
++++ b/src/features/user-management/hooks/useUserManagement.js
+@@ -64,7 +64,6 @@ export const useUserManagement = () => {
+       setError('Error al cargar usuarios. Intenta nuevamente.');
+     } finally {
+       if (error) {
+-        console.log('🔧 Error detectado, intentando auto-reparación...');
+         // Auto-reparación: intentar recargar datos
+         setTimeout(() => {
+           loadUsers();
+@@ -79,7 +78,6 @@ export const useUserManagement = () => {
+   const performAutoRepair = async () => {
+     try {
+       setIsLoading(true);
+-      console.log('🔧 Iniciando reparación automática del sistema de usuarios...');
+       
+       // Limpiar estado
+       setUsers([]);
+@@ -89,7 +87,6 @@ export const useUserManagement = () => {
+       // Intentar recargar
+       await loadUsers();
+     } catch (fixError) {
+-      console.error('Error en reparación automática:', fixError);
+       setError('Error en reparación automática del sistema');
+     } finally {
+       setIsLoading(false);

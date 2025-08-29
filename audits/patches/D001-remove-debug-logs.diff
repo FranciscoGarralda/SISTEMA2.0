@@ -1,0 +1,17 @@
+--- a/src/features/movements/MovimientosApp.jsx
++++ b/src/features/movements/MovimientosApp.jsx
+@@ -53,11 +53,11 @@ export default function MovimientosApp() {
+ 
+   const handleViewDetail = (movement) => {
+     // TODO: Implementar vista de detalle
+-    console.log('Ver detalle:', movement);
++    // Implementación pendiente
+   };
+ 
+   const handleEdit = (movement) => {
+     // TODO: Implementar edición
+-    console.log('Editar:', movement);
++    // Implementación pendiente
+   };
+ 
+   const handleDelete = (movementId) => {
