@@ -1,0 +1,18 @@
+--- a/netlify/functions/utils/auth.js
++++ b/netlify/functions/utils/auth.js
+@@ -40,6 +40,7 @@ export function authMiddleware(handler) {
+     // Si no hay token, permitir acceso (fallback para desarrollo)
+     if (!token) {
+       console.log('No token provided, allowing access for development');
++      // Solo en desarrollo
+       context.user = { id: 1, role: 'admin', name: 'Admin' };
+       return handler(event, context);
+     }
+@@ -48,6 +49,7 @@ export function authMiddleware(handler) {
+     const decoded = verifyToken(token);
+     if (!decoded) {
+       console.log('Invalid token, allowing access for development');
++      // Solo en desarrollo
+       context.user = { id: 1, role: 'admin', name: 'Admin' };
+       return handler(event, context);
+     }

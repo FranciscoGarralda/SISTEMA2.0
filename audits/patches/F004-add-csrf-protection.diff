@@ -1,0 +1,28 @@
+--- a/netlify/functions/utils/auth.js
++++ b/netlify/functions/utils/auth.js
+@@ -1,6 +1,7 @@
+ import jwt from 'jsonwebtoken';
+ import bcrypt from 'bcryptjs';
++import crypto from 'crypto';
+ 
+ // Clave secreta para JWT (en producción, usar variables de entorno)
+ const JWT_SECRET = process.env.JWT_SECRET || (process.env.NODE_ENV === 'production' ? null : 'dev-secret-key-change-in-production');
+@@ -8,6 +9,7 @@ const JWT_SECRET = process.env.JWT_SECRET || (process.env.NODE_ENV === 'production
+ // Generar token JWT
+ export function generateToken(user) {
+   // No incluir la contraseña en el token
++  // Generar CSRF token
+   const { password, ...userWithoutPassword } = user;
+   
+   return jwt.sign(
+@@ -20,6 +22,7 @@ export function generateToken(user) {
+   );
+ }
+ 
++// Generar token CSRF
+ export function generateCSRFToken() {
++  return crypto.randomBytes(32).toString('hex');
++}
++
+ // Verificar token JWT
+ export function verifyToken(token) {

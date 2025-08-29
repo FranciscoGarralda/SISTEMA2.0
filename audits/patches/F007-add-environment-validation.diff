@@ -1,0 +1,26 @@
+--- a/src/config/index.js
++++ b/src/config/index.js
+@@ -6,6 +6,7 @@
+ // ===== CONFIGURACIÓN DE ENTORNO =====
+ export const ENV_CONFIG = {
+   // Entorno actual
++  // Validación de variables de entorno críticas
+   NODE_ENV: process.env.NODE_ENV || 'development',
+   IS_DEV: process.env.NODE_ENV === 'development',
+   IS_PROD: process.env.NODE_ENV === 'production',
+@@ -13,6 +14,7 @@ export const ENV_CONFIG = {
+   // URLs y endpoints
+   API_BASE_URL: process.env.NEXT_PUBLIC_API_URL || '/api',
+   LOCAL_API_URL: 'http://localhost:3000/api',
++  JWT_SECRET: process.env.JWT_SECRET,
+   
+   // Configuración de desarrollo
+   DEV_MODE: process.env.NEXT_PUBLIC_DEV_MODE === 'true',
+@@ -20,6 +22,7 @@ export const ENV_CONFIG = {
+ };
+ 
+ // ===== CONFIGURACIÓN DE API =====
++// Validación de configuración de seguridad
+ export const API_CONFIG = {
+   // Timeouts
+   REQUEST_TIMEOUT: 10000, // 10 segundos

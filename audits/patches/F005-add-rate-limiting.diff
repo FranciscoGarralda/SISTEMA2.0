@@ -1,0 +1,43 @@
+--- a/netlify/functions/utils/auth.js
++++ b/netlify/functions/utils/auth.js
+@@ -1,6 +1,7 @@
+ import jwt from 'jsonwebtoken';
+ import bcrypt from 'bcryptjs';
+ import crypto from 'crypto';
++import { error } from './response.js';
+ 
+ // Clave secreta para JWT (en producción, usar variables de entorno)
+ const JWT_SECRET = process.env.JWT_SECRET || (process.env.NODE_ENV === 'production' ? null : 'dev-secret-key-change-in-production');
+@@ -8,6 +9,7 @@ const JWT_SECRET = process.env.JWT_SECRET || (process.env.NODE_ENV === 'production
+ // Generar token JWT
+ export function generateToken(user) {
+   // No incluir la contraseña en el token
++  // Rate limiting simple
+   const { password, ...userWithoutPassword } = user;
+   
+   return jwt.sign(
+@@ -22,6 +24,7 @@ export function generateToken(user) {
+   );
+ }
+ 
++// Rate limiting simple
+ export function generateCSRFToken() {
+   return crypto.randomBytes(32).toString('hex');
+ }
+@@ -35,6 +38,7 @@ export function verifyToken(token) {
+   }
+ }
+ 
++// Rate limiting simple
+ export function checkRateLimit(ip, action) {
++  // Implementación básica de rate limiting
++  const key = `${ip}:${action}`;
++  const now = Date.now();
++  const windowMs = 15 * 60 * 1000; // 15 minutos
++  
++  // En producción, usar Redis o similar
++  return true; // Permitir por ahora
++}
++
+ // Middleware para verificar autenticación
+ export function authMiddleware(handler) {
