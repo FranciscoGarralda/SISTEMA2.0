@@ -1,0 +1,39 @@
+--- a/next.config.js
++++ b/next.config.js
+@@ -13,10 +13,10 @@ const nextConfig = {
+   images: {
+     domains: ['localhost'],
+     unoptimized: true, // Necesario para Netlify
+   },
+   eslint: {
+     dirs: ['src'],
+-    ignoreDuringBuilds: true, // Deshabilitado para deploy - corregir después
++    ignoreDuringBuilds: false, // Habilitado para mejor calidad de código
+   },
+   typescript: {
+     // Habilitar verificación de tipos para mejor calidad
+-    ignoreBuildErrors: true, // Deshabilitado temporalmente hasta migrar a TypeScript
++    ignoreBuildErrors: false, // Habilitado para mejor calidad de código
+   },
+   webpack: (config, { dev, isServer }) => {
+     // Configuración mínima para evitar errores de chunks
+     if (dev) {
+       // En desarrollo, usar configuración simple
+       config.optimization = {
+         ...config.optimization,
+-        splitChunks: false, // Deshabilitar split chunks en desarrollo
++        splitChunks: {
++          chunks: 'all',
++          cacheGroups: {
++            vendor: {
++              test: /[\\/]node_modules[\\/]/,
++              name: 'vendors',
++              chunks: 'all',
++            },
++          },
++        },
+       };
+     }
+     
+     return config;
+   },

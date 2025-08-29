@@ -1,0 +1,18 @@
+--- a/tailwind.config.js
++++ b/tailwind.config.js
+@@ -2,6 +2,7 @@
+ module.exports = {
+   content: [
+     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
++    './src/app/**/*.{js,ts,jsx,tsx,mdx}', // Agregar soporte para app directory
+     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
+     './src/features/**/*.{js,ts,jsx,tsx,mdx}',
+     './src/store/**/*.{js,ts,jsx,tsx,mdx}',
+@@ -9,6 +10,7 @@ module.exports = {
+     './src/utils/**/*.{js,ts,jsx,tsx,mdx}',
+     './src/hooks/**/*.{js,ts,jsx,tsx,mdx}',
+     './src/constants/**/*.{js,ts,jsx,tsx,mdx}',
++    './netlify/functions/**/*.{js,ts,jsx,tsx}', // Agregar funciones Netlify
+   ],
+   darkMode: 'class',
+   theme: {

@@ -1,0 +1,18 @@
+--- a/jest.config.js
++++ b/jest.config.js
+@@ -12,6 +12,7 @@ const customJestConfig = {
+   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+   testEnvironment: 'jsdom',
+   testPathIgnorePatterns: ['<rootDir>/.next/', '<rootDir>/node_modules/'],
++  testMatch: ['**/__tests__/**/*.{js,jsx}', '**/?(*.)+(spec|test).{js,jsx}'],
+   moduleNameMapping: {
+     '^@/(.*)$': '<rootDir>/src/$1',
+   },
+@@ -19,6 +20,7 @@ const customJestConfig = {
+     'src/**/*.{js,jsx}',
+     '!src/**/*.d.ts',
+     '!src/pages/_app.js',
++    '!src/pages/_document.js',
+     '!src/pages/_document.js',
+   ],
+ }

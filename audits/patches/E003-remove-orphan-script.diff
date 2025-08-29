@@ -1,0 +1,10 @@
+--- a/package.json
++++ b/package.json
+@@ -20,7 +20,6 @@
+     "analyze": "ANALYZE=true npm run build",
+     "health": "node scripts/health-check.js",
+     "db:setup": "node scripts/setup-database.js",
+-    "db:seed": "node scripts/seed-database.js",
+     "deploy": "npm run build && git add . && git commit -m \"🚀 Deploy automático\" && git push origin main"
+   },
+   "dependencies": {

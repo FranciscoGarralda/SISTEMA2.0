@@ -1,0 +1,18 @@
+--- a/.eslintrc.js
++++ b/.eslintrc.js
+@@ -25,6 +25,7 @@ module.exports = {
+   rules: {
+     // Reglas que desactivamos para permitir la compilación
+     'no-unused-vars': 'warn',
++    'no-console': 'warn', // Advertencia para console.log en producción
+     'no-case-declarations': 'off',
+     'no-useless-escape': 'off',
+     'no-empty': 'off',
+@@ -33,6 +34,7 @@ module.exports = {
+     'react/display-name': 'off',
+     'react/no-unescaped-entities': 'off',
+     'react-hooks/exhaustive-deps': 'warn',
++    'react-hooks/rules-of-hooks': 'error', // Error para reglas de hooks
+     'react/react-in-jsx-scope': 'off',
+   },
+   globals: {
