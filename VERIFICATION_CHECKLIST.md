@@ -1,225 +1,430 @@
-# VERIFICATION_CHECKLIST.md
+# CHECKLIST DE VERIFICACIÓN
 
-*Auditoría generada automáticamente - No modificar manualmente*
+## 📋 RESUMEN EJECUTIVO
 
-## ✅ LISTA DE VERIFICACIÓN - FASE A: ESTRUCTURA DEL PROYECTO
-
-**Fecha**: Diciembre 2024  
-**Versión del Sistema**: V125  
-**Auditor**: Principal Software Architect + Staff QA  
-
----
-
-## 🎯 OBJETIVO
-Validar que todos los cambios propuestos en la Fase A funcionen correctamente sin introducir regresiones.
+**Propósito**: Verificar que todas las correcciones funcionan correctamente  
+**Alcance**: 43 hallazgos, 35 patches  
+**Frecuencia**: Después de cada implementación de patch  
+**Responsable**: Desarrollador + QA  
 
 ---
 
-## 📋 CHECKLIST DE VERIFICACIÓN
+## 🔍 VERIFICACIÓN GENERAL
 
-### **A001 - Script Orfano Referenciado**
+### **Antes de Cada Verificación**
+- [ ] Sistema en estado estable (último commit funcional)
+- [ ] Entorno de desarrollo limpio
+- [ ] Base de datos con datos de prueba
+- [ ] Herramientas de testing disponibles
 
-#### ✅ PRE-VERIFICACIÓN
-- [ ] Ejecutar `npm run db:seed` - debe fallar con error
-- [ ] Verificar que el script aparece en `npm run`
-- [ ] Confirmar que `scripts/seed-database.js` no existe
-
-#### 🔧 APLICACIÓN DEL PATCH
-- [ ] Aplicar `audits/patches/A001-remove-orphan-script.diff`
-- [ ] Verificar que el archivo package.json se actualizó correctamente
-
-#### ✅ POST-VERIFICACIÓN
-- [ ] Ejecutar `npm run` - el script `db:seed` no debe aparecer
-- [ ] Verificar que no hay referencias al script en otros archivos
-- [ ] Confirmar que `npm run build` funciona correctamente
-- [ ] Verificar que `npm run dev` funciona correctamente
-
-#### 🚨 VERIFICACIÓN DE REGRESIÓN
-- [ ] Todos los otros scripts funcionan correctamente
-- [ ] No hay errores en la consola
-- [ ] La aplicación se inicia sin problemas
+### **Después de Cada Verificación**
+- [ ] Todos los tests pasan
+- [ ] No hay errores en consola
+- [ ] Funcionalidad principal intacta
+- [ ] Performance no degradada
 
 ---
 
-### **A002 - Consolidación de Headers**
+## 🎯 VERIFICACIÓN POR CATEGORÍA
 
-#### ✅ PRE-VERIFICACIÓN
-- [ ] Verificar headers actuales: `curl -I http://localhost:3000`
-- [ ] Confirmar que headers están en next.config.js
-- [ ] Confirmar que headers están en netlify.toml
+### **1. ACCESIBILIDAD**
 
-#### 🔧 APLICACIÓN DEL PATCH
-- [ ] Aplicar `audits/patches/A002-consolidate-headers.diff`
-- [ ] Verificar que next.config.js se actualizó correctamente
-- [ ] Confirmar que netlify.toml mantiene los headers
+#### **G002 - Mejoras de Accesibilidad**
+- [ ] `aria-required` presente en campos obligatorios
+- [ ] `aria-live` funciona en mensajes de error
+- [ ] `aria-invalid` se actualiza correctamente
+- [ ] Screen reader puede navegar formularios
+- [ ] Contraste de colores adecuado
 
-#### ✅ POST-VERIFICACIÓN
-- [ ] Ejecutar `npm run dev`
-- [ ] Verificar headers en desarrollo: `curl -I http://localhost:3000`
-- [ ] Confirmar que headers de seguridad están presentes
-- [ ] Verificar que `npm run build` funciona correctamente
+#### **G005 - Navegación por Teclado**
+- [ ] `aria-activedescendant` funciona en autocomplete
+- [ ] Navegación con Tab funciona correctamente
+- [ ] Enter/Space activa elementos interactivos
+- [ ] Escape cierra modales y dropdowns
+- [ ] Focus visible en todos los elementos
 
-#### 🚨 VERIFICACIÓN DE REGRESIÓN
-- [ ] Headers de seguridad siguen funcionando
-- [ ] No hay errores en la consola del navegador
-- [ ] La aplicación funciona normalmente
+#### **B003 - Memoización de Componentes**
+- [ ] Componentes críticos usan React.memo
+- [ ] Props complejas están memoizadas
+- [ ] No hay re-renders innecesarios
+- [ ] Performance mejorada en listas grandes
+
+### **2. PERFORMANCE**
+
+#### **G001 - Lazy Loading**
+- [ ] Páginas cargan con Suspense
+- [ ] Fallback se muestra correctamente
+- [ ] Componentes se cargan bajo demanda
+- [ ] Bundle size reducido
+- [ ] Tiempo de carga inicial mejorado
+
+#### **G004 - Optimizaciones de Performance**
+- [ ] Throttling funciona en resize events
+- [ ] Cleanup functions ejecutadas
+- [ ] Memory leaks eliminados
+- [ ] Event listeners removidos correctamente
+
+#### **G007 - Core Web Vitals**
+- [ ] LCP < 2.5 segundos
+- [ ] FID < 100ms
+- [ ] CLS < 0.1
+- [ ] Métricas registradas en consola
+
+### **3. SEGURIDAD**
+
+#### **F001 - JWT_SECRET Dinámico**
+- [ ] JWT_SECRET usa variable de entorno
+- [ ] Tokens se generan correctamente
+- [ ] Autenticación funciona en producción
+- [ ] No hay secretos hardcodeados
+
+#### **F002 - Credenciales Seguras**
+- [ ] Credenciales hardcodeadas eliminadas
+- [ ] Solo credenciales de emergencia en desarrollo
+- [ ] Login funciona con credenciales válidas
+- [ ] No hay credenciales en logs
+
+#### **F003 - Middleware de Autenticación**
+- [ ] Middleware es estricto en producción
+- [ ] Rutas protegidas requieren autenticación
+- [ ] Tokens expirados son rechazados
+- [ ] No hay bypass de autenticación
+
+### **4. SEO Y META TAGS**
+
+#### **G003 - Mejoras de SEO**
+- [ ] Meta tags están presentes
+- [ ] robots.txt configurado
+- [ ] Viewport configurado correctamente
+- [ ] Open Graph tags implementados
+- [ ] Schema markup presente
+
+#### **E002 - Headers de Seguridad**
+- [ ] Headers consolidados en netlify.toml
+- [ ] HSTS configurado
+- [ ] CSP implementado
+- [ ] X-Frame-Options configurado
+
+### **5. HOOKS Y RENDERING**
+
+#### **B001 - Dependencias de useEffect**
+- [ ] Dependencias son estables
+- [ ] No hay bucles infinitos
+- [ ] useEffect se ejecuta cuando debe
+- [ ] Cleanup functions implementadas
+
+#### **B002 - useCallback en Funciones**
+- [ ] Funciones críticas están memoizadas
+- [ ] Dependencias son correctas
+- [ ] No hay re-creaciones innecesarias
+- [ ] Performance mejorada
+
+#### **B004 - Selectores de Zustand**
+- [ ] Selectores optimizados implementados
+- [ ] No hay re-renders innecesarios
+- [ ] Estado se actualiza correctamente
+- [ ] Performance mejorada en stores
+
+#### **B005 - useMemo en Cálculos**
+- [ ] Cálculos costosos están memoizados
+- [ ] Dependencias son correctas
+- [ ] Cálculos se actualizan cuando deben
+- [ ] Performance mejorada
+
+### **6. DATA FLOW Y VALIDACIÓN**
+
+#### **C001 - Validación de Entrada/Salida**
+- [ ] Input validation implementada
+- [ ] Output validation implementada
+- [ ] Errores se manejan correctamente
+- [ ] Datos se sanitizan
+
+#### **C002 - Manejo de Errores**
+- [ ] Errores se capturan correctamente
+- [ ] Mensajes de error son útiles
+- [ ] Fallbacks implementados
+- [ ] Logging de errores funcional
+
+#### **C003 - Consolidación de Endpoints**
+- [ ] Endpoints duplicados eliminados
+- [ ] APIs son consistentes
+- [ ] Contratos estandarizados
+- [ ] Documentación actualizada
+
+### **7. CONFIGURACIÓN Y TOOLING**
+
+#### **E001 - ESLint Mejorado**
+- [ ] Reglas de ESLint configuradas
+- [ ] No hay warnings de linting
+- [ ] Reglas de React Hooks activas
+- [ ] no-console configurado para producción
+
+#### **E003 - Scripts Optimizados**
+- [ ] Scripts funcionan correctamente
+- [ ] Scripts huérfanos eliminados
+- [ ] Documentación actualizada
+- [ ] Scripts son eficientes
+
+#### **E004 - Configuración de Build**
+- [ ] Build exitoso sin errores
+- [ ] Bundle size optimizado
+- [ ] Split chunks configurado
+- [ ] Performance mejorada
+
+#### **E005 - Dependencias Actualizadas**
+- [ ] Dependencias actualizadas
+- [ ] Vulnerabilidades eliminadas
+- [ ] Compatibilidad verificada
+- [ ] Tests pasan con nuevas versiones
+
+### **8. CÓDIGO LIMPIO**
+
+#### **D001 - Eliminar Código Muerto**
+- [ ] Código no utilizado eliminado
+- [ ] Imports no utilizados removidos
+- [ ] Archivos huérfanos eliminados
+- [ ] Bundle size reducido
+
+#### **D002 - Consolidar Duplicaciones**
+- [ ] Lógica duplicada consolidada
+- [ ] Utilidades compartidas
+- [ ] Código más mantenible
+- [ ] DRY principle aplicado
+
+#### **D003 - Limpiar Imports**
+- [ ] Imports organizados
+- [ ] Imports relativos corregidos
+- [ ] Imports no utilizados eliminados
+- [ ] Código más limpio
+
+### **9. MONITOREO Y DEBUGGING**
+
+#### **G006 - Error Boundaries**
+- [ ] Error boundaries capturan errores
+- [ ] Información de errores detallada
+- [ ] Fallback UI funciona
+- [ ] Logging de errores funcional
+
+#### **F007 - Validación de Environment**
+- [ ] Variables de entorno validadas
+- [ ] Configuración crítica verificada
+- [ ] Errores de configuración capturados
+- [ ] Sistema falla gracefulmente
 
 ---
 
-### **A003 - Estructura de Stores Duplicada**
+## 🧪 TESTS AUTOMATIZADOS
 
-#### ✅ PRE-VERIFICACIÓN
-- [ ] Listar contenido de `src/store/`
-- [ ] Verificar imports que usen `@/store/*`
-- [ ] Confirmar que `src/stores/` existe y tiene contenido
+### **Tests Unitarios**
+- [ ] Todos los tests pasan
+- [ ] Cobertura > 80%
+- [ ] Tests críticos implementados
+- [ ] Mocks funcionan correctamente
 
-#### 🔧 APLICACIÓN DEL PATCH
-- [ ] Aplicar `audits/patches/A003-consolidate-stores.diff` (cuando esté disponible)
-- [ ] Migrar archivos si es necesario
-- [ ] Actualizar jsconfig.json si se elimina `src/store/`
+### **Tests de Integración**
+- [ ] APIs funcionan correctamente
+- [ ] Base de datos conecta
+- [ ] Autenticación funciona
+- [ ] Flujos completos funcionan
 
-#### ✅ POST-VERIFICACIÓN
-- [ ] Verificar que todos los imports funcionan
-- [ ] Confirmar que la aplicación se inicia correctamente
-- [ ] Verificar que los stores funcionan normalmente
-
-#### 🚨 VERIFICACIÓN DE REGRESIÓN
-- [ ] No hay errores de import
-- [ ] Los stores mantienen su funcionalidad
-- [ ] La aplicación funciona sin problemas
+### **Tests de Performance**
+- [ ] Tiempo de carga < 3 segundos
+- [ ] Memory usage estable
+- [ ] No hay memory leaks
+- [ ] Core Web Vitals en verde
 
 ---
 
-### **A004 - Archivo _redirects Redundante**
+## 🌐 VERIFICACIÓN EN NAVEGADORES
 
-#### ✅ PRE-VERIFICACIÓN
-- [ ] Leer contenido de `public/_redirects`
-- [ ] Comparar con redirects en netlify.toml
-- [ ] Verificar si hay diferencias importantes
+### **Chrome/Chromium**
+- [ ] Funcionalidad completa
+- [ ] Performance óptima
+- [ ] DevTools sin errores
+- [ ] Console limpia
 
-#### 🔧 APLICACIÓN DEL PATCH
-- [ ] Aplicar `audits/patches/A004-consolidate-redirects.diff` (cuando esté disponible)
-- [ ] Consolidar en netlify.toml si es necesario
-- [ ] Eliminar archivo redundante
+### **Firefox**
+- [ ] Funcionalidad completa
+- [ ] Performance aceptable
+- [ ] DevTools sin errores
+- [ ] Console limpia
 
-#### ✅ POST-VERIFICACIÓN
-- [ ] Verificar que redirects funcionan correctamente
-- [ ] Confirmar que navegación funciona
-- [ ] Verificar que no hay errores 404 inesperados
+### **Safari**
+- [ ] Funcionalidad completa
+- [ ] Performance aceptable
+- [ ] DevTools sin errores
+- [ ] Console limpia
 
-#### 🚨 VERIFICACIÓN DE REGRESIÓN
-- [ ] Todos los redirects funcionan
-- [ ] No hay errores de navegación
-- [ ] La aplicación funciona normalmente
-
----
-
-### **A005 - Documentación de Scripts de Testing**
-
-#### ✅ PRE-VERIFICACIÓN
-- [ ] Verificar que cada script funciona: `npm run test`, `npm run test:watch`, etc.
-- [ ] Confirmar que no hay documentación en README.md
-
-#### 🔧 APLICACIÓN DEL PATCH
-- [ ] Aplicar `audits/patches/A005-document-test-scripts.diff` (cuando esté disponible)
-- [ ] Agregar documentación en README.md
-
-#### ✅ POST-VERIFICACIÓN
-- [ ] Verificar que la documentación está clara
-- [ ] Confirmar que cada script funciona como se documenta
-- [ ] Verificar que README.md se actualizó correctamente
-
-#### 🚨 VERIFICACIÓN DE REGRESIÓN
-- [ ] Los scripts funcionan correctamente
-- [ ] La documentación es precisa
-- [ ] No hay errores en la aplicación
+### **Edge**
+- [ ] Funcionalidad completa
+- [ ] Performance aceptable
+- [ ] DevTools sin errores
+- [ ] Console limpia
 
 ---
 
-## 🔄 VERIFICACIÓN GENERAL POST-FASE A
+## 📱 VERIFICACIÓN MÓVIL
 
-### **Funcionalidad Básica**
-- [ ] `npm run dev` inicia correctamente
-- [ ] `npm run build` completa sin errores
-- [ ] `npm run test` ejecuta todos los tests
-- [ ] `npm run lint` no muestra errores críticos
+### **Responsive Design**
+- [ ] Layout se adapta a móviles
+- [ ] Touch targets son adecuados
+- [ ] Scroll funciona correctamente
+- [ ] Zoom funciona
 
-### **Aplicación Web**
-- [ ] La aplicación se carga correctamente
-- [ ] La autenticación funciona
-- [ ] La navegación entre páginas funciona
-- [ ] Los formularios funcionan correctamente
-- [ ] Los datos se cargan y guardan correctamente
+### **Performance Móvil**
+- [ ] Tiempo de carga < 5 segundos
+- [ ] Interacciones fluidas
+- [ ] No hay lag en scroll
+- [ ] Memory usage estable
 
-### **Consola y Logs**
-- [ ] No hay errores en la consola del navegador
-- [ ] No hay errores en la consola del servidor
-- [ ] No hay warnings críticos
-
-### **Performance**
-- [ ] El tiempo de carga es aceptable
-- [ ] No hay memory leaks evidentes
-- [ ] Los componentes se renderizan correctamente
+### **Accesibilidad Móvil**
+- [ ] Screen readers funcionan
+- [ ] Navegación por teclado funciona
+- [ ] Contraste adecuado
+- [ ] Texto legible
 
 ---
 
-## 🚨 PLAN DE ROLLBACK
+## 🔧 VERIFICACIÓN DE HERRAMIENTAS
 
-### **Si Algo Falla**
-1. **Detener inmediatamente** la aplicación
-2. **Revertir el último cambio** aplicado
-3. **Verificar** que la aplicación funciona
-4. **Documentar** el problema encontrado
-5. **Analizar** la causa raíz
-6. **Corregir** y re-aplicar
-
-### **Comandos de Rollback**
+### **Linting**
 ```bash
-# Revertir último commit
-git reset --hard HEAD~1
-
-# Revertir archivo específico
-git checkout HEAD -- package.json
-
-# Verificar estado
-git status
+npm run lint
 ```
+- [ ] 0 errores
+- [ ] 0 warnings críticos
+- [ ] Reglas aplicadas correctamente
+- [ ] Configuración válida
+
+### **Build**
+```bash
+npm run build
+```
+- [ ] Build exitoso
+- [ ] Sin errores de compilación
+- [ ] Bundle size aceptable
+- [ ] Optimizaciones aplicadas
+
+### **Tests**
+```bash
+npm run test
+```
+- [ ] Todos los tests pasan
+- [ ] Cobertura adecuada
+- [ ] Tests críticos implementados
+- [ ] Performance de tests aceptable
 
 ---
 
 ## 📊 MÉTRICAS DE VERIFICACIÓN
 
-### **Antes de la Fase A**
-- Scripts orfanos: 1
-- Headers duplicados: Sí
-- Estructura de stores: Duplicada
-- Archivos redundantes: 1
-- Scripts sin documentación: 5
+### **Performance**
+- [ ] First Contentful Paint < 1.5s
+- [ ] Largest Contentful Paint < 2.5s
+- [ ] First Input Delay < 100ms
+- [ ] Cumulative Layout Shift < 0.1
 
-### **Después de la Fase A (Objetivo)**
-- Scripts orfanos: 0
-- Headers duplicados: No
-- Estructura de stores: Consolidada
-- Archivos redundantes: 0
-- Scripts sin documentación: 0
+### **Accesibilidad**
+- [ ] Lighthouse Accessibility Score > 90
+- [ ] ARIA attributes correctos
+- [ ] Keyboard navigation funcional
+- [ ] Screen reader compatible
+
+### **SEO**
+- [ ] Lighthouse SEO Score > 90
+- [ ] Meta tags presentes
+- [ ] Structured data implementado
+- [ ] Sitemap generado
+
+### **Best Practices**
+- [ ] Lighthouse Best Practices Score > 90
+- [ ] HTTPS implementado
+- [ ] Security headers configurados
+- [ ] No mixed content
 
 ---
 
-## 📝 NOTAS IMPORTANTES
+## 🚨 CRITERIOS DE FALLO
 
-1. **Ejecutar cada verificación en orden**
-2. **Documentar cualquier problema encontrado**
-3. **No proceder si hay errores críticos**
-4. **Mantener registro de todos los cambios**
-5. **Verificar en múltiples navegadores si es necesario**
+### **Fallo Crítico (Rollback Inmediato)**
+- [ ] Sistema no inicia
+- [ ] Autenticación rota
+- [ ] Base de datos no conecta
+- [ ] Errores 500 en producción
+
+### **Fallo Alto (Corrección Urgente)**
+- [ ] Funcionalidad principal rota
+- [ ] Performance degradada > 50%
+- [ ] Errores de seguridad
+- [ ] Data loss
+
+### **Fallo Medio (Corrección Próxima)**
+- [ ] Funcionalidad secundaria rota
+- [ ] Performance degradada < 50%
+- [ ] Warnings críticos
+- [ ] UX degradada
+
+### **Fallo Bajo (Mejora Futura)**
+- [ ] Optimizaciones menores
+- [ ] Warnings no críticos
+- [ ] Mejoras de accesibilidad
+- [ ] Documentación incompleta
 
 ---
 
-## ✅ FIRMA DE VERIFICACIÓN
+## 📝 DOCUMENTACIÓN DE VERIFICACIÓN
 
-**Verificador**: _________________  
-**Fecha**: _________________  
-**Estado**: ✅ APROBADO / ❌ RECHAZADO  
-**Notas**: _________________  
+### **Para Cada Verificación**
+- [ ] Fecha y hora de verificación
+- [ ] Versión del código verificada
+- [ ] Entorno de verificación
+- [ ] Resultados detallados
+- [ ] Problemas encontrados
+- [ ] Acciones tomadas
+- [ ] Próximos pasos
 
-**Estado Actual**: 🔄 PENDIENTE DE VERIFICACIÓN
+### **Templates de Reporte**
+```markdown
+## Verificación: [NOMBRE DEL PATCH]
+
+**Fecha**: [FECHA]
+**Versión**: [COMMIT HASH]
+**Verificador**: [NOMBRE]
+
+### Resultados
+- [ ] ✅ Exitoso
+- [ ] ⚠️ Advertencias
+- [ ] ❌ Fallos
+
+### Problemas Encontrados
+- [Lista de problemas]
+
+### Acciones Tomadas
+- [Lista de acciones]
+
+### Próximos Pasos
+- [Lista de próximos pasos]
+```
+
+---
+
+## 🎯 CRITERIOS DE ÉXITO
+
+### **Verificación Exitosa**
+- [ ] Todos los criterios críticos pasan
+- [ ] Máximo 2 fallos de bajo riesgo
+- [ ] Performance no degradada
+- [ ] Funcionalidad principal intacta
+- [ ] Documentación actualizada
+
+### **Verificación Condicional**
+- [ ] Fallos críticos corregidos
+- [ ] Plan de corrección para fallos restantes
+- [ ] Timeline definido para correcciones
+- [ ] Riesgos mitigados
+
+### **Verificación Fallida**
+- [ ] Fallos críticos sin resolver
+- [ ] Performance degradada significativamente
+- [ ] Funcionalidad principal rota
+- [ ] Rollback requerido
