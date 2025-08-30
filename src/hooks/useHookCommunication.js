@@ -75,13 +75,17 @@ export const useHookCommunication = () => {
     
     listeners.push(wrappedCallback);
 
-    // Cleanup function
+    // Cleanup function para evitar memory leaks
     return () => {
       const listeners = listenersRef.current.get(eventName);
       if (listeners) {
         const index = listeners.indexOf(wrappedCallback);
         if (index > -1) {
           listeners.splice(index, 1);
+        }
+        // Limpiar array vacío para evitar memory leaks
+        if (listeners.length === 0) {
+          listenersRef.current.delete(eventName);
         }
       }
     };

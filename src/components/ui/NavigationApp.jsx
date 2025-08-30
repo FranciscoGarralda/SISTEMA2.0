@@ -370,19 +370,20 @@ const NavigationApp = memo(({ children, currentPage, onNavigate, currentUser, on
     
     // Throttled resize handler to prevent excessive calls
     let resizeTimer;
+    // Performance optimization: throttle resize events
     const throttledResize = () => {
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(checkMobile, 100);
     };
-    
+
     window.addEventListener('resize', throttledResize, { passive: true });
-    
-    // Cleanup function to prevent memory leaks
+
+    // Cleanup function for memory management
     return () => {
-      window.removeEventListener('resize', throttledResize);
       clearTimeout(resizeTimer);
+      window.removeEventListener('resize', throttledResize);
     };
-  }, []);
+  }, []); // Solo ejecutar al montar el componente
 
   // Optimized toggle function with useCallback
   const toggleSidebar = useCallback(() => {

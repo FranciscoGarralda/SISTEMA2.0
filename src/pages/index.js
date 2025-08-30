@@ -1,27 +1,34 @@
-import React, { useState, useCallback, useMemo, startTransition } from 'react';
+import React, { useState, useCallback, useMemo, startTransition, lazy, Suspense } from 'react';
 import Head from 'next/head';
 import { useAuth } from '../hooks/useAuth';
 import { useData } from '../hooks/useData';
 import LoginPage from '../features/auth/LoginPage';
 import { NavigationApp, WelcomePage } from '../components/ui/NavigationApp';
 
-// Import feature components directly to avoid Suspense issues
-import FinancialOperationsApp from '../features/financial-operations/FinancialOperationsApp';
-import ClientesApp from '../features/clients/ClientesApp';
-import MovimientosApp from '../features/movements/MovimientosApp';
-import PendientesRetiroApp from '../features/pending-withdrawals/PendientesRetiroApp';
-import GastosApp from '../features/expenses/GastosApp';
-import CuentasCorrientesApp from '../features/current-accounts/CuentasCorrientesApp';
-import PrestamistasApp from '../features/lenders/PrestamistasApp';
-import ComisionesApp from '../features/commissions/ComisionesApp';
-import UtilidadApp from '../features/utility/UtilidadApp';
-import ArbitrajeApp from '../features/arbitrage/ArbitrajeApp';
-import SaldosApp from '../features/balances/SaldosApp';
-import CajaApp from '../features/cash-register/CajaApp';
-import RentabilidadApp from '../features/profitability/RentabilidadApp';
-import StockApp from '../features/stock/StockApp';
-import SaldosInicialesApp from '../features/initial-balances/SaldosInicialesApp';
-import UserManagementApp from '../features/user-management/UserManagementApp';
+// Lazy load components for better performance
+const FinancialOperationsApp = lazy(() => import('../features/financial-operations/FinancialOperationsApp'));
+const ClientesApp = lazy(() => import('../features/clients/ClientesApp'));
+const MovimientosApp = lazy(() => import('../features/movements/MovimientosApp'));
+const PendientesRetiroApp = lazy(() => import('../features/pending-withdrawals/PendientesRetiroApp'));
+const GastosApp = lazy(() => import('../features/expenses/GastosApp'));
+const CuentasCorrientesApp = lazy(() => import('../features/current-accounts/CuentasCorrientesApp'));
+const PrestamistasApp = lazy(() => import('../features/lenders/PrestamistasApp'));
+const ComisionesApp = lazy(() => import('../features/commissions/ComisionesApp'));
+const UtilidadApp = lazy(() => import('../features/utility/UtilidadApp'));
+const ArbitrajeApp = lazy(() => import('../features/arbitrage/ArbitrajeApp'));
+const SaldosApp = lazy(() => import('../features/balances/SaldosApp'));
+const CajaApp = lazy(() => import('../features/cash-register/CajaApp'));
+const RentabilidadApp = lazy(() => import('../features/profitability/RentabilidadApp'));
+const StockApp = lazy(() => import('../features/stock/StockApp'));
+const SaldosInicialesApp = lazy(() => import('../features/initial-balances/SaldosInicialesApp'));
+const UserManagementApp = lazy(() => import('../features/user-management/UserManagementApp'));
+
+// Loading component
+const LoadingSpinner = () => (
+  <div className="flex items-center justify-center min-h-screen">
+    <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+  </div>
+);
 
 // Component map
 const componentMap = {
@@ -245,7 +252,11 @@ export default function Home() {
     
     const props = componentProps[currentPage] || commonProps;
     
-    return <Component {...props} />;
+    return (
+      <Suspense fallback={<LoadingSpinner />}>
+        <Component {...props} />
+      </Suspense>
+    );
   };
 
   const toggleSidebar = () => {
