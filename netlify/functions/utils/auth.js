@@ -1,18 +1,30 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
-// Clave secreta para JWT (en producción, usar variables de entorno)
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+// Clave secreta para JWT - dinámica y segura
+const JWT_SECRET = process.env.JWT_SECRET || 
+  (process.env.NODE_ENV === 'production' 
+    ? (() => { throw new Error('JWT_SECRET must be set in production'); })()
+    : 'dev-secret-key-change-in-production'
+  );
 
-// Generar token JWT
+// Generar token JWT con claims mejorados
 export function generateToken(user) {
   // No incluir la contraseña en el token
   const { password, ...userWithoutPassword } = user;
   
   return jwt.sign(
-    { user: userWithoutPassword },
+    { 
+      user: userWithoutPassword,
+      issuer: 'alliance-fr-system',
+      audience: 'alliance-fr-users',
+      issuedAt: Math.floor(Date.now() / 1000)
+    },
     JWT_SECRET,
-    { expiresIn: '24h' }
+    { 
+      expiresIn: '24h',
+      algorithm: 'HS256'
+    }
   );
 }
 

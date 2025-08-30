@@ -4,10 +4,12 @@ const path = require('path');
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  // Configuración para Netlify - export estático
-  output: 'export',
-  trailingSlash: true,
-  distDir: 'out',
+  // Configuración condicional para desarrollo vs producción
+  ...(process.env.NODE_ENV === 'production' && {
+    output: 'export',
+    trailingSlash: true,
+    distDir: 'out',
+  }),
   images: {
     domains: ['localhost'],
     unoptimized: true, // Necesario para export estático
@@ -21,7 +23,7 @@ const nextConfig = {
     ignoreBuildErrors: false, // Habilitado para mejor calidad
   },
   webpack: (config, { dev, isServer }) => {
-    // Optimización de bundle
+    // Optimización de bundle solo en producción
     if (!dev && !isServer) {
       config.optimization = {
         ...config.optimization,
@@ -46,41 +48,43 @@ const nextConfig = {
     
     return config;
   },
-  // Configuración de seguridad
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'X-Frame-Options',
-            value: 'DENY',
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-          {
-            key: 'Referrer-Policy',
-            value: 'strict-origin-when-cross-origin',
-          },
-          {
-            key: 'Strict-Transport-Security',
-            value: 'max-age=31536000; includeSubDomains',
-          },
-        ],
-      },
-    ];
-  },
-  async redirects() {
-    return [
-      {
-        source: '/home',
-        destination: '/',
-        permanent: true,
-      },
-    ];
-  },
+  // Configuración de seguridad solo en producción
+  ...(process.env.NODE_ENV === 'production' && {
+    async headers() {
+      return [
+        {
+          source: '/(.*)',
+          headers: [
+            {
+              key: 'X-Frame-Options',
+              value: 'DENY',
+            },
+            {
+              key: 'X-Content-Type-Options',
+              value: 'nosniff',
+            },
+            {
+              key: 'Referrer-Policy',
+              value: 'strict-origin-when-cross-origin',
+            },
+            {
+              key: 'Strict-Transport-Security',
+              value: 'max-age=31536000; includeSubDomains',
+            },
+          ],
+        },
+      ];
+    },
+    async redirects() {
+      return [
+        {
+          source: '/home',
+          destination: '/',
+          permanent: true,
+        },
+      ];
+    },
+  }),
 };
 
 module.exports = nextConfig;

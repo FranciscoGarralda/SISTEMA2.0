@@ -254,6 +254,7 @@ const ClientAutocomplete = forwardRef(({
               aria-controls={`${label || 'cliente'}-dropdown`}
               role="combobox"
               aria-label={`Seleccionar ${label || 'cliente'}`}
+              aria-activedescendant={selectedIndex >= 0 ? `${label || 'cliente'}-option-${selectedIndex}` : undefined}
             />
             
             {/* Botón limpiar */}
@@ -300,6 +301,7 @@ const ClientAutocomplete = forwardRef(({
                       }`}
                       role="option"
                       aria-selected={selectedIndex === index}
+                      id={`${label || 'cliente'}-option-${index}`}
                       aria-label={`${client.nombre} ${client.apellido || ''}${client.telefono ? ` - ${client.telefono}` : ''}`}
                     >
                       <div className="flex items-center space-x-3">
