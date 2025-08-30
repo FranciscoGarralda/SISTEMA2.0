@@ -1,4 +1,4 @@
-import React, { useState, useEffect, forwardRef } from 'react';
+import React, { useState, useEffect, forwardRef, useCallback } from 'react';
 import { formatCurrencyInput, parseCurrencyInput } from '../../services/utilityService.js';
 
 /**
