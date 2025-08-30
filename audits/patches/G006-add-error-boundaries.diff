@@ -1,0 +1,42 @@
+--- a/src/components/ui/ErrorBoundary.jsx
++++ b/src/components/ui/ErrorBoundary.jsx
+@@ -1,6 +1,7 @@
+ import React, { useCallback } from 'react';
+ import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
+ import { useRouter } from 'next/router';
++import { useAuth } from '../../hooks/useAuth';
+ 
+ class ErrorBoundary extends React.Component {
+   constructor(props) {
+@@ -7,6 +8,7 @@ class ErrorBoundary extends React.Component {
+     this.state = { 
+       hasError: false, 
+       error: null, 
++      errorInfo: null,
+       errorId: null 
+     };
+   }
+@@ -14,6 +16,7 @@ class ErrorBoundary extends React.Component {
+   static getDerivedStateFromError(error) {
+     return { 
+       hasError: true, 
++      errorInfo: error,
+       errorId: Date.now().toString() 
+     };
+   }
+@@ -21,6 +24,7 @@ class ErrorBoundary extends React.Component {
+   componentDidCatch(error, errorInfo) {
+     console.error('Critical error:', error, errorInfo);
+     this.setState({ 
++      errorInfo,
+       errorId: Date.now().toString() 
+     });
+     
+@@ -28,6 +32,7 @@ class ErrorBoundary extends React.Component {
+     try {
+       // Enviar error a servicio de monitoreo
+       console.error('Error al registrar error en ErrorBoundary:', e);
++      // En producción, enviar a servicio de monitoreo
+     } catch (e) {
+       console.error('Error al registrar error en ErrorBoundary:', e);
+     }

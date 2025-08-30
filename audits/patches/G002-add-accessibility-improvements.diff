@@ -1,0 +1,18 @@
+--- a/src/components/forms/FormInput.jsx
++++ b/src/components/forms/FormInput.jsx
+@@ -50,6 +50,7 @@ const FormInput = forwardRef(({
+       className={inputClassName}
+       aria-invalid={error ? 'true' : 'false'}
+       aria-describedby={error ? errorId : undefined}
++      aria-required={required}
+       {...props}
+     />
+     {error && (
+@@ -57,6 +58,7 @@ const FormInput = forwardRef(({
+         id={errorId}
+         className="text-sm text-light-error dark:text-dark-error mt-1"
+         role="alert"
++        aria-live="polite"
+       >
+         {error}
+       </p>

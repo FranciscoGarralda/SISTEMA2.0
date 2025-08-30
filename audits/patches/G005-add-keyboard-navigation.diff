@@ -1,0 +1,17 @@
+--- a/src/components/forms/ClientAutocomplete.jsx
++++ b/src/components/forms/ClientAutocomplete.jsx
+@@ -250,6 +250,7 @@ const ClientAutocomplete = forwardRef(({
+         aria-autocomplete="list"
+         aria-expanded={isOpen}
+         aria-controls={`${label || 'cliente'}-dropdown`}
++        aria-activedescendant={selectedIndex >= 0 ? `${label || 'cliente'}-option-${selectedIndex}` : undefined}
+         role="combobox"
+         aria-label={`Seleccionar ${label || 'cliente'}`}
+         onKeyDown={handleKeyDown}
+@@ -300,6 +301,7 @@ const ClientAutocomplete = forwardRef(({
+               role="option"
+               aria-selected={selectedIndex === index}
++              id={`${label || 'cliente'}-option-${index}`}
+               aria-label={`${client.nombre} ${client.apellido || ''}${client.telefono ? ` - ${client.telefono}` : ''}`}
+               className={`
+                 px-3 py-2 cursor-pointer text-sm transition-colors

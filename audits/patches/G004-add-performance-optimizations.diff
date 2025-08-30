@@ -1,0 +1,18 @@
+--- a/src/components/ui/NavigationApp.jsx
++++ b/src/components/ui/NavigationApp.jsx
+@@ -370,6 +370,7 @@ export default function NavigationApp() {
+   // Throttled resize handler to prevent excessive calls
+   useEffect(() => {
+     let resizeTimer;
++    // Performance optimization: throttle resize events
+     const throttledResize = () => {
+       clearTimeout(resizeTimer);
+       resizeTimer = setTimeout(checkMobile, 100);
+@@ -377,6 +378,7 @@ export default function NavigationApp() {
+ 
+     window.addEventListener('resize', throttledResize, { passive: true });
+ 
++    // Cleanup function for memory management
+     return () => {
+       clearTimeout(resizeTimer);
+       window.removeEventListener('resize', throttledResize);

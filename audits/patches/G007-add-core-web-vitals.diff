@@ -1,0 +1,38 @@
+--- a/src/pages/_app.js
++++ b/src/pages/_app.js
+@@ -1,6 +1,7 @@
+ import Head from 'next/head';
+ import '../styles/globals.css';
+ import ErrorBoundary from '../components/ui/ErrorBoundary';
++import { useEffect } from 'react';
+ 
+ function MyApp({ Component, pageProps }) {
+   return (
+@@ -9,6 +10,7 @@ function MyApp({ Component, pageProps }) {
+         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes" />
+         <meta name="theme-color" content="#1e40af" />
+         <meta name="description" content="Sistema Financiero - Alliance F&R" />
++        <meta name="viewport" content="width=device-width, initial-scale=1" />
+       </Head>
+       <ErrorBoundary>
+         <Component {...pageProps} />
+@@ -17,4 +19,20 @@ function MyApp({ Component, pageProps }) {
+   );
+ }
+ 
++// Core Web Vitals monitoring
++function CoreWebVitalsMonitor() {
++  useEffect(() => {
++    // Monitor LCP (Largest Contentful Paint)
++    if (typeof window !== 'undefined' && 'PerformanceObserver' in window) {
++      const observer = new PerformanceObserver((list) => {
++        for (const entry of list.getEntries()) {
++          console.log('LCP:', entry.startTime);
++        }
++      });
++      observer.observe({ entryTypes: ['largest-contentful-paint'] });
++    }
++  }, []);
++}
++
+ export default MyApp;

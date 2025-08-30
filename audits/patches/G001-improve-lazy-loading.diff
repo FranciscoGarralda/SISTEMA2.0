@@ -1,0 +1,24 @@
+--- a/src/pages/index.js
++++ b/src/pages/index.js
+@@ -1,4 +1,4 @@
+-import React, { useState, useCallback, useMemo, startTransition } from 'react';
++import React, { useState, useCallback, useMemo, startTransition, lazy, Suspense } from 'react';
+ import Head from 'next/head';
+ import { useAuth } from '../hooks/useAuth';
+ import { useCommunicationContext } from '../hooks/useHookCommunication';
+@@ -6,6 +6,7 @@ import { useCommunicationContext } from '../hooks/useHookCommunication';
+ import { 
+   TrendingUp, Users, DollarSign, BarChart3, 
+   Wallet, Calculator, Building2, ArrowRight,
++  Loader2,
+   Shield, Settings, LogOut, Home
+ } from 'lucide-react';
+ 
+@@ -13,6 +14,7 @@ import { useCommunicationContext } from '../hooks/useHookCommunication';
+ import { useAuth } from '../hooks/useAuth';
+ import { useCommunicationContext } from '../hooks/useHookCommunication';
+ 
++// Lazy load components for better performance
+ const DashboardCard = lazy(() => import('../components/ui/DashboardCard'));
+ 
+ export default function HomePage() {
