@@ -149,9 +149,9 @@ export const useCommissions = (movements = []) => {
       console.log('Movimientos actualizados, recalculando comisiones...');
     });
     return unsubscribe;
-  }, []); // Remover listen de dependencias
+  }, []); // Solo ejecutar al montar
 
-  // Emitir eventos cuando cambian los cálculos de comisiones - ESTABILIZADO
+  // Emitir eventos cuando cambian los cálculos de comisiones - OPTIMIZADO
   useEffect(() => {
     if (commissionStats.totalMovements > 0) {
       emit('calc:commissions:updated', {
@@ -163,7 +163,7 @@ export const useCommissions = (movements = []) => {
         commissionsByOperation
       });
     }
-  }, [commissionStats.totalMovements]); // Solo depender del número de movimientos
+  }, [commissionStats.totalMovements, emit]); // Solo depender del número de movimientos y emit
 
   return {
     // Estado

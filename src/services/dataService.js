@@ -6,6 +6,30 @@
 import { safeExecute } from './utilityService.js';
 
 // ========================
+// 🔍 VALIDATION UTILITIES
+// ========================
+const validateInput = (data, schema) => {
+  if (!data) return { valid: false, error: 'Data is required' };
+  if (!schema) return { valid: true };
+  
+  for (const [key, validator] of Object.entries(schema)) {
+    if (data[key] !== undefined && !validator(data[key])) {
+      return { valid: false, error: `Invalid ${key}` };
+    }
+  }
+  
+  return { valid: true };
+};
+
+const validateOutput = (data, expectedType) => {
+  if (!data) return { valid: false, error: 'Output data is required' };
+  if (expectedType && typeof data !== expectedType) {
+    return { valid: false, error: `Expected ${expectedType}, got ${typeof data}` };
+  }
+  return { valid: true };
+};
+
+// ========================
 // 🗄️ CACHE SERVICE
 // ========================
 class CacheService {
@@ -204,6 +228,17 @@ class ApiService {
   }
 
   async saveMovement(movement) {
+    // Validar entrada
+    const validation = validateInput(movement, {
+      monto: (val) => typeof val === 'number' && val > 0,
+      moneda: (val) => typeof val === 'string' && val.length > 0,
+      operacion: (val) => typeof val === 'string' && val.length > 0
+    });
+    
+    if (!validation.valid) {
+      throw new Error(`Invalid movement data: ${validation.error}`);
+    }
+
     if (this.isLocalMode) {
       const movements = await this.getMovements();
       const newMovement = { ...movement, id: Date.now().toString() };
@@ -222,6 +257,16 @@ class ApiService {
   }
 
   async saveClient(client) {
+    // Validar entrada
+    const validation = validateInput(client, {
+      nombre: (val) => typeof val === 'string' && val.length > 0,
+      apellido: (val) => typeof val === 'string' && val.length > 0
+    });
+    
+    if (!validation.valid) {
+      throw new Error(`Invalid client data: ${validation.error}`);
+    }
+
     if (this.isLocalMode) {
       const clients = await this.getClients();
       const newClient = { ...client, id: Date.now().toString() };
@@ -233,6 +278,15 @@ class ApiService {
   }
 
   async login(username, password) {
+    // Validar entrada
+    const validation = validateInput({ username, password }, {
+      username: (val) => typeof val === 'string' && val.length > 0,
+      password: (val) => typeof val === 'string' && val.length > 0
+    });
+    
+    if (!validation.valid) {
+      throw new Error(`Invalid login data: ${validation.error}`);
+    }
     if (this.isLocalMode) {
       // Simular login local para desarrollo
       if (username === 'admin' && password === 'admin') {

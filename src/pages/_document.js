@@ -7,13 +7,18 @@ export default function Document() {
         {/* Meta tags SEO */}
         <meta name="description" content="Sistema Financiero - Casa de Cambio Alliance F&R. Gestión de operaciones financieras, clientes y movimientos." />
         <meta name="keywords" content="casa de cambio, finanzas, divisas, alliance, sistema financiero" />
+        <meta name="robots" content="index, follow" />
         <meta name="author" content="Alliance F&R" />
         <meta name="theme-color" content="#1e40af" />
+        
+        {/* Viewport optimizado */}
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
         
         {/* Mobile optimization */}
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Alliance F&R" />
         <meta name="format-detection" content="telephone=no" />
         
         {/* Favicon principal */}
@@ -47,7 +52,6 @@ export default function Document() {
         
         {/* Meta tags adicionales */}
         <meta name="application-name" content="Alliance F&R" />
-        <meta name="apple-mobile-web-app-title" content="Alliance F&R" />
         
         {/* Preconnect para optimización */}
         <link rel="preconnect" href="https://raw.githubusercontent.com" />
