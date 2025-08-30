@@ -4,34 +4,49 @@ const path = require('path');
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  // Configuración para Netlify Functions
-  output: 'standalone',
-  trailingSlash: false,
+  // Configuración para Netlify - export estático
+  output: 'export',
+  trailingSlash: true,
+  distDir: 'out',
   images: {
     domains: ['localhost'],
-    unoptimized: true, // Necesario para Netlify
+    unoptimized: true, // Necesario para export estático
   },
   eslint: {
     dirs: ['src'],
-    ignoreDuringBuilds: true, // Deshabilitado para deploy - corregir después
+    ignoreDuringBuilds: false, // Habilitado para mejor calidad
   },
   typescript: {
     // Habilitar verificación de tipos para mejor calidad
-    ignoreBuildErrors: true, // Deshabilitado temporalmente hasta migrar a TypeScript
+    ignoreBuildErrors: false, // Habilitado para mejor calidad
   },
   webpack: (config, { dev, isServer }) => {
-    // Configuración mínima para evitar errores de chunks
-    if (dev) {
-      // En desarrollo, usar configuración simple
+    // Optimización de bundle
+    if (!dev && !isServer) {
       config.optimization = {
         ...config.optimization,
-        splitChunks: false, // Deshabilitar split chunks en desarrollo
+        splitChunks: {
+          chunks: 'all',
+          cacheGroups: {
+            vendor: {
+              test: /[\\/]node_modules[\\/]/,
+              name: 'vendors',
+              chunks: 'all',
+            },
+            common: {
+              name: 'common',
+              minChunks: 2,
+              chunks: 'all',
+              enforce: true,
+            },
+          },
+        },
       };
     }
     
     return config;
   },
-  // Configuración para Netlify
+  // Configuración de seguridad
   async headers() {
     return [
       {
@@ -48,6 +63,10 @@ const nextConfig = {
           {
             key: 'Referrer-Policy',
             value: 'strict-origin-when-cross-origin',
+          },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=31536000; includeSubDomains',
           },
         ],
       },

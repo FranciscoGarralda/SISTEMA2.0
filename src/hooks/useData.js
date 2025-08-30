@@ -31,7 +31,7 @@ export const useClients = () => {
     if (clients.length === 0 && !isLoading) {
       loadClients();
     }
-  }, [clients.length, isLoading]); // Remover loadClients de dependencias
+  }, []); // Solo ejecutar al montar el componente
 
   return {
     // Estado
@@ -85,7 +85,7 @@ export const useMovements = () => {
     if (movements.length === 0 && !isLoading) {
       loadMovements();
     }
-  }, [movements.length, isLoading]); // Removido loadMovements de las dependencias porque las 'actions' de Zustand son estables y no necesitan ser dependencias
+  }, []); // Solo ejecutar al montar el componente
 
   return {
     // Estado

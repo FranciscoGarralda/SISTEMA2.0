@@ -34,7 +34,7 @@ export const useAuth = () => {
     if (!isAuthenticated && !isLoading) {
       checkAuth();
     }
-  }, [isAuthenticated, isLoading]); // Agregar dependencias faltantes para reaccionar a cambios de estado
+  }, []); // Solo ejecutar al montar el componente
 
   // Manejador para login exitoso
   const handleLoginSuccess = useCallback((user) => {
