@@ -44,7 +44,7 @@
             background-color: var(--bg-primary);
             color: var(--text-primary);
             padding-top: 60px;
-            padding-bottom: 60px;
+            padding-bottom: 50px;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
         /* Header */
@@ -111,7 +111,7 @@
             right: 0;
             background-color: var(--bg-secondary);
             border-top: 1px solid var(--border-color);
-            padding: 12px 20px;
+            padding: 6px 20px;
             z-index: 1000;
             transition: background-color 0.3s ease, border-color 0.3s ease;
         }
@@ -130,24 +130,24 @@
             text-align: center;
         }
         .cotizacion-label {
-            font-size: 10px;
+            font-size: 9px;
             color: var(--text-secondary);
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
         @media (max-width: 480px) {
             .cotizacion-label {
-                font-size: 9px;
+                font-size: 8px;
             }
         }
         .cotizacion-valores {
             display: flex;
-            gap: 10px;
-            font-size: 12px;
+            gap: 8px;
+            font-size: 11px;
         }
         @media (max-width: 480px) {
             .cotizacion-valores {
-                gap: 6px;
-                font-size: 11px;
+                gap: 5px;
+                font-size: 10px;
             }
         }
         .compra, .venta {
@@ -189,10 +189,13 @@
             width: 280px;
             height: 100vh;
             background-color: var(--bg-secondary);
-            border-right: 1px solid var(--border-color);
-            transition: left 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+            box-shadow: 4px 0 12px rgba(0, 0, 0, 0.15);
+            transition: left 0.3s ease, background-color 0.3s ease;
             z-index: 2000;
             overflow-y: auto;
+        }
+        .dark-theme .sidebar {
+            box-shadow: 4px 0 12px rgba(0, 0, 0, 0.3);
         }
         .sidebar.open {
             left: 0;
@@ -275,12 +278,15 @@
         }
         .form-card {
             background-color: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
+            border-radius: 16px;
             padding: 20px;
             margin-bottom: 20px;
             transition: all 0.3s ease;
             overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+        }
+        .dark-theme .form-card {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2);
         }
         @media (max-width: 600px) {
             .form-card {
@@ -359,7 +365,7 @@
             border: 1px solid var(--border-color);
             color: var(--text-primary);
             padding: 10px 12px;
-            border-radius: 8px;
+            border-radius: 16px;
             font-size: 16px;
             transition: all 0.3s ease;
             width: 100%;
@@ -412,15 +418,18 @@
             border: 1px solid var(--border-color);
             color: var(--text-primary);
             padding: 6px 10px;
-            border-radius: 6px;
+            border-radius: 24px;
             cursor: pointer;
             font-size: 12px;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             text-align: center;
             min-height: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+        .btn-option:hover {
+            transform: scale(1.02);
         }
         @media (max-width: 600px) {
             .btn-option {
@@ -440,9 +449,10 @@
             padding: 6px 10px;
             font-size: 12px;
         }
-        .btn-option:hover {
+        .btn-option:hover:not(.active) {
             border-color: var(--button-bg);
             background-color: var(--bg-secondary);
+            transform: scale(1.02);
         }
         .btn-option.active {
             background-color: var(--active-bg);
@@ -520,11 +530,11 @@
             color: var(--text-primary);
             border: none;
             padding: 12px 24px;
-            border-radius: 8px;
+            border-radius: 24px;
             cursor: pointer;
             font-size: 14px;
             font-weight: 500;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
         }
         @media (max-width: 480px) {
             .btn-submit {
@@ -532,8 +542,9 @@
                 font-size: 13px;
             }
         }
-        .btn-submit:hover {
+        .btn-submit:hover:not(:disabled) {
             opacity: 0.9;
+            transform: scale(1.02);
         }
         .btn-submit:disabled {
             background-color: var(--bg-secondary);
@@ -546,10 +557,10 @@
             border: 1px solid var(--border-color);
             color: var(--text-primary);
             padding: 12px 24px;
-            border-radius: 8px;
+            border-radius: 24px;
             cursor: pointer;
             font-size: 14px;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
         }
         @media (max-width: 480px) {
             .btn-cancel {
@@ -560,6 +571,7 @@
         .btn-cancel:hover {
             border-color: var(--error-color);
             color: var(--error-color);
+            transform: scale(1.02);
         }
         .form-actions {
             display: flex;
@@ -808,11 +820,11 @@
             padding: 0;
             width: 42px;
             height: 42px;
-            border-radius: 6px;
+            border-radius: 24px;
             cursor: pointer;
             font-size: 18px;
             font-weight: bold;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -825,6 +837,7 @@
             }
         }
         .btn-remove:hover {
+            transform: scale(1.1);
             opacity: 0.8;
         }
         .btn-add-payment {
@@ -1104,6 +1117,18 @@
                 const mainContent = document.getElementById('mainContent');
                 if (!mainContent) return;
                 localStorage.setItem('activeModule', module);
+                
+                // Resetear estado de edición al cambiar de módulo
+                if (module === 'operaciones') {
+                    // Resetear solo si no estamos editando (para no perder datos al cambiar de pestaña y volver)
+                    if (editingMovimientoId === null) {
+                        formData = getInitialFormState();
+                        clearFormState();
+                    }
+                } else {
+                    // Si cambiamos a otro módulo, resetear todo
+                    editingMovimientoId = null;
+                }
                 switch(module) {
                     case 'pendientes':
                         mainContent.innerHTML = renderPendientesModule();
@@ -1159,7 +1184,7 @@
                 PRESTAMISTAS: { icon: '🤝', subMenu: ['PRESTAMO', 'RETIRO'] }
             };
             const monedas = [
-                { value: 'PESO', label: 'ARS' }, { value: 'USD', label: 'USD' }, { value: 'EURO', label: 'EUR' },
+                { value: 'ARS', label: 'ARS' }, { value: 'USD', label: 'USD' }, { value: 'EURO', label: 'EUR' },
                 { value: 'USDT', label: 'USDT' }, { value: 'REAL', label: 'BRL' }, { value: 'LIBRA', label: 'GBP' },
                 { value: 'CLP', label: 'CLP' }
             ];
@@ -1169,6 +1194,7 @@
             ];
             let formData = {};
             let editingMovimientoId = null; // ID del movimiento que se está editando
+            let lastEditedField = null; // Campo editado más recientemente para arbitraje bidireccional
 
             function getInitialFormState() {
                 return {
@@ -1303,7 +1329,7 @@
             function addMovimiento(movimiento) {
                 const movimientos = getMovimientos();
                 // Generar ID único para el movimiento
-                const id = 'MOV_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                const id = 'MOV_' + crypto.randomUUID();
                 movimientos.unshift({ ...movimiento, id, fechaCreacion: new Date().toISOString(), anulado: false });
                 saveMovimientos(movimientos);
                 return id;
@@ -1390,15 +1416,59 @@
              * =================================================================
              */
             function safeParseFloat(value, defaultValue = 0) {
-                const parsed = parseFloat(String(value).replace(',', '.'));
+                if (!value && value !== 0) return defaultValue;
+                // Convertir a string y eliminar espacios
+                let str = String(value).trim();
+                // Eliminar símbolos de moneda y caracteres no numéricos (excepto punto, coma y guion)
+                str = str.replace(/[^\d.,-]/g, '');
+                // Eliminar separadores de miles (puntos que no son decimales)
+                // Si hay coma, los puntos son miles. Si hay punto y no coma, el punto es decimal
+                const hasComa = str.includes(',');
+                const hasPunto = str.includes('.');
+                if (hasComa) {
+                    // Formato con coma decimal: eliminar todos los puntos (son miles)
+                    str = str.replace(/\./g, '');
+                    // Reemplazar coma decimal por punto
+                    str = str.replace(',', '.');
+                } else if (hasPunto) {
+                    // Formato con punto: verificar si es decimal o miles
+                    // Si hay más de un punto, los primeros son miles
+                    const puntos = str.split('.');
+                    if (puntos.length > 2) {
+                        // Múltiples puntos = separadores de miles, el último es decimal
+                        str = puntos.slice(0, -1).join('') + '.' + puntos[puntos.length - 1];
+                    }
+                    // Si hay un solo punto, asumimos que es decimal (ya está bien)
+                }
+                const parsed = parseFloat(str);
                 return isNaN(parsed) ? defaultValue : parsed;
+            }
+            
+            function formatNumberWithThousands(value) {
+                if (!value && value !== 0) return '';
+                const num = safeParseFloat(value);
+                if (isNaN(num) || num === 0) return '';
+                // Formatear con separadores de miles (punto) y coma decimal
+                // Usar siempre 2 decimales para números con decimales, 0 para enteros
+                const hasDecimals = num % 1 !== 0;
+                const formatted = num.toLocaleString('es-ES', { 
+                    minimumFractionDigits: hasDecimals ? 2 : 0, 
+                    maximumFractionDigits: 2,
+                    useGrouping: true
+                });
+                return formatted;
             }
             
             function calculateTotal() {
                 // Si es VENTA y la moneda vendida es ARS, dividir en lugar de multiplicar
                 // Si es COMPRA y la moneda comprada es ARS, también dividir
-                if ((formData.subOperacion === 'VENTA' && formData.moneda === 'ARS') || 
-                    (formData.subOperacion === 'COMPRA' && formData.moneda === 'ARS')) {
+                const subOp = String(formData.subOperacion || '').trim();
+                const moneda = String(formData.moneda || '').trim();
+                
+                const esVentaConARS = subOp === 'VENTA' && moneda === 'ARS';
+                const esCompraConARS = subOp === 'COMPRA' && moneda === 'ARS';
+                
+                if (esVentaConARS || esCompraConARS) {
                     formData.total = (safeParseFloat(formData.monto) / safeParseFloat(formData.tc)).toFixed(2);
                 } else {
                     // Para otras operaciones, multiplicar (lógica original)
@@ -1419,36 +1489,36 @@
                 const cotizacionReal = safeParseFloat(formData.cotizacionReal);
                 const costoReal = safeParseFloat(formData.costoReal);
 
-                // Verificar si los campos están vacíos (no solo si son 0)
-                const montoBaseVacio = !formData.montoBase || formData.montoBase === '';
-                const cotizacionClienteVacio = !formData.cotizacionCliente || formData.cotizacionCliente === '';
-                const montoCobradoVacio = !formData.montoCobrado || formData.montoCobrado === '';
-                const cotizacionRealVacio = !formData.cotizacionReal || formData.cotizacionReal === '';
-                const costoRealVacio = !formData.costoReal || formData.costoReal === '';
-
-                // LÓGICA BIDIRECCIONAL: Monto Base × Cotización Cliente = Monto Cobrado
-                // Si tengo montoBase y cotizacionCliente → calcular montoCobrado
-                if (montoBase > 0 && cotizacionCliente > 0 && montoCobradoVacio) {
-                    formData.montoCobrado = (montoBase * cotizacionCliente).toFixed(2);
-                }
-                // Si tengo montoCobrado y montoBase → calcular cotizacionCliente
-                else if (montoCobrado > 0 && montoBase > 0 && cotizacionClienteVacio) {
-                    formData.cotizacionCliente = (montoCobrado / montoBase).toFixed(2);
-                }
-                // Si tengo montoCobrado y cotizacionCliente → calcular montoBase
-                else if (montoCobrado > 0 && cotizacionCliente > 0 && montoBaseVacio) {
-                    formData.montoBase = (montoCobrado / cotizacionCliente).toFixed(2);
+                // LÓGICA BIDIRECCIONAL basada en lastEditedField
+                // Primera ecuación: Monto Base × Cotización Cliente = Monto Cobrado
+                if (lastEditedField === 'montoBase') {
+                    if (cotizacionCliente > 0) {
+                        formData.montoCobrado = (montoBase * cotizacionCliente).toFixed(2);
+                    }
+                } else if (lastEditedField === 'cotizacionCliente') {
+                    if (montoBase > 0) {
+                        formData.montoCobrado = (montoBase * cotizacionCliente).toFixed(2);
+                    }
+                } else if (lastEditedField === 'montoCobrado') {
+                    if (montoBase > 0 && montoBase !== 0) {
+                        formData.cotizacionCliente = (montoCobrado / montoBase).toFixed(2);
+                    } else if (cotizacionCliente > 0 && cotizacionCliente !== 0) {
+                        formData.montoBase = (montoCobrado / cotizacionCliente).toFixed(2);
+                    }
                 }
 
-                // LÓGICA BIDIRECCIONAL: Monto Base × Cotización Real = Costo Real
-                // Si tengo montoBase y cotizacionReal → calcular costoReal
+                // Segunda ecuación: Monto Base × Cotización Real = Costo Real
                 const montoBaseFinal = safeParseFloat(formData.montoBase);
-                if (montoBaseFinal > 0 && cotizacionReal > 0 && costoRealVacio) {
-                    formData.costoReal = (montoBaseFinal * cotizacionReal).toFixed(2);
-                }
-                // Si tengo costoReal y montoBase → calcular cotizacionReal
-                else if (costoReal > 0 && montoBaseFinal > 0 && cotizacionRealVacio) {
-                    formData.cotizacionReal = (costoReal / montoBaseFinal).toFixed(2);
+                if (lastEditedField === 'montoBase' || lastEditedField === 'cotizacionReal') {
+                    if (montoBaseFinal > 0 && cotizacionReal > 0) {
+                        formData.costoReal = (montoBaseFinal * cotizacionReal).toFixed(2);
+                    }
+                } else if (lastEditedField === 'costoReal') {
+                    if (montoBaseFinal > 0 && montoBaseFinal !== 0) {
+                        formData.cotizacionReal = (costoReal / montoBaseFinal).toFixed(2);
+                    } else if (cotizacionReal > 0 && cotizacionReal !== 0) {
+                        formData.montoBase = (costoReal / cotizacionReal).toFixed(2);
+                    }
                 }
 
                 // Calcular Profit si tengo montoCobrado y costoReal
@@ -1504,49 +1574,49 @@
                 const fieldsConfig = {
                     'TRANSACCIONES_COMPRA': `
                         <div class="form-grid">
-                            <div class="form-group"><label class="form-label">Monto que Compramos</label><input type="number" class="form-input" name="monto" value="${formData.monto || ''}" placeholder="0.00" step="0.01"></div>
+                            <div class="form-group"><label class="form-label">Monto que Compramos</label><input type="text" inputmode="numeric" class="form-input" name="monto" value="${formData.monto || ''}" placeholder="0.00" step="0.01"></div>
                             <div class="form-group"><label class="form-label">Moneda Comprada</label><div class="moneda-buttons-container" id="monedaButtons"></div></div>
                         </div>
                         <div class="form-group"><label class="form-label">Wallet donde se recibe</label><div class="wallet-buttons-container" id="walletCompraButtons"></div></div>
                         <div class="field-separator"></div>
                         <div class="form-grid">
-                            <div class="form-group"><label class="form-label">Tipo de Cambio (TC)</label><input type="number" class="form-input" name="tc" value="${formData.tc || ''}" placeholder="0.00" step="0.01"></div>
+                            <div class="form-group"><label class="form-label">Tipo de Cambio (TC)</label><input type="text" inputmode="numeric" class="form-input" name="tc" value="${formData.tc || ''}" placeholder="0.00" step="0.01"></div>
                             <div class="form-group"><label class="form-label">Moneda de Pago</label><div class="moneda-buttons-container" id="monedaTCButtons"></div></div>
                         </div>
                         <div class="form-group"><label class="form-label">Wallet desde donde se paga</label><div class="wallet-buttons-container" id="walletTCButtons"></div></div>
-                        <div class="form-group" style="margin-top: 24px;"><label class="form-label">Total a Pagar</label><input type="number" class="form-input form-input-readonly" name="total" value="${formData.total || ''}" readonly></div>`,
+                        <div class="form-group" style="margin-top: 24px;"><label class="form-label">Total a Pagar</label><input type="text" inputmode="numeric" class="form-input form-input-readonly" name="total" value="${formData.total || ''}" readonly></div>`,
                     'TRANSACCIONES_VENTA': `
                         <div class="form-grid">
-                            <div class="form-group"><label class="form-label">Monto que Vendemos</label><input type="number" class="form-input" name="monto" value="${formData.monto || ''}" placeholder="0.00" step="0.01"></div>
+                            <div class="form-group"><label class="form-label">Monto que Vendemos</label><input type="text" inputmode="numeric" class="form-input" name="monto" value="${formData.monto || ''}" placeholder="0.00" step="0.01"></div>
                             <div class="form-group"><label class="form-label">Moneda Vendida</label><div class="moneda-buttons-container" id="monedaButtons"></div></div>
                         </div>
                         <div class="form-group"><label class="form-label">Wallet de donde sale</label><div class="wallet-buttons-container" id="walletCompraButtons"></div></div>
                         <div class="field-separator"></div>
                         <div class="form-grid">
-                            <div class="form-group"><label class="form-label">Tipo de Cambio (TC)</label><input type="number" class="form-input" name="tc" value="${formData.tc || ''}" placeholder="0.00" step="0.01"></div>
+                            <div class="form-group"><label class="form-label">Tipo de Cambio (TC)</label><input type="text" inputmode="numeric" class="form-input" name="tc" value="${formData.tc || ''}" placeholder="0.00" step="0.01"></div>
                             <div class="form-group"><label class="form-label">Moneda de Cobro</label><div class="moneda-buttons-container" id="monedaTCButtons"></div></div>
                         </div>
                         <div class="form-group"><label class="form-label">Wallet donde se cobra</label><div class="wallet-buttons-container" id="walletTCButtons"></div></div>
-                        <div class="form-group" style="margin-top: 24px;"><label class="form-label">Total a Cobrar</label><input type="number" class="form-input form-input-readonly" name="total" value="${formData.total || ''}" readonly></div>`,
+                        <div class="form-group" style="margin-top: 24px;"><label class="form-label">Total a Cobrar</label><input type="text" inputmode="numeric" class="form-input form-input-readonly" name="total" value="${formData.total || ''}" readonly></div>`,
                     'TRANSACCIONES_ARBITRAJE': `
                         <div class="form-grid">
-                            <div class="form-group"><label class="form-label">Monto Base</label><input type="number" class="form-input" name="montoBase" value="${formData.montoBase || ''}" placeholder="0.00" step="0.01"></div>
+                            <div class="form-group"><label class="form-label">Monto Base</label><input type="text" inputmode="numeric" class="form-input" name="montoBase" value="${formData.montoBase || ''}" placeholder="0.00" step="0.01"></div>
                             <div class="form-group"><label class="form-label">Moneda Base</label><div class="moneda-buttons-container" id="monedaBaseButtons"></div></div>
                         </div>
                         <div class="form-group"><label class="form-label">Wallet de Origen (Base)</label><div class="wallet-buttons-container" id="walletBaseButtons"></div></div>
                         <div class="field-separator"></div>
                         <div class="form-grid">
-                            <div class="form-group"><label class="form-label">Cotización Cliente</label><input type="number" class="form-input" name="cotizacionCliente" value="${formData.cotizacionCliente || ''}" placeholder="0.00" step="0.01"></div>
-                            <div class="form-group"><label class="form-label">Cotización Real</label><input type="number" class="form-input" name="cotizacionReal" value="${formData.cotizacionReal || ''}" placeholder="0.00" step="0.01"></div>
+                            <div class="form-group"><label class="form-label">Cotización Cliente</label><input type="text" inputmode="numeric" class="form-input" name="cotizacionCliente" value="${formData.cotizacionCliente || ''}" placeholder="0.00" step="0.01"></div>
+                            <div class="form-group"><label class="form-label">Cotización Real</label><input type="text" inputmode="numeric" class="form-input" name="cotizacionReal" value="${formData.cotizacionReal || ''}" placeholder="0.00" step="0.01"></div>
                         </div>
                         <div class="form-grid">
-                             <div class="form-group"><label class="form-label">Monto Cobrado</label><input type="number" class="form-input" name="montoCobrado" value="${formData.montoCobrado || ''}" placeholder="0.00" step="0.01"></div>
+                             <div class="form-group"><label class="form-label">Monto Cobrado</label><input type="text" inputmode="numeric" class="form-input" name="montoCobrado" value="${formData.montoCobrado || ''}" placeholder="0.00" step="0.01"></div>
                              <div class="form-group"><label class="form-label">Moneda de Cobro</label><div class="moneda-buttons-container" id="monedaCobroButtons"></div></div>
                         </div>
                          <div class="field-separator"></div>
                          <div class="form-grid">
-                            <div class="form-group"><label class="form-label">Costo Real</label><input type="number" class="form-input form-input-readonly" name="costoReal" value="${formData.costoReal || ''}" readonly></div>
-                            <div class="form-group"><label class="form-label">Profit</label><input type="number" class="form-input form-input-readonly" name="profit" value="${formData.profit || ''}" readonly></div>
+                            <div class="form-group"><label class="form-label">Costo Real</label><input type="text" inputmode="numeric" class="form-input form-input-readonly" name="costoReal" value="${formData.costoReal || ''}" readonly></div>
+                            <div class="form-group"><label class="form-label">Profit</label><input type="text" inputmode="numeric" class="form-input form-input-readonly" name="profit" value="${formData.profit || ''}" readonly></div>
                         </div>
                         <div class="form-grid">
                              <div class="form-group"><label class="form-label">Moneda del Profit</label><div class="moneda-buttons-container" id="monedaProfitButtons"></div></div>
@@ -1554,74 +1624,74 @@
                         </div>`,
                     'CUENTAS_CORRIENTES_INGRESO': `
                         <div class="form-grid">
-                            <div class="form-group"><label class="form-label">Monto Ingreso</label><input type="number" class="form-input" name="monto" value="${formData.monto || ''}" placeholder="0.00" step="0.01"></div>
+                            <div class="form-group"><label class="form-label">Monto Ingreso</label><input type="text" inputmode="numeric" class="form-input" name="monto" value="${formData.monto || ''}" placeholder="0.00" step="0.01"></div>
                             <div class="form-group"><label class="form-label">Moneda</label><div class="moneda-buttons-container" id="monedaButtons"></div></div>
                         </div>
                         <div class="form-group"><label class="form-label">Wallet donde ingresa</label><div class="wallet-buttons-container" id="walletCompraButtons"></div></div>
                         <div class="field-separator"></div>
                         <div class="form-group"><label class="form-label">Comisión</label><div style="display: flex; gap: 10px;"><button type="button" class="btn-option ${formData.comisionTipo === 'porcentaje' ? 'active' : ''}" id="comisionPorcentajeBtn" style="flex: 1;">%</button><button type="button" class="btn-option ${formData.comisionTipo === 'fijo' ? 'active' : ''}" id="comisionFijoBtn" style="flex: 1;">$</button></div></div>
                         <div class="form-grid">
-                            <div class="form-group"><label class="form-label">Valor Comisión</label><input type="number" class="form-input" name="comisionValor" value="${formData.comisionValor || ''}" placeholder="0.00" step="0.01"></div>
+                            <div class="form-group"><label class="form-label">Valor Comisión</label><input type="text" inputmode="numeric" class="form-input" name="comisionValor" value="${formData.comisionValor || ''}" placeholder="0.00" step="0.01"></div>
                             <div class="form-group ${formData.comisionTipo === 'porcentaje' ? 'hidden' : ''}" id="monedaComisionContainer"><label class="form-label">Moneda Comisión</label><div class="moneda-buttons-container" id="monedaComisionButtons"></div></div>
                         </div>
-                        <div class="form-group"><label class="form-label">Monto Comisión</label><input type="number" class="form-input form-input-readonly" name="montoComision" value="${formData.montoComision || ''}" readonly></div>
-                        <div class="form-group" style="margin-top: 24px;"><label class="form-label">Total</label><input type="number" class="form-input form-input-readonly" name="total" value="${formData.total || ''}" readonly></div>`,
+                        <div class="form-group"><label class="form-label">Monto Comisión</label><input type="text" inputmode="numeric" class="form-input form-input-readonly" name="montoComision" value="${formData.montoComision || ''}" readonly></div>
+                        <div class="form-group" style="margin-top: 24px;"><label class="form-label">Total</label><input type="text" inputmode="numeric" class="form-input form-input-readonly" name="total" value="${formData.total || ''}" readonly></div>`,
                     'CUENTAS_CORRIENTES_EGRESO': `
                         <div class="form-grid">
-                            <div class="form-group"><label class="form-label">Monto Egreso</label><input type="number" class="form-input" name="monto" value="${formData.monto || ''}" placeholder="0.00" step="0.01"></div>
+                            <div class="form-group"><label class="form-label">Monto Egreso</label><input type="text" inputmode="numeric" class="form-input" name="monto" value="${formData.monto || ''}" placeholder="0.00" step="0.01"></div>
                             <div class="form-group"><label class="form-label">Moneda</label><div class="moneda-buttons-container" id="monedaButtons"></div></div>
                         </div>
                         <div class="form-group"><label class="form-label">Wallet de donde egresa</label><div class="wallet-buttons-container" id="walletCompraButtons"></div></div>
                         <div class="field-separator"></div>
                         <div class="form-group"><label class="form-label">Comisión</label><div style="display: flex; gap: 10px;"><button type="button" class="btn-option ${formData.comisionTipo === 'porcentaje' ? 'active' : ''}" id="comisionPorcentajeBtn" style="flex: 1;">%</button><button type="button" class="btn-option ${formData.comisionTipo === 'fijo' ? 'active' : ''}" id="comisionFijoBtn" style="flex: 1;">$</button></div></div>
                         <div class="form-grid">
-                            <div class="form-group"><label class="form-label">Valor Comisión</label><input type="number" class="form-input" name="comisionValor" value="${formData.comisionValor || ''}" placeholder="0.00" step="0.01"></div>
+                            <div class="form-group"><label class="form-label">Valor Comisión</label><input type="text" inputmode="numeric" class="form-input" name="comisionValor" value="${formData.comisionValor || ''}" placeholder="0.00" step="0.01"></div>
                             <div class="form-group ${formData.comisionTipo === 'porcentaje' ? 'hidden' : ''}" id="monedaComisionContainer"><label class="form-label">Moneda Comisión</label><div class="moneda-buttons-container" id="monedaComisionButtons"></div></div>
                         </div>
-                        <div class="form-group"><label class="form-label">Monto Comisión</label><input type="number" class="form-input form-input-readonly" name="montoComision" value="${formData.montoComision || ''}" readonly></div>
-                        <div class="form-group" style="margin-top: 24px;"><label class="form-label">Total</label><input type="number" class="form-input form-input-readonly" name="total" value="${formData.total || ''}" readonly></div>`,
+                        <div class="form-group"><label class="form-label">Monto Comisión</label><input type="text" inputmode="numeric" class="form-input form-input-readonly" name="montoComision" value="${formData.montoComision || ''}" readonly></div>
+                        <div class="form-group" style="margin-top: 24px;"><label class="form-label">Total</label><input type="text" inputmode="numeric" class="form-input form-input-readonly" name="total" value="${formData.total || ''}" readonly></div>`,
                     'CUENTAS_CORRIENTES_COMPRA': `
                         <div class="form-grid">
-                            <div class="form-group"><label class="form-label">Monto que Compramos</label><input type="number" class="form-input" name="monto" value="${formData.monto || ''}" placeholder="0.00" step="0.01"></div>
+                            <div class="form-group"><label class="form-label">Monto que Compramos</label><input type="text" inputmode="numeric" class="form-input" name="monto" value="${formData.monto || ''}" placeholder="0.00" step="0.01"></div>
                             <div class="form-group"><label class="form-label">Moneda Comprada</label><div class="moneda-buttons-container" id="monedaButtons"></div></div>
                         </div>
                         <div class="form-group"><label class="form-label">Wallet donde se recibe</label><div class="wallet-buttons-container" id="walletCompraButtons"></div></div>
                         <div class="field-separator"></div>
                         <div class="form-grid">
-                            <div class="form-group"><label class="form-label">Tipo de Cambio (TC)</label><input type="number" class="form-input" name="tc" value="${formData.tc || ''}" placeholder="0.00" step="0.01"></div>
+                            <div class="form-group"><label class="form-label">Tipo de Cambio (TC)</label><input type="text" inputmode="numeric" class="form-input" name="tc" value="${formData.tc || ''}" placeholder="0.00" step="0.01"></div>
                             <div class="form-group"><label class="form-label">Moneda de Pago</label><div class="moneda-buttons-container" id="monedaTCButtons"></div></div>
                         </div>
                         <div class="form-group"><label class="form-label">Wallet desde donde se paga</label><div class="wallet-buttons-container" id="walletTCButtons"></div></div>
-                        <div class="form-group" style="margin-top: 24px;"><label class="form-label">Total a Pagar</label><input type="number" class="form-input form-input-readonly" name="total" value="${formData.total || ''}" readonly></div>`,
+                        <div class="form-group" style="margin-top: 24px;"><label class="form-label">Total a Pagar</label><input type="text" inputmode="numeric" class="form-input form-input-readonly" name="total" value="${formData.total || ''}" readonly></div>`,
                     'CUENTAS_CORRIENTES_VENTA': `
                         <div class="form-grid">
-                            <div class="form-group"><label class="form-label">Monto que Vendemos</label><input type="number" class="form-input" name="monto" value="${formData.monto || ''}" placeholder="0.00" step="0.01"></div>
+                            <div class="form-group"><label class="form-label">Monto que Vendemos</label><input type="text" inputmode="numeric" class="form-input" name="monto" value="${formData.monto || ''}" placeholder="0.00" step="0.01"></div>
                             <div class="form-group"><label class="form-label">Moneda Vendida</label><div class="moneda-buttons-container" id="monedaButtons"></div></div>
                         </div>
                         <div class="form-group"><label class="form-label">Wallet de donde sale</label><div class="wallet-buttons-container" id="walletCompraButtons"></div></div>
                         <div class="field-separator"></div>
                         <div class="form-grid">
-                            <div class="form-group"><label class="form-label">Tipo de Cambio (TC)</label><input type="number" class="form-input" name="tc" value="${formData.tc || ''}" placeholder="0.00" step="0.01"></div>
+                            <div class="form-group"><label class="form-label">Tipo de Cambio (TC)</label><input type="text" inputmode="numeric" class="form-input" name="tc" value="${formData.tc || ''}" placeholder="0.00" step="0.01"></div>
                             <div class="form-group"><label class="form-label">Moneda de Cobro</label><div class="moneda-buttons-container" id="monedaTCButtons"></div></div>
                         </div>
                         <div class="form-group"><label class="form-label">Wallet donde se cobra</label><div class="wallet-buttons-container" id="walletTCButtons"></div></div>
-                        <div class="form-group" style="margin-top: 24px;"><label class="form-label">Total a Cobrar</label><input type="number" class="form-input form-input-readonly" name="total" value="${formData.total || ''}" readonly></div>`,
+                        <div class="form-group" style="margin-top: 24px;"><label class="form-label">Total a Cobrar</label><input type="text" inputmode="numeric" class="form-input form-input-readonly" name="total" value="${formData.total || ''}" readonly></div>`,
                     'CUENTAS_CORRIENTES_ARBITRAJE': `<p style="color: var(--text-secondary);">Arbitraje para Cuentas Corrientes pendiente de definición.</p>`,
                     'WALLET_INGRESO': `
                         <div class="form-grid">
-                            <div class="form-group"><label class="form-label">Monto de Ingreso</label><input type="number" class="form-input" name="monto" value="${formData.monto || ''}" placeholder="0.00" step="0.01"></div>
+                            <div class="form-group"><label class="form-label">Monto de Ingreso</label><input type="text" inputmode="numeric" class="form-input" name="monto" value="${formData.monto || ''}" placeholder="0.00" step="0.01"></div>
                             <div class="form-group"><label class="form-label">Moneda</label><div class="moneda-buttons-container" id="monedaButtons"></div></div>
                         </div>
                         <div class="form-group"><label class="form-label">Wallet Destino</label><div class="wallet-buttons-container" id="walletCompraButtons"></div></div>`,
                     'WALLET_SALIDA': `
                         <div class="form-grid">
-                            <div class="form-group"><label class="form-label">Monto de Salida</label><input type="number" class="form-input" name="monto" value="${formData.monto || ''}" placeholder="0.00" step="0.01"></div>
+                            <div class="form-group"><label class="form-label">Monto de Salida</label><input type="text" inputmode="numeric" class="form-input" name="monto" value="${formData.monto || ''}" placeholder="0.00" step="0.01"></div>
                             <div class="form-group"><label class="form-label">Moneda</label><div class="moneda-buttons-container" id="monedaButtons"></div></div>
                         </div>
                         <div class="form-group"><label class="form-label">Wallet Origen</label><div class="wallet-buttons-container" id="walletCompraButtons"></div></div>`,
                     'WALLET_MOV ENTRE CUENTAS': `
                         <div class="form-grid">
-                            <div class="form-group"><label class="form-label">Monto</label><input type="number" class="form-input" name="monto" value="${formData.monto || ''}" placeholder="0.00" step="0.01"></div>
+                            <div class="form-group"><label class="form-label">Monto</label><input type="text" inputmode="numeric" class="form-input" name="monto" value="${formData.monto || ''}" placeholder="0.00" step="0.01"></div>
                             <div class="form-group"><label class="form-label">Moneda</label><div class="moneda-buttons-container" id="monedaButtons"></div></div>
                         </div>
                         <div class="field-separator"></div>
@@ -1629,30 +1699,30 @@
                         <div class="form-group"><label class="form-label">Wallet de Ingreso</label><div class="wallet-buttons-container" id="cuentaIngresoButtons"></div></div>`,
                     'ADMINISTRATIVAS_GASTO': `
                         <div class="form-grid">
-                            <div class="form-group"><label class="form-label">Monto del Gasto</label><input type="number" class="form-input" name="monto" value="${formData.monto || ''}" placeholder="0.00" step="0.01"></div>
+                            <div class="form-group"><label class="form-label">Monto del Gasto</label><input type="text" inputmode="numeric" class="form-input" name="monto" value="${formData.monto || ''}" placeholder="0.00" step="0.01"></div>
                             <div class="form-group"><label class="form-label">Moneda</label><div class="moneda-buttons-container" id="monedaButtons"></div></div>
                         </div>
                         <div class="form-group"><label class="form-label">Wallet de Origen</label><div class="wallet-buttons-container" id="walletCompraButtons"></div></div>`,
                      'ADMINISTRATIVAS_AJUSTE': `
                         <div class="form-grid">
-                            <div class="form-group"><label class="form-label">Monto del Ajuste</label><input type="number" class="form-input" name="monto" value="${formData.monto || ''}" placeholder="0.00" step="0.01"></div>
+                            <div class="form-group"><label class="form-label">Monto del Ajuste</label><input type="text" inputmode="numeric" class="form-input" name="monto" value="${formData.monto || ''}" placeholder="0.00" step="0.01"></div>
                             <div class="form-group"><label class="form-label">Moneda</label><div class="moneda-buttons-container" id="monedaButtons"></div></div>
                         </div>
                         <div class="form-group"><label class="form-label">Wallet a ajustar</label><div class="wallet-buttons-container" id="walletCompraButtons"></div></div>`,
                     'PRESTAMISTAS_PRESTAMO': `
                         <div class="form-grid">
-                            <div class="form-group"><label class="form-label">Monto del Préstamo</label><input type="number" class="form-input" name="monto" value="${formData.monto || ''}" placeholder="0.00" step="0.01"></div>
+                            <div class="form-group"><label class="form-label">Monto del Préstamo</label><input type="text" inputmode="numeric" class="form-input" name="monto" value="${formData.monto || ''}" placeholder="0.00" step="0.01"></div>
                             <div class="form-group"><label class="form-label">Moneda</label><div class="moneda-buttons-container" id="monedaButtons"></div></div>
                         </div>
                          <div class="form-grid">
-                            <div class="form-group"><label class="form-label">% Interés Anual</label><input type="number" class="form-input" name="interes" value="${formData.interes || ''}" placeholder="0.00" step="0.01"></div>
-                            <div class="form-group"><label class="form-label">Lapso (días)</label><input type="number" class="form-input" name="lapso" value="${formData.lapso || ''}" placeholder="30"></div>
+                            <div class="form-group"><label class="form-label">% Interés Anual</label><input type="text" inputmode="numeric" class="form-input" name="interes" value="${formData.interes || ''}" placeholder="0.00" step="0.01"></div>
+                            <div class="form-group"><label class="form-label">Lapso (días)</label><input type="text" inputmode="numeric" class="form-input" name="lapso" value="${formData.lapso || ''}" placeholder="30"></div>
                         </div>
                         <div class="form-group"><label class="form-label">Wallet de donde sale</label><div class="wallet-buttons-container" id="walletCompraButtons"></div></div>
-                        <div class="form-group" style="margin-top: 24px;"><label class="form-label">Monto Total a Devolver (con interés)</label><input type="number" class="form-input form-input-readonly" name="total" value="${formData.total || ''}" readonly></div>`,
+                        <div class="form-group" style="margin-top: 24px;"><label class="form-label">Monto Total a Devolver (con interés)</label><input type="text" inputmode="numeric" class="form-input form-input-readonly" name="total" value="${formData.total || ''}" readonly></div>`,
                     'PRESTAMISTAS_RETIRO': `
                         <div class="form-grid">
-                            <div class="form-group"><label class="form-label">Monto a Retirar</label><input type="number" class="form-input" name="monto" value="${formData.monto || ''}" placeholder="0.00" step="0.01"></div>
+                            <div class="form-group"><label class="form-label">Monto a Retirar</label><input type="text" inputmode="numeric" class="form-input" name="monto" value="${formData.monto || ''}" placeholder="0.00" step="0.01"></div>
                             <div class="form-group"><label class="form-label">Moneda</label><div class="moneda-buttons-container" id="monedaButtons"></div></div>
                         </div>
                         <div class="form-group"><label class="form-label">Wallet de Origen</label><div class="wallet-buttons-container" id="walletCompraButtons"></div></div>`,
@@ -1888,6 +1958,18 @@
                     }
                 });
                 
+                // Formatear todos los campos numéricos con separadores de miles
+                const numericFields = ['monto', 'tc', 'total', 'montoBase', 'cotizacionCliente', 'cotizacionReal', 'montoCobrado', 'costoReal', 'profit', 'interes', 'lapso', 'comisionValor', 'montoComision'];
+                numericFields.forEach(fieldName => {
+                    const input = document.querySelector(`[name="${fieldName}"]`);
+                    if (input && !input.readOnly && formData[fieldName]) {
+                        const formatted = formatNumberWithThousands(formData[fieldName]);
+                        if (formatted && input.value !== formatted) {
+                            input.value = formatted;
+                        }
+                    }
+                });
+                
                 initWalletButtons('walletCompraButtons', 'walletCompra');
                 initWalletButtons('walletTCButtons', 'walletTC', true);
                 initWalletButtons('walletBaseButtons', 'walletBase');
@@ -1933,7 +2015,11 @@
                 if (calculated) {
                     ['total', 'montoBase', 'costoReal', 'profit', 'montoComision'].forEach(fieldName => {
                         const input = document.querySelector(`[name="${fieldName}"]`);
-                        if (input) input.value = formData[fieldName] || '';
+                        if (input && document.activeElement !== input) {
+                            // Formatear el valor con separadores de miles
+                            const value = formData[fieldName] || '';
+                            input.value = formatNumberWithThousands(value);
+                        }
                     });
                 }
                 updateMixedPaymentsTotal();
@@ -1944,6 +2030,20 @@
                 if (!form) return;
 
                 loadFormState();
+                
+                // Formatear todos los campos numéricos después de cargar el estado
+                setTimeout(() => {
+                    const numericFields = ['monto', 'tc', 'total', 'montoBase', 'cotizacionCliente', 'cotizacionReal', 'montoCobrado', 'costoReal', 'profit', 'interes', 'lapso', 'comisionValor', 'montoComision'];
+                    numericFields.forEach(fieldName => {
+                        const input = document.querySelector(`[name="${fieldName}"]`);
+                        if (input && !input.readOnly && formData[fieldName]) {
+                            const formatted = formatNumberWithThousands(formData[fieldName]);
+                            if (formatted) {
+                                input.value = formatted;
+                            }
+                        }
+                    });
+                }, 100);
 
                 const fechaInput = form.querySelector('[name="fecha"]');
                 const nombreDiaInput = form.querySelector('[name="nombreDia"]');
@@ -1973,15 +2073,40 @@
                 }
                 
                 form.addEventListener('input', (e) => {
+                    // Actualizar lastEditedField para arbitraje bidireccional
+                    const arbitrajeFields = ['montoBase', 'cotizacionCliente', 'montoCobrado', 'cotizacionReal', 'costoReal'];
+                    if (arbitrajeFields.includes(e.target.name)) {
+                        lastEditedField = e.target.name;
+                    }
                     const name = e.target.name;
                     if (name && formData.hasOwnProperty(name)) {
-                        formData[name] = e.target.value;
+                        // Guardar el valor sin formatear para cálculos
+                        const numericValue = safeParseFloat(e.target.value);
+                        formData[name] = numericValue > 0 ? numericValue.toString() : '';
+                        
+                        // No formatear mientras se escribe, solo guardar el valor numérico
+                        
                         if (['monto', 'tc', 'montoBase', 'cotizacionCliente', 'cotizacionReal', 'montoCobrado', 'costoReal', 'interes', 'lapso', 'comisionValor'].includes(name)) {
                             updateCalculatedFieldsAndUI();
                         }
                         saveFormState();
                     }
                 });
+                
+                // Formatear campos numéricos cuando pierden el foco
+                form.addEventListener('blur', (e) => {
+                    const name = e.target.name;
+                    const numericFields = ['monto', 'tc', 'montoBase', 'cotizacionCliente', 'cotizacionReal', 'montoCobrado', 'costoReal', 'interes', 'lapso', 'comisionValor', 'total', 'profit', 'montoComision'];
+                    if (numericFields.includes(name) && !e.target.readOnly && e.target.value) {
+                        const numValue = safeParseFloat(e.target.value);
+                        if (!isNaN(numValue) && numValue > 0) {
+                            const formatted = formatNumberWithThousands(numValue);
+                            if (formatted) {
+                                e.target.value = formatted;
+                            }
+                        }
+                    }
+                }, true);
                 
                 form.addEventListener('change', (e) => {
                     const name = e.target.name;
@@ -2185,7 +2310,7 @@
                 listContainer.innerHTML = formData.mixedPayments.map((payment, index) => `
                     <div class="mixed-payment-item">
                         <div class="form-group"><label class="form-label">Wallet</label><select class="form-select" data-index="${index}" data-field="wallet"><option value="">Seleccionar</option>${wallets.map(w => w.tipos.map(t => `<option value="${w.id}_${t}" ${payment.wallet === `${w.id}_${t}` ? 'selected' : ''}>${w.nombre} - ${t}</option>`).join('')).join('')}</select></div>
-                        <div class="form-group"><label class="form-label">Monto</label><input type="number" class="form-input" data-index="${index}" data-field="monto" value="${payment.monto || ''}" placeholder="0.00" step="0.01"></div>
+                        <div class="form-group"><label class="form-label">Monto</label><input type="text" inputmode="numeric" class="form-input" data-index="${index}" data-field="monto" value="${formatNumberWithThousands(payment.monto || '')}" placeholder="0.00"></div>
                         <button type="button" class="btn-remove" data-index="${index}">✕</button>
                     </div>`).join('');
 
@@ -2193,11 +2318,32 @@
                     if(e.target.dataset.index) {
                         const index = parseInt(e.target.dataset.index);
                         const field = e.target.dataset.field;
-                        formData.mixedPayments[index][field] = e.target.value;
+                        
+                        // No formatear mientras se escribe, solo guardar el valor numérico
+                        // Guardar el valor numérico, no el formateado
+                        if (field === 'monto') {
+                            formData.mixedPayments[index][field] = safeParseFloat(e.target.value).toString();
+                        } else {
+                            formData.mixedPayments[index][field] = e.target.value;
+                        }
                         updateMixedPaymentsTotal();
                         saveFormState();
                     }
                 });
+                
+                // Formatear campos de monto cuando pierden el foco
+                listContainer.addEventListener('blur', e => {
+                    if(e.target.dataset.index && e.target.dataset.field === 'monto' && !e.target.readOnly && e.target.value) {
+                        const numValue = safeParseFloat(e.target.value);
+                        if (!isNaN(numValue) && numValue > 0) {
+                            const formatted = formatNumberWithThousands(numValue);
+                            if (formatted) {
+                                e.target.value = formatted;
+                            }
+                        }
+                    }
+                }, true);
+                
                  listContainer.addEventListener('click', e => {
                     if (e.target.classList.contains('btn-remove')) {
                         const index = parseInt(e.target.dataset.index);
@@ -2221,9 +2367,9 @@
                 const totalEl = document.getElementById('mixedPaymentsTotal');
                 const expectedEl = document.getElementById('expectedTotal');
                 if (totalEl && expectedEl) {
-                    totalEl.textContent = total.toFixed(2);
+                    totalEl.textContent = formatNumberWithThousands(total);
                     const expected = safeParseFloat(formData.total);
-                    expectedEl.textContent = expected.toFixed(2);
+                    expectedEl.textContent = formatNumberWithThousands(expected);
                     totalEl.classList.toggle('total-match', Math.abs(total - expected) < 0.01);
                     totalEl.classList.toggle('total-mismatch', Math.abs(total - expected) >= 0.01);
                 }
@@ -2443,7 +2589,7 @@
                     }
                     
                     // Generar ID aleatorio único
-                    const id = 'CLI_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                    const id = 'CLI_' + crypto.randomUUID();
                     
                     const nuevoCliente = {
                         id,
@@ -2781,7 +2927,7 @@
                     
                     // Calcular totales por tipo
                     const monto = safeParseFloat(mov.monto || mov.total || 0);
-                    const moneda = mov.moneda || mov.monedaTC || 'PESO';
+                    const moneda = mov.moneda || mov.monedaTC || 'ARS';
                     
                     if (mov.estado === 'pendiente_retiro') {
                         pendientesPorCliente[clienteId].totalRetiro += monto;
