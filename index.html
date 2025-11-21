@@ -1396,10 +1396,12 @@
             
             function calculateTotal() {
                 // Si es VENTA y la moneda vendida es ARS, dividir en lugar de multiplicar
-                if (formData.subOperacion === 'VENTA' && formData.moneda === 'ARS') {
+                // Si es COMPRA y la moneda comprada es ARS, también dividir
+                if ((formData.subOperacion === 'VENTA' && formData.moneda === 'ARS') || 
+                    (formData.subOperacion === 'COMPRA' && formData.moneda === 'ARS')) {
                     formData.total = (safeParseFloat(formData.monto) / safeParseFloat(formData.tc)).toFixed(2);
                 } else {
-                    // Para COMPRA y otras operaciones, multiplicar (lógica original)
+                    // Para otras operaciones, multiplicar (lógica original)
                     formData.total = (safeParseFloat(formData.monto) * safeParseFloat(formData.tc)).toFixed(2);
                 }
             }
@@ -1685,7 +1687,7 @@
                                     <div class="form-group"><label class="form-label" for="estado">Estado</label><select class="form-select" id="estado" name="estado">${estados.map(e => `<option value="${e.value}" ${formData.estado === e.value ? 'selected' : ''}>${e.label}</option>`).join('')}</select></div>
                                     <div class="form-group"><label class="form-label" for="por">Por</label><input type="text" class="form-input" id="por" name="por" value="${formData.por || ''}" placeholder="Nombre"></div>
                                 </div>
-                                ${!['CREAR WALLET', 'LISTA DE WALLETS'].includes(formData.subOperacion) ? '<div class="form-actions"><button type="button" class="btn-cancel" id="cancelBtn">Cancelar</button><button type="submit" class="btn-submit">Guardar Operación</button></div>' : ''}
+                                ${formData.subOperacion !== 'CREAR WALLET' && formData.subOperacion !== 'LISTA DE WALLETS' ? '<div class="form-actions"><button type="button" class="btn-cancel" id="cancelBtn">Cancelar</button><button type="submit" class="btn-submit">Guardar Operación</button></div>' : ''}
                             </form>
                         </div>
                     </div>`;
@@ -1862,6 +1864,16 @@
                 }
                 
                 if (subOperation === 'LISTA DE WALLETS') renderWalletsList();
+                
+                // Ocultar/mostrar botón "Guardar Operación" según la suboperación
+                const formActions = document.querySelector('.form-actions');
+                if (formActions) {
+                    if (subOperation === 'CREAR WALLET' || subOperation === 'LISTA DE WALLETS') {
+                        formActions.style.display = 'none';
+                    } else {
+                        formActions.style.display = '';
+                    }
+                }
                 
                 updateCalculatedFieldsAndUI();
             }
