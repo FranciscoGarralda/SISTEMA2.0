@@ -1,0 +1,12 @@
+{
+  "name": "sistema-financiero",
+  "version": "1.0.0",
+  "description": "Sistema financiero - Aplicación web estática",
+  "scripts": {
+    "build": "echo 'No build needed - static site'"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT"
+}
+
