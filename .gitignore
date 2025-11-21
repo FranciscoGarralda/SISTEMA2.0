@@ -1,0 +1,8 @@
+# Excluir carpeta de backup
+backup_sistema_financiero_*/
+
+# Archivos del sistema
+.DS_Store
+*.log
+node_modules/
+
