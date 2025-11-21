@@ -1818,14 +1818,6 @@
                     button.textContent = label;
                     button.tabIndex = 0; // Hacer navegable con teclado
                     
-                    // Permitir activar con Enter o Espacio
-                    button.addEventListener('keydown', (e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            handleClick.call(button, { target: button });
-                        }
-                    });
-                    
                     // Usar onclick directo para evitar acumulación de listeners
                     button.onclick = (e) => {
                         e.preventDefault();
@@ -2125,56 +2117,42 @@
                     }
                 });
 
-                // Navegación con teclado: Enter y flechas
+                // Navegación con teclado: Enter y flechas (dirección absoluta)
                 form.addEventListener('keydown', (e) => {
-                    // Prevenir submit al presionar Enter (excepto en botones submit)
-                    if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA' && e.target.type !== 'submit' && !e.target.classList.contains('btn-option')) {
+                    // Obtener todos los elementos interactivos
+                    const focusableElements = Array.from(form.querySelectorAll(
+                        'input:not([type="hidden"]):not([readonly]), select, textarea, button:not([type="submit"])'
+                    ));
+                    
+                    const currentIndex = focusableElements.indexOf(e.target);
+                    
+                    // Enter: activar botón si es un botón, sino avanzar al siguiente
+                    if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA' && e.target.type !== 'submit') {
                         e.preventDefault();
                         
-                        // Obtener todos los elementos interactivos (inputs, selects, botones)
-                        const focusableElements = Array.from(form.querySelectorAll(
-                            'input:not([type="hidden"]):not([readonly]), select, textarea, button[tabindex="0"], button:not([type="submit"])'
-                        ));
-                        
-                        const currentIndex = focusableElements.indexOf(e.target);
-                        if (currentIndex < focusableElements.length - 1) {
-                            focusableElements[currentIndex + 1].focus();
+                        if (e.target.tagName === 'BUTTON' || e.target.classList.contains('btn-option')) {
+                            // Si es un botón, activarlo
+                            e.target.click();
+                        } else {
+                            // Si es un input/select, avanzar al siguiente
+                            if (currentIndex < focusableElements.length - 1) {
+                                focusableElements[currentIndex + 1].focus();
+                            }
                         }
                     }
                     
-                    // Navegación con flechas arriba/abajo en inputs y selects
-                    if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && 
-                        (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA')) {
+                    // Flechas: navegación absoluta en todas las direcciones
+                    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
                         e.preventDefault();
                         
-                        const focusableElements = Array.from(form.querySelectorAll(
-                            'input:not([type="hidden"]):not([readonly]), select, textarea, button[tabindex="0"], button:not([type="submit"])'
-                        ));
-                        
-                        const currentIndex = focusableElements.indexOf(e.target);
                         if (e.key === 'ArrowDown' && currentIndex < focusableElements.length - 1) {
                             focusableElements[currentIndex + 1].focus();
                         } else if (e.key === 'ArrowUp' && currentIndex > 0) {
                             focusableElements[currentIndex - 1].focus();
-                        }
-                    }
-                    
-                    // Navegación con flechas izquierda/derecha en botones
-                    if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && 
-                        (e.target.classList.contains('btn-option') || e.target.tagName === 'BUTTON')) {
-                        e.preventDefault();
-                        
-                        // Buscar el contenedor del botón actual
-                        const container = e.target.closest('.moneda-buttons-container, .wallet-buttons-container, .button-grid, #operationButtons, #subOperationButtons');
-                        if (container) {
-                            const buttons = Array.from(container.querySelectorAll('button'));
-                            const currentIndex = buttons.indexOf(e.target);
-                            
-                            if (e.key === 'ArrowRight' && currentIndex < buttons.length - 1) {
-                                buttons[currentIndex + 1].focus();
-                            } else if (e.key === 'ArrowLeft' && currentIndex > 0) {
-                                buttons[currentIndex - 1].focus();
-                            }
+                        } else if (e.key === 'ArrowRight' && currentIndex < focusableElements.length - 1) {
+                            focusableElements[currentIndex + 1].focus();
+                        } else if (e.key === 'ArrowLeft' && currentIndex > 0) {
+                            focusableElements[currentIndex - 1].focus();
                         }
                     }
                 });
