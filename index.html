@@ -327,6 +327,16 @@
         .form-grid > * {
             min-width: 0;
         }
+        @media (min-width: 1200px) {
+            .form-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        @media (min-width: 1600px) {
+            .form-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
         @media (max-width: 600px) {
             .form-grid {
                 grid-template-columns: 1fr;
@@ -2117,14 +2127,58 @@
                     }
                 });
 
-                // Navegación con teclado: Enter y flechas (dirección absoluta)
+                // Función para encontrar el elemento más cercano en una dirección
+                function findNearestElement(currentElement, direction, focusableElements) {
+                    const currentRect = currentElement.getBoundingClientRect();
+                    const currentCenterX = currentRect.left + currentRect.width / 2;
+                    const currentCenterY = currentRect.top + currentRect.height / 2;
+                    
+                    let bestElement = null;
+                    let bestDistance = Infinity;
+                    
+                    focusableElements.forEach(element => {
+                        if (element === currentElement || element.disabled || element.offsetParent === null) return;
+                        
+                        const rect = element.getBoundingClientRect();
+                        const centerX = rect.left + rect.width / 2;
+                        const centerY = rect.top + rect.height / 2;
+                        
+                        let dx = centerX - currentCenterX;
+                        let dy = centerY - currentCenterY;
+                        let distance = Math.sqrt(dx * dx + dy * dy);
+                        
+                        let isInDirection = false;
+                        
+                        switch(direction) {
+                            case 'up':
+                                isInDirection = dy < 0 && Math.abs(dx) < currentRect.width * 1.5;
+                                break;
+                            case 'down':
+                                isInDirection = dy > 0 && Math.abs(dx) < currentRect.width * 1.5;
+                                break;
+                            case 'left':
+                                isInDirection = dx < 0 && Math.abs(dy) < currentRect.height * 1.5;
+                                break;
+                            case 'right':
+                                isInDirection = dx > 0 && Math.abs(dy) < currentRect.height * 1.5;
+                                break;
+                        }
+                        
+                        if (isInDirection && distance < bestDistance) {
+                            bestDistance = distance;
+                            bestElement = element;
+                        }
+                    });
+                    
+                    return bestElement;
+                }
+                
+                // Navegación con teclado: Enter y flechas (dirección visual)
                 form.addEventListener('keydown', (e) => {
                     // Obtener todos los elementos interactivos
                     const focusableElements = Array.from(form.querySelectorAll(
                         'input:not([type="hidden"]):not([readonly]), select, textarea, button:not([type="submit"])'
                     ));
-                    
-                    const currentIndex = focusableElements.indexOf(e.target);
                     
                     // Enter: activar botón si es un botón, sino avanzar al siguiente
                     if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA' && e.target.type !== 'submit') {
@@ -2135,24 +2189,26 @@
                             e.target.click();
                         } else {
                             // Si es un input/select, avanzar al siguiente
+                            const currentIndex = focusableElements.indexOf(e.target);
                             if (currentIndex < focusableElements.length - 1) {
                                 focusableElements[currentIndex + 1].focus();
                             }
                         }
                     }
                     
-                    // Flechas: navegación absoluta en todas las direcciones
+                    // Flechas: navegación visual en todas las direcciones
                     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
                         e.preventDefault();
                         
-                        if (e.key === 'ArrowDown' && currentIndex < focusableElements.length - 1) {
-                            focusableElements[currentIndex + 1].focus();
-                        } else if (e.key === 'ArrowUp' && currentIndex > 0) {
-                            focusableElements[currentIndex - 1].focus();
-                        } else if (e.key === 'ArrowRight' && currentIndex < focusableElements.length - 1) {
-                            focusableElements[currentIndex + 1].focus();
-                        } else if (e.key === 'ArrowLeft' && currentIndex > 0) {
-                            focusableElements[currentIndex - 1].focus();
+                        let direction = '';
+                        if (e.key === 'ArrowUp') direction = 'up';
+                        else if (e.key === 'ArrowDown') direction = 'down';
+                        else if (e.key === 'ArrowLeft') direction = 'left';
+                        else if (e.key === 'ArrowRight') direction = 'right';
+                        
+                        const nearestElement = findNearestElement(e.target, direction, focusableElements);
+                        if (nearestElement) {
+                            nearestElement.focus();
                         }
                     }
                 });
@@ -2500,9 +2556,6 @@
                                             <label class="form-label" for="clienteDocumento">DNI</label>
                                             <input type="text" class="form-input" id="clienteDocumento" name="documento" placeholder="Ej: 12345678">
                                         </div>
-                                    </div>
-                                    
-                                    <div class="form-grid">
                                         <div class="form-group">
                                             <label class="form-label" for="clienteTelefono">Teléfono</label>
                                             <input type="text" class="form-input" id="clienteTelefono" name="telefono" placeholder="Ej: +54 11 1234-5678">
@@ -2511,9 +2564,6 @@
                                             <label class="form-label" for="clienteTelefonoRespaldo">Teléfono de Respaldo</label>
                                             <input type="text" class="form-input" id="clienteTelefonoRespaldo" name="telefonoRespaldo" placeholder="Ej: +54 11 9876-5432">
                                         </div>
-                                    </div>
-                                    
-                                    <div class="form-grid">
                                         <div class="form-group">
                                             <label class="form-label" for="clienteEmail">Email</label>
                                             <input type="email" class="form-input" id="clienteEmail" name="email" placeholder="Ej: cliente@email.com">
@@ -2522,19 +2572,17 @@
                                             <label class="form-label" for="clienteDireccion">Calle, Número y Timbre</label>
                                             <input type="text" class="form-input" id="clienteDireccion" name="direccion" placeholder="Ej: Av. Corrientes 1234, Timbre 5B">
                                         </div>
-                                    </div>
-                                    
-                                    <div class="form-group">
-                                        <label class="form-label" for="clienteRecomendado">Recomendado de</label>
-                                        <input type="text" class="form-input" id="clienteRecomendado" name="recomendado" placeholder="Ej: María González">
-                                    </div>
-                                    
-                                    <div class="form-group">
-                                        <label class="form-label">Tipo de Cliente *</label>
-                                        <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
-                                            <button type="button" class="btn-option active" id="tipoClienteDiario" data-tipo="diario" style="flex: 1; min-width: 120px;">Cliente Diario</button>
-                                            <button type="button" class="btn-option" id="tipoClientePrestamista" data-tipo="prestamista" style="flex: 1; min-width: 120px;">Cliente Prestamista</button>
-                                            <button type="button" class="btn-option" id="tipoClienteCuentaCorriente" data-tipo="cuenta_corriente" style="flex: 1; min-width: 120px;">Cliente Cuenta Corriente</button>
+                                        <div class="form-group">
+                                            <label class="form-label" for="clienteRecomendado">Recomendado de</label>
+                                            <input type="text" class="form-input" id="clienteRecomendado" name="recomendado" placeholder="Ej: María González">
+                                        </div>
+                                        <div class="form-group" style="grid-column: span 1;">
+                                            <label class="form-label">Tipo de Cliente *</label>
+                                            <div style="display: flex; gap: 8px; margin-top: 10px; flex-direction: column;">
+                                                <button type="button" class="btn-option active" id="tipoClienteDiario" data-tipo="diario">Cliente Diario</button>
+                                                <button type="button" class="btn-option" id="tipoClientePrestamista" data-tipo="prestamista">Cliente Prestamista</button>
+                                                <button type="button" class="btn-option" id="tipoClienteCuentaCorriente" data-tipo="cuenta_corriente">Cliente Cuenta Corriente</button>
+                                            </div>
                                         </div>
                                     </div>
                                     
@@ -2729,7 +2777,9 @@
                     // Información relevante según el tipo de operación
                     let infoRelevante = '';
                     if (mov.monto && mov.moneda) {
-                        const monedaLabel = monedas.find(m => m.value === mov.moneda)?.label || mov.moneda;
+                        let moneda = mov.moneda;
+                        if (moneda === 'PESO') moneda = 'ARS';
+                        const monedaLabel = monedas.find(m => m.value === moneda)?.label || moneda;
                         infoRelevante = `${monedaLabel} ${parseFloat(mov.monto).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
                     }
                     if (mov.total) {
@@ -2910,14 +2960,19 @@
              * MÓDULO DE PENDIENTES
              * =================================================================
              */
+            let viewingPendienteDetail = null; // Para rastrear si estamos viendo un detalle
+            
             function renderPendientesModule() {
+                viewingPendienteDetail = null; // Reset al cargar el módulo
                 return `
                     <div class="operations-container">
                         <div class="form-card">
                             <div class="form-header">
                                 <h2 class="form-title">⏳ Pendientes</h2>
                             </div>
+                            <div id="pendientesSummaryContainer"></div>
                             <div id="pendientesListContainer"></div>
+                            <div id="pendienteDetailContainer" style="display: none;"></div>
                         </div>
                     </div>
                 `;
@@ -2929,7 +2984,22 @@
 
             function renderPendientesList() {
                 const container = document.getElementById('pendientesListContainer');
+                const summaryContainer = document.getElementById('pendientesSummaryContainer');
+                const detailContainer = document.getElementById('pendienteDetailContainer');
                 if (!container) return;
+                
+                // Si estamos viendo un detalle, no renderizar la lista
+                if (viewingPendienteDetail) {
+                    container.style.display = 'none';
+                    summaryContainer.style.display = 'none';
+                    detailContainer.style.display = 'block';
+                    return;
+                }
+                
+                // Mostrar lista y resumen, ocultar detalle
+                container.style.display = 'block';
+                summaryContainer.style.display = 'block';
+                detailContainer.style.display = 'none';
                 
                 const movimientos = getMovimientos();
                 
@@ -2941,7 +3011,58 @@
                 
                 if (pendientes.length === 0) {
                     container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 40px;">No hay operaciones pendientes.</p>';
+                    if (summaryContainer) summaryContainer.innerHTML = '';
                     return;
+                }
+                
+                // Calcular totales generales
+                let totalRetiroGeneral = {};
+                let totalEntregaGeneral = {};
+                pendientes.forEach(mov => {
+                    const monto = safeParseFloat(mov.monto || mov.total || 0);
+                    let moneda = mov.moneda || mov.monedaTC || 'ARS';
+                    if (moneda === 'PESO') moneda = 'ARS';
+                    
+                    if (mov.estado === 'pendiente_retiro') {
+                        if (!totalRetiroGeneral[moneda]) totalRetiroGeneral[moneda] = 0;
+                        totalRetiroGeneral[moneda] += monto;
+                    } else if (mov.estado === 'pendiente_entrega') {
+                        if (!totalEntregaGeneral[moneda]) totalEntregaGeneral[moneda] = 0;
+                        totalEntregaGeneral[moneda] += monto;
+                    }
+                });
+                
+                // Renderizar resumen general
+                if (summaryContainer) {
+                    let resumenHTML = '<div style="background: var(--bg-secondary); padding: 16px; border-radius: 12px; margin-bottom: 20px; border: 2px solid var(--border-color);">';
+                    resumenHTML += '<h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--text-primary);">📊 Resumen Total</h3>';
+                    
+                    if (Object.keys(totalRetiroGeneral).length > 0) {
+                        const retiroStr = Object.entries(totalRetiroGeneral)
+                            .map(([moneda, total]) => {
+                                let monedaNorm = moneda;
+                                if (monedaNorm === 'PESO') monedaNorm = 'ARS';
+                                const monedaLabel = monedas.find(m => m.value === monedaNorm)?.label || monedaNorm;
+                                return `<strong>${monedaLabel}</strong> ${formatNumberWithThousands(total)}`;
+                            })
+                            .join(' | ');
+                        resumenHTML += `<div style="color: var(--error-color); font-size: 15px; font-weight: 600; margin-bottom: 8px; padding: 8px; background: var(--error-surface); border-radius: 8px; white-space: nowrap; overflow-x: auto;">🔴 TOTAL A RETIRAR: ${retiroStr}</div>`;
+                    }
+                    
+                    if (Object.keys(totalEntregaGeneral).length > 0) {
+                        const entregaStr = Object.entries(totalEntregaGeneral)
+                            .map(([moneda, total]) => {
+                                let monedaNorm = moneda;
+                                if (monedaNorm === 'PESO') monedaNorm = 'ARS';
+                                const monedaLabel = monedas.find(m => m.value === monedaNorm)?.label || monedaNorm;
+                                return `<strong>${monedaLabel}</strong> ${formatNumberWithThousands(total)}`;
+                            })
+                            .join(' | ');
+                        resumenHTML += `<div style="color: var(--success-color); font-size: 15px; font-weight: 600; padding: 8px; background: var(--success-surface); border-radius: 8px; white-space: nowrap; overflow-x: auto;">🟢 TOTAL A ENTREGAR: ${entregaStr}</div>`;
+                    }
+                    
+                    resumenHTML += '</div>';
+                    summaryContainer.innerHTML = resumenHTML;
                 }
                 
                 // Agrupar por cliente
@@ -2968,7 +3089,8 @@
                     
                     // Calcular totales por tipo
                     const monto = safeParseFloat(mov.monto || mov.total || 0);
-                    const moneda = mov.moneda || mov.monedaTC || 'ARS';
+                    let moneda = mov.moneda || mov.monedaTC || 'ARS';
+                    if (moneda === 'PESO') moneda = 'ARS';
                     
                     if (mov.estado === 'pendiente_retiro') {
                         pendientesPorCliente[clienteId].totalRetiro += monto;
@@ -2994,8 +3116,10 @@
                     if (grupo.totalRetiro > 0) {
                         const monedasRetiroStr = Object.entries(grupo.monedasRetiro)
                             .map(([moneda, total]) => {
-                                const monedaLabel = monedas.find(m => m.value === moneda)?.label || moneda;
-                                return `${monedaLabel} ${total.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                                let monedaNorm = moneda;
+                                if (monedaNorm === 'PESO') monedaNorm = 'ARS';
+                                const monedaLabel = monedas.find(m => m.value === monedaNorm)?.label || monedaNorm;
+                                return `${monedaLabel} ${formatNumberWithThousands(total)}`;
                             })
                             .join(', ');
                         resumenHTML += `<p style="color: var(--error-color); font-size: 14px; font-weight: 600; margin: 8px 0 4px 0;">🔴 RETIRAR: ${monedasRetiroStr}</p>`;
@@ -3003,8 +3127,10 @@
                     if (grupo.totalEntrega > 0) {
                         const monedasEntregaStr = Object.entries(grupo.monedasEntrega)
                             .map(([moneda, total]) => {
-                                const monedaLabel = monedas.find(m => m.value === moneda)?.label || moneda;
-                                return `${monedaLabel} ${total.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                                let monedaNorm = moneda;
+                                if (monedaNorm === 'PESO') monedaNorm = 'ARS';
+                                const monedaLabel = monedas.find(m => m.value === monedaNorm)?.label || monedaNorm;
+                                return `${monedaLabel} ${formatNumberWithThousands(total)}`;
                             })
                             .join(', ');
                         resumenHTML += `<p style="color: var(--success-color); font-size: 14px; font-weight: 600; margin: 4px 0 8px 0;">🟢 ENTREGAR: ${monedasEntregaStr}</p>`;
@@ -3039,9 +3165,19 @@
                                 <div style="font-size: 12px; color: var(--text-primary); min-width: 0; overflow: hidden;">
                                     ${grupo.clienteDireccion ? `<div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">📍 ${grupo.clienteDireccion}</div>` : ''}
                                 </div>
-                                <div style="text-align: right; min-width: 0; overflow: hidden; flex-shrink: 0;">
-                                    ${grupo.totalRetiro > 0 ? `<div style="color: var(--error-color); font-size: 13px; font-weight: 600; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">🔴 ${Object.entries(grupo.monedasRetiro).map(([m, t]) => `${monedas.find(mon => mon.value === m)?.label || m} ${t.toFixed(2)}`).join(', ')}</div>` : ''}
-                                    ${grupo.totalEntrega > 0 ? `<div style="color: var(--success-color); font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">🟢 ${Object.entries(grupo.monedasEntrega).map(([m, t]) => `${monedas.find(mon => mon.value === m)?.label || m} ${t.toFixed(2)}`).join(', ')}</div>` : ''}
+                                <div style="text-align: right; flex-shrink: 0;">
+                                    ${grupo.totalRetiro > 0 ? `<div style="color: var(--error-color); font-size: 13px; font-weight: 600; margin-bottom: 2px; white-space: nowrap;">🔴 ${Object.entries(grupo.monedasRetiro).map(([m, t]) => {
+                                        let monedaNorm = m;
+                                        if (monedaNorm === 'PESO') monedaNorm = 'ARS';
+                                        const monedaLabel = monedas.find(mon => mon.value === monedaNorm)?.label || monedaNorm;
+                                        return `${monedaLabel} ${formatNumberWithThousands(t)}`;
+                                    }).join(', ')}</div>` : ''}
+                                    ${grupo.totalEntrega > 0 ? `<div style="color: var(--success-color); font-size: 13px; font-weight: 600; white-space: nowrap;">🟢 ${Object.entries(grupo.monedasEntrega).map(([m, t]) => {
+                                        let monedaNorm = m;
+                                        if (monedaNorm === 'PESO') monedaNorm = 'ARS';
+                                        const monedaLabel = monedas.find(mon => mon.value === monedaNorm)?.label || monedaNorm;
+                                        return `${monedaLabel} ${formatNumberWithThousands(t)}`;
+                                    }).join(', ')}</div>` : ''}
                                 </div>
                             </div>
                             
@@ -3053,7 +3189,9 @@
                                     const operacionLabel = mov.operacion ? mov.operacion.replace('_', ' ') : '';
                                     const subOperacionLabel = mov.subOperacion || '';
                                     const montoMov = safeParseFloat(mov.monto || mov.total || 0);
-                                    const monedaMov = mov.moneda || mov.monedaTC || 'PESO';
+                                    // Normalizar PESO a ARS para compatibilidad con datos antiguos
+                                    let monedaMov = mov.moneda || mov.monedaTC || 'ARS';
+                                    if (monedaMov === 'PESO') monedaMov = 'ARS';
                                     const monedaLabel = monedas.find(m => m.value === monedaMov)?.label || monedaMov;
                                     const tipoPendiente = mov.estado === 'pendiente_retiro' ? 'RETIRO' : 'ENTREGA';
                                     const colorTipo = mov.estado === 'pendiente_retiro' ? 'var(--error-color)' : 'var(--success-color)';
@@ -3073,7 +3211,7 @@
                                     }
                                     
                                     return `
-                                        <div class="pendiente-operacion-row" style="display: grid; grid-template-columns: auto 2fr 1fr 1fr auto; gap: 12px; padding: 10px; margin-bottom: 8px; background: var(--bg-secondary); border-radius: 8px; align-items: center; border-left: 3px solid ${colorTipo}; overflow: hidden;">
+                                        <div class="pendiente-operacion-row" style="display: grid; grid-template-columns: auto 2fr 1fr 1fr auto auto; gap: 12px; padding: 10px; margin-bottom: 8px; background: var(--bg-secondary); border-radius: 8px; align-items: center; border-left: 3px solid ${colorTipo}; overflow: hidden; cursor: pointer;" data-mov-id="${mov.id}" data-action="ver-detalle">
                                             <span style="font-size: 11px; padding: 2px 6px; border-radius: 4px; background: ${colorTipo === 'var(--error-color)' ? 'var(--error-surface)' : 'var(--success-surface)'}; color: ${colorTipo}; font-weight: 600; white-space: nowrap; flex-shrink: 0;">
                                                 ${tipoPendiente}
                                             </span>
@@ -3083,8 +3221,8 @@
                                                 ${mov.detalle ? `<div style="font-size: 11px; color: var(--text-secondary); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${mov.detalle.substring(0, 40)}${mov.detalle.length > 40 ? '...' : ''}</div>` : ''}
                                             </div>
                                             <div style="font-size: 12px; color: var(--text-secondary); min-width: 0; white-space: nowrap;">${fechaMovFormateada}<br>${horaMov}</div>
-                                            <div style="font-size: 13px; color: var(--text-primary); font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${monedaLabel} ${montoMov.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-                                            <button type="button" class="btn-submit" style="font-size: 11px; padding: 6px 12px; white-space: nowrap; flex-shrink: 0;" data-mov-id="${mov.id}" data-action="finalizar">
+                                            <div style="font-size: 13px; color: var(--text-primary); font-weight: 600; white-space: nowrap; flex-shrink: 0;">${monedaLabel} ${formatNumberWithThousands(montoMov)}</div>
+                                            <button type="button" class="btn-submit" style="font-size: 11px; padding: 6px 12px; white-space: nowrap; flex-shrink: 0;" data-mov-id="${mov.id}" data-action="finalizar" onclick="event.stopPropagation();">
                                                 Finalizar
                                             </button>
                                         </div>
@@ -3095,8 +3233,15 @@
                     `;
                 }).join('');
                 
-                // Event listeners para finalizar
+                // Event listeners
                 container.addEventListener('click', (e) => {
+                    // Ver detalle
+                    if (e.target.closest('[data-action="ver-detalle"]')) {
+                        const row = e.target.closest('[data-action="ver-detalle"]');
+                        const movimientoId = row.dataset.movId;
+                        showPendienteDetail(movimientoId);
+                    }
+                    // Finalizar
                     if (e.target.dataset.action === 'finalizar') {
                         const movimientoId = e.target.dataset.movId;
                         if (confirm('¿Marcar esta operación como finalizada? Desaparecerá de la lista de pendientes.')) {
@@ -3106,6 +3251,122 @@
                         }
                     }
                 });
+            }
+            
+            function showPendienteDetail(movimientoId) {
+                const movimientos = getMovimientos();
+                const movimiento = movimientos.find(m => m.id === movimientoId);
+                if (!movimiento) return;
+                
+                viewingPendienteDetail = movimientoId;
+                const detailContainer = document.getElementById('pendienteDetailContainer');
+                if (!detailContainer) return;
+                
+                // Obtener información completa
+                const clienteCompleto = getClienteCompleto(movimiento.cliente);
+                const fechaMov = new Date(movimiento.fechaCreacion);
+                const fechaFormateada = fechaMov.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                const horaFormateada = fechaMov.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                
+                // Construir HTML del detalle
+                let detailHTML = `
+                    <div style="padding: 20px;">
+                        <button type="button" class="btn-cancel" id="volverPendientesBtn" style="margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                            ← Volver
+                        </button>
+                        <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 20px; color: var(--text-primary);">Detalle de Operación</h2>
+                        <div style="background: var(--bg-secondary); padding: 20px; border-radius: 12px; border: 2px solid var(--border-color);">
+                `;
+                
+                // Información básica
+                detailHTML += `
+                    <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
+                        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--text-primary);">Información General</h3>
+                        <div style="display: grid; gap: 8px;">
+                            <div><strong>Operación:</strong> ${movimiento.operacion ? movimiento.operacion.replace('_', ' ') : 'N/A'}</div>
+                            <div><strong>Sub-operación:</strong> ${movimiento.subOperacion || 'N/A'}</div>
+                            <div><strong>Fecha:</strong> ${fechaFormateada} ${horaFormateada}</div>
+                            <div><strong>Estado:</strong> <span style="color: ${movimiento.estado === 'pendiente_retiro' ? 'var(--error-color)' : 'var(--success-color)'}; font-weight: 600;">${movimiento.estado === 'pendiente_retiro' ? '🔴 PENDIENTE RETIRO' : '🟢 PENDIENTE ENTREGA'}</span></div>
+                        </div>
+                    </div>
+                `;
+                
+                // Información de cliente
+                if (clienteCompleto) {
+                    detailHTML += `
+                        <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
+                            <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--text-primary);">Cliente</h3>
+                            <div style="display: grid; gap: 8px;">
+                                <div><strong>Nombre:</strong> ${clienteCompleto.nombre || 'N/A'}</div>
+                                ${clienteCompleto.dni ? `<div><strong>DNI:</strong> ${clienteCompleto.dni}</div>` : ''}
+                                ${clienteCompleto.telefono ? `<div><strong>Teléfono:</strong> ${clienteCompleto.telefono}</div>` : ''}
+                                ${clienteCompleto.telefonoRespaldo ? `<div><strong>Teléfono Respaldo:</strong> ${clienteCompleto.telefonoRespaldo}</div>` : ''}
+                                ${clienteCompleto.direccion ? `<div><strong>Dirección:</strong> ${clienteCompleto.direccion}</div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                // Información financiera
+                const monto = safeParseFloat(movimiento.monto || movimiento.total || 0);
+                const moneda = movimiento.moneda || movimiento.monedaTC || 'ARS';
+                const monedaLabel = monedas.find(m => m.value === moneda)?.label || moneda;
+                
+                detailHTML += `
+                    <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
+                        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--text-primary);">Información Financiera</h3>
+                        <div style="display: grid; gap: 8px;">
+                            <div><strong>Monto:</strong> ${monedaLabel} ${formatNumberWithThousands(monto)}</div>
+                            ${movimiento.tc ? `<div><strong>Tipo de Cambio:</strong> ${formatNumberWithThousands(movimiento.tc)}</div>` : ''}
+                            ${movimiento.total ? `<div><strong>Total:</strong> ${formatNumberWithThousands(movimiento.total)}</div>` : ''}
+                        </div>
+                    </div>
+                `;
+                
+                // Información de wallets
+                let walletInfo = [];
+                if (movimiento.walletCompra) walletInfo.push(`Wallet Compra: ${getWalletNombre(movimiento.walletCompra) || movimiento.walletCompra}`);
+                if (movimiento.walletTC) walletInfo.push(`Wallet TC: ${getWalletNombre(movimiento.walletTC) || movimiento.walletTC}`);
+                if (movimiento.walletBase) walletInfo.push(`Wallet Base: ${getWalletNombre(movimiento.walletBase) || movimiento.walletBase}`);
+                if (movimiento.walletProfit) walletInfo.push(`Wallet Profit: ${getWalletNombre(movimiento.walletProfit) || movimiento.walletProfit}`);
+                
+                if (walletInfo.length > 0) {
+                    detailHTML += `
+                        <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
+                            <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--text-primary);">Wallets</h3>
+                            <div style="display: grid; gap: 8px;">
+                                ${walletInfo.map(w => `<div>💳 ${w}</div>`).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                // Detalle adicional
+                if (movimiento.detalle) {
+                    detailHTML += `
+                        <div style="margin-bottom: 20px;">
+                            <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--text-primary);">Detalle</h3>
+                            <div style="color: var(--text-secondary);">${movimiento.detalle}</div>
+                        </div>
+                    `;
+                }
+                
+                detailHTML += `
+                        </div>
+                    </div>
+                `;
+                
+                detailContainer.innerHTML = detailHTML;
+                renderPendientesList(); // Esto ocultará la lista y mostrará el detalle
+                
+                // Event listener para el botón volver
+                const volverBtn = document.getElementById('volverPendientesBtn');
+                if (volverBtn) {
+                    volverBtn.addEventListener('click', () => {
+                        viewingPendienteDetail = null;
+                        renderPendientesList();
+                    });
+                }
             }
 
             function renderClientesList() {
@@ -3129,37 +3390,43 @@
                     
                     return `
                     <div class="form-card" style="padding: 20px; margin-bottom: 16px; overflow: hidden;">
-                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px; overflow: hidden;">
-                            <div style="flex: 1; min-width: 0; overflow: hidden;">
-                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap;">
+                        <div style="display: grid; grid-template-columns: 1fr auto; gap: 16px; margin-bottom: 16px; align-items: start;">
+                            <div style="min-width: 0; overflow: hidden;">
+                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap;">
                                     <h3 style="font-size: 18px; font-weight: 600; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${cliente.nombre}</h3>
                                     <span style="font-size: 11px; padding: 2px 8px; border-radius: 12px; background: ${cliente.tipo === 'prestamista' ? 'var(--accent-surface)' : cliente.tipo === 'cuenta_corriente' ? 'var(--success-surface)' : 'var(--bg-surface-variant)'}; color: ${cliente.tipo === 'prestamista' ? 'var(--accent-primary)' : cliente.tipo === 'cuenta_corriente' ? 'var(--success-color)' : 'var(--text-secondary)'};">
                                         ${cliente.tipo === 'prestamista' ? 'Prestamista' : cliente.tipo === 'cuenta_corriente' ? 'Cuenta Corriente' : 'Diario'}
                                     </span>
                                 </div>
-                                ${cliente.documento ? `<p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 4px;">🆔 DNI: ${cliente.documento}</p>` : ''}
-                                ${cliente.telefono ? `<p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 4px;">📞 ${cliente.telefono}</p>` : ''}
-                                ${cliente.telefonoRespaldo ? `<p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 4px;">📱 Respaldo: ${cliente.telefonoRespaldo}</p>` : ''}
-                                ${cliente.email ? `<p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 4px;">✉️ ${cliente.email}</p>` : ''}
-                                ${cliente.direccion ? `<p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 4px;">📍 ${cliente.direccion}</p>` : ''}
-                                ${cliente.recomendado ? `<p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 4px;">👤 Recomendado de: ${cliente.recomendado}</p>` : ''}
-                                <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color);">
-                                    <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 4px;">
-                                        <strong style="color: var(--text-primary);">Última operación:</strong> 
-                                        <span style="color: ${colorDias}; font-weight: 600;">${fechaFormateada}</span>
-                                    </p>
-                                    ${diasTranscurridos !== null ? `
-                                        <p style="color: var(--text-secondary); font-size: 13px; margin: 0;">
-                                            <strong style="color: var(--text-primary);">Días transcurridos:</strong> 
-                                            <span style="color: ${colorDias}; font-weight: 600;">
-                                                ${diasTranscurridos === 0 ? 'Hoy' : diasTranscurridos === 1 ? '1 día' : `${diasTranscurridos} días`}
-                                            </span>
-                                        </p>
-                                    ` : '<p style="color: var(--text-secondary); font-size: 13px; margin: 0;">Sin operaciones registradas</p>'}
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px;">
+                                    ${cliente.documento ? `<div><p style="color: var(--text-secondary); font-size: 13px; margin: 0;">🆔 DNI: ${cliente.documento}</p></div>` : ''}
+                                    ${cliente.telefono ? `<div><p style="color: var(--text-secondary); font-size: 13px; margin: 0;">📞 ${cliente.telefono}</p></div>` : ''}
+                                    ${cliente.telefonoRespaldo ? `<div><p style="color: var(--text-secondary); font-size: 13px; margin: 0;">📱 Respaldo: ${cliente.telefonoRespaldo}</p></div>` : ''}
+                                    ${cliente.email ? `<div><p style="color: var(--text-secondary); font-size: 13px; margin: 0;">✉️ ${cliente.email}</p></div>` : ''}
+                                    ${cliente.direccion ? `<div style="grid-column: 1 / -1;"><p style="color: var(--text-secondary); font-size: 13px; margin: 0;">📍 ${cliente.direccion}</p></div>` : ''}
+                                    ${cliente.recomendado ? `<div><p style="color: var(--text-secondary); font-size: 13px; margin: 0;">👤 Recomendado de: ${cliente.recomendado}</p></div>` : ''}
                                 </div>
-                                ${cliente.notas ? `<p style="color: var(--text-secondary); font-size: 13px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color);">${cliente.notas}</p>` : ''}
+                                <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color); display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                                    <div>
+                                        <p style="color: var(--text-secondary); font-size: 13px; margin: 0;">
+                                            <strong style="color: var(--text-primary);">Última operación:</strong> 
+                                            <span style="color: ${colorDias}; font-weight: 600;">${fechaFormateada}</span>
+                                        </p>
+                                    </div>
+                                    ${diasTranscurridos !== null ? `
+                                        <div>
+                                            <p style="color: var(--text-secondary); font-size: 13px; margin: 0;">
+                                                <strong style="color: var(--text-primary);">Días transcurridos:</strong> 
+                                                <span style="color: ${colorDias}; font-weight: 600;">
+                                                    ${diasTranscurridos === 0 ? 'Hoy' : diasTranscurridos === 1 ? '1 día' : `${diasTranscurridos} días`}
+                                                </span>
+                                            </p>
+                                        </div>
+                                    ` : '<div><p style="color: var(--text-secondary); font-size: 13px; margin: 0;">Sin operaciones registradas</p></div>'}
+                                </div>
+                                ${cliente.notas ? `<div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color);"><p style="color: var(--text-secondary); font-size: 13px; margin: 0;">${cliente.notas}</p></div>` : ''}
                             </div>
-                            <button type="button" class="btn-remove" data-cliente-id="${cliente.id}" style="margin-left: 16px; flex-shrink: 0;">✕</button>
+                            <button type="button" class="btn-remove" data-cliente-id="${cliente.id}" style="flex-shrink: 0;">✕</button>
                         </div>
                         <div style="font-size: 11px; color: var(--text-secondary);">
                             ID: ${cliente.id}
