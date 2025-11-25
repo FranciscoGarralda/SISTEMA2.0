@@ -1201,6 +1201,15 @@
 
             /**
              * =================================================================
+             * VARIABLES GLOBALES (declaradas primero para evitar errores de referencia)
+             * =================================================================
+             */
+            let formData = {};
+            let editingMovimientoId = null; // ID del movimiento que se está editando
+            let lastEditedField = null; // Campo editado más recientemente para arbitraje bidireccional
+
+            /**
+             * =================================================================
              * MÓDULO DE CARGA Y NAVEGACIÓN PRINCIPAL
              * =================================================================
              */
@@ -1290,9 +1299,6 @@
                 { value: 'pendiente_retiro', label: 'P. Retiro' }, { value: 'pendiente_entrega', label: 'P. Entrega' },
                 { value: 'realizado', label: 'Finalizado' }
             ];
-            let formData = {};
-            let editingMovimientoId = null; // ID del movimiento que se está editando
-            let lastEditedField = null; // Campo editado más recientemente para arbitraje bidireccional
 
             function getInitialFormState() {
                 return {
