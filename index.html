@@ -1207,15 +1207,30 @@
             let formData = {};
             let editingMovimientoId = null; // ID del movimiento que se está editando
             let lastEditedField = null; // Campo editado más recientemente para arbitraje bidireccional
+            let navigationHistory = []; // Historial de navegación para el botón Volver
 
             /**
              * =================================================================
              * MÓDULO DE CARGA Y NAVEGACIÓN PRINCIPAL
              * =================================================================
              */
-            function loadModule(module) {
+            function loadModule(module, addToHistory = true) {
                 const mainContent = document.getElementById('mainContent');
                 if (!mainContent) return;
+                
+                // Obtener el módulo actual antes de cambiar
+                const currentModule = localStorage.getItem('activeModule') || '';
+                
+                // Agregar al historial solo si es una navegación normal (no un "volver")
+                // No agregar módulos vacíos ('') al historial
+                if (addToHistory && currentModule && currentModule !== module && currentModule !== '') {
+                    navigationHistory.push(currentModule);
+                    // Limitar el historial a 10 elementos para no ocupar mucha memoria
+                    if (navigationHistory.length > 10) {
+                        navigationHistory.shift();
+                    }
+                }
+                
                 localStorage.setItem('activeModule', module);
                 
                 // Resetear estado de edición al cambiar de módulo
@@ -1259,7 +1274,7 @@
                             <div class="operations-container">
                                 <div class="form-card">
                                     <div class="form-header">
-                                        <button type="button" class="btn-back" onclick="window.loadModule('')" title="Volver al inicio">← Volver</button>
+                                        <button type="button" class="btn-back" onclick="window.goBack()" title="Volver">← Volver</button>
                                         <h2 class="form-title">Configuración</h2>
                                         <div style="width: 100px;"></div>
                                     </div>
@@ -1283,8 +1298,20 @@
                 }
             }
             
-            // Hacer loadModule accesible globalmente
+            // Función para volver atrás usando el historial
+            function goBack() {
+                if (navigationHistory.length > 0) {
+                    const previousModule = navigationHistory.pop();
+                    loadModule(previousModule, false); // false = no agregar al historial
+                } else {
+                    // Si no hay historial, no hacer nada (no navegar a ningún lado)
+                    showToast('No hay lugar al que volver', 'info');
+                }
+            }
+
+            // Hacer loadModule y goBack accesibles globalmente
             window.loadModule = loadModule;
+            window.goBack = goBack;
 
             /**
              * =================================================================
@@ -1855,7 +1882,7 @@
                     <div class="operations-container">
                         <div class="form-card">
                             <div class="form-header">
-                                <button type="button" class="btn-back" onclick="window.loadModule('')" title="Volver al inicio">← Volver</button>
+                                <button type="button" class="btn-back" onclick="window.goBack()" title="Volver">← Volver</button>
                                 <h2 class="form-title">${titulo}</h2>
                                 <div style="width: 100px;"></div>
                             </div>
@@ -2828,8 +2855,8 @@
                     btnVolver.title = 'Volver al listado de clientes';
                 } else {
                     // Si estás en "Listar Clientes", volver a la pantalla principal
-                    btnVolver.onclick = () => window.loadModule('');
-                    btnVolver.title = 'Volver al inicio';
+                    btnVolver.onclick = () => window.goBack();
+                    btnVolver.title = 'Volver';
                 }
             }
             
@@ -3093,7 +3120,7 @@
                     <div class="operations-container" style="max-width: 100%;">
                         <div class="form-card">
                             <div class="form-header">
-                                <button type="button" class="btn-back" onclick="window.loadModule('')" title="Volver al inicio">← Volver</button>
+                                <button type="button" class="btn-back" onclick="window.goBack()" title="Volver">← Volver</button>
                                 <h2 class="form-title">📊 Movimientos</h2>
                                 <div style="width: 100px;"></div>
                             </div>
@@ -3409,8 +3436,8 @@
                     btnVolver.title = 'Volver al listado de pendientes';
                 } else {
                     // Si estamos en el listado, volver a la pantalla principal
-                    btnVolver.onclick = () => window.loadModule('');
-                    btnVolver.title = 'Volver al inicio';
+                    btnVolver.onclick = () => window.goBack();
+                    btnVolver.title = 'Volver';
                 }
             }
 
@@ -3939,7 +3966,7 @@
                     <div class="operations-container" style="max-width: 100%;">
                         <div class="form-card">
                             <div class="form-header">
-                                <button type="button" class="btn-back" onclick="window.loadModule('')" title="Volver al inicio">← Volver</button>
+                                <button type="button" class="btn-back" onclick="window.goBack()" title="Volver">← Volver</button>
                                 <h2 class="form-title">💰 Saldos de Wallets</h2>
                                 <div style="width: 100px;"></div>
                             </div>
@@ -4196,7 +4223,7 @@
                     <div class="operations-container" style="max-width: 100%;">
                         <div class="form-card">
                             <div class="form-header">
-                                <button type="button" class="btn-back" onclick="window.loadModule('')" title="Volver al inicio">← Volver</button>
+                                <button type="button" class="btn-back" onclick="window.goBack()" title="Volver">← Volver</button>
                                 <h2 class="form-title">🏦 Cuentas Corrientes</h2>
                                 <div style="width: 100px;"></div>
                             </div>
@@ -4331,7 +4358,8 @@
                 updateDateDisplay();
                 setupTheme();
                 const activeModule = localStorage.getItem('activeModule') || 'operaciones';
-                loadModule(activeModule);
+                // Cargar módulo inicial sin agregar al historial
+                loadModule(activeModule, false);
             } catch (error) {
                 console.error('Error en inicialización:', error);
                 // Intentar cargar al menos el módulo de operaciones
