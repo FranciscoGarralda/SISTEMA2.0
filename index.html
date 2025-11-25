@@ -2487,7 +2487,13 @@
                             </div>
                         </div>`).join('');
 
-                container.addEventListener('click', e => {
+                // Remover event listeners anteriores usando una función nombrada
+                if (container._walletsClickHandler) {
+                    container.removeEventListener('click', container._walletsClickHandler);
+                }
+                
+                // Crear nuevo handler
+                container._walletsClickHandler = (e) => {
                     if (e.target.classList.contains('btn-remove')) {
                         const walletId = e.target.dataset.walletId;
                         if (confirm(`¿Eliminar la wallet "${walletId}"?`)) {
@@ -2496,7 +2502,10 @@
                             renderWalletsList();
                         }
                     }
-                });
+                };
+                
+                // Agregar event listener
+                container.addEventListener('click', container._walletsClickHandler);
             }
 
             function initComisionEvents() {
@@ -3192,8 +3201,13 @@
                     `;
                 }).join('');
                 
-                // Event listeners
-                container.addEventListener('click', (e) => {
+                // Remover event listeners anteriores usando una función nombrada
+                if (container._movimientosClickHandler) {
+                    container.removeEventListener('click', container._movimientosClickHandler);
+                }
+                
+                // Crear nuevo handler
+                container._movimientosClickHandler = (e) => {
                     const movimientoCard = e.target.closest('[data-movimiento-id]');
                     if (!movimientoCard) return;
                     
@@ -3216,7 +3230,10 @@
                             renderMovimientosList();
                         }
                     }
-                });
+                };
+                
+                // Agregar event listener
+                container.addEventListener('click', container._movimientosClickHandler);
             }
 
             function mostrarDetallesMovimiento(movimiento) {
@@ -3872,8 +3889,13 @@
                     `;
                 }).join('');
                 
-                // Event listener para editar y eliminar
-                container.addEventListener('click', (e) => {
+                // Remover event listeners anteriores usando una función nombrada
+                if (container._clientesClickHandler) {
+                    container.removeEventListener('click', container._clientesClickHandler);
+                }
+                
+                // Crear nuevo handler
+                container._clientesClickHandler = (e) => {
                     // Editar cliente
                     if (e.target.classList.contains('btn-edit') || e.target.closest('.btn-edit')) {
                         const btn = e.target.classList.contains('btn-edit') ? e.target : e.target.closest('.btn-edit');
@@ -3893,7 +3915,10 @@
                             renderClientesList();
                         }
                     }
-                });
+                };
+                
+                // Agregar event listener
+                container.addEventListener('click', container._clientesClickHandler);
             }
 
             try {
