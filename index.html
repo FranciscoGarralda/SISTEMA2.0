@@ -308,6 +308,29 @@
             padding-bottom: 16px;
             border-bottom: 1px solid var(--border-color);
         }
+        .btn-back {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 8px 16px;
+            border-radius: 24px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-back:hover {
+            background: var(--active-bg);
+            transform: scale(1.02);
+        }
+        @media (max-width: 480px) {
+            .btn-back {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+        }
         .form-title {
             font-size: 20px;
             font-weight: 600;
@@ -583,6 +606,29 @@
             color: var(--error-color);
             transform: scale(1.02);
         }
+        .form-actions .btn-remove {
+            background-color: var(--error-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 24px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            width: auto;
+            height: auto;
+        }
+        @media (max-width: 480px) {
+            .form-actions .btn-remove {
+                padding: 10px 20px;
+                font-size: 13px;
+            }
+        }
+        .form-actions .btn-remove:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
+        }
         .form-actions {
             display: flex;
             justify-content: flex-end;
@@ -850,6 +896,23 @@
             transform: scale(1.1);
             opacity: 0.8;
         }
+        .btn-edit {
+            background-color: var(--button-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-edit:hover {
+            background-color: var(--active-bg);
+            transform: scale(1.05);
+        }
         .btn-add-payment {
             background-color: var(--button-bg);
             color: var(--text-primary);
@@ -915,20 +978,38 @@
         /* Movimientos en formato lista */
         .movimiento-row {
             display: grid;
-            grid-template-columns: 2fr 1.5fr 1fr 1fr auto;
-            gap: 12px;
-            padding: 12px;
-            margin-bottom: 8px;
+            grid-template-columns: 2.5fr 1.5fr 1fr 1.2fr 1.2fr 1fr 1fr auto;
+            gap: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
             background: var(--bg-secondary);
             border-radius: 8px;
-            align-items: center;
+            align-items: start;
             border: 1px solid var(--border-color);
             transition: all 0.2s ease;
         }
         .movimiento-row:hover {
             background: var(--bg-surface-hover);
         }
-        @media (max-width: 600px) {
+        @media (max-width: 1400px) {
+            .movimiento-row {
+                grid-template-columns: 2fr 1.5fr 1fr 1.2fr 1.2fr 1fr auto;
+                gap: 12px;
+            }
+        }
+        @media (max-width: 1200px) {
+            .movimiento-row {
+                grid-template-columns: 2fr 1.5fr 1fr 1.2fr 1.2fr auto;
+                gap: 12px;
+            }
+        }
+        @media (max-width: 900px) {
+            .movimiento-row {
+                grid-template-columns: 2fr 1.5fr 1fr 1.2fr auto;
+                gap: 10px;
+            }
+        }
+        @media (max-width: 700px) {
             .movimiento-row {
                 grid-template-columns: 1fr !important;
                 gap: 8px;
@@ -1160,7 +1241,11 @@
                         mainContent.innerHTML = `
                             <div class="operations-container">
                                 <div class="form-card">
-                                    <h2 class="form-title" style="margin-bottom: 30px;">Configuración</h2>
+                                    <div class="form-header">
+                                        <button type="button" class="btn-back" onclick="window.loadModule('')" title="Volver al inicio">← Volver</button>
+                                        <h2 class="form-title">Configuración</h2>
+                                        <div style="width: 100px;"></div>
+                                    </div>
                                     <div class="theme-switch-container">
                                         <div class="theme-switch-label">
                                             <span id="themeIcon">🌙</span>
@@ -1180,6 +1265,9 @@
                         mainContent.innerHTML = '<div class="operations-container"><h2 class="form-title">Bienvenido</h2><p style="color: var(--text-secondary);">Selecciona una opción del menú</p></div>';
                 }
             }
+            
+            // Hacer loadModule accesible globalmente
+            window.loadModule = loadModule;
 
             /**
              * =================================================================
@@ -1752,7 +1840,11 @@
                 return `
                     <div class="operations-container">
                         <div class="form-card">
-                            <div class="form-header"><h2 class="form-title">${titulo}</h2></div>
+                            <div class="form-header">
+                                <button type="button" class="btn-back" onclick="window.loadModule('')" title="Volver al inicio">← Volver</button>
+                                <h2 class="form-title">${titulo}</h2>
+                                <div style="width: 100px;"></div>
+                            </div>
                             <form id="operationsForm">
                                 <div class="form-grid">
                                     <div class="form-group"><label class="form-label" for="fecha">Fecha y Día</label><div class="fecha-dia-group"><input type="date" class="form-input" id="fecha" name="fecha" value="${formData.fecha}" required><input type="text" class="form-input" id="nombreDia" name="nombreDia" value="${formData.nombreDia || ''}" readonly></div></div>
@@ -1760,7 +1852,7 @@
                                 <div class="form-group"><label class="form-label section-title">Paso 1: Seleccionar Operación</label><div class="button-grid" id="operationButtons"></div></div>
                                 <div class="form-group ${!formData.operacion ? 'hidden' : ''}" id="subOperationContainer"><label class="form-label section-title">Paso 2: Seleccionar Tipo</label><div class="button-grid" id="subOperationButtons"></div></div>
                                 <div class="form-group hidden" id="clienteContainer" style="margin-bottom: 20px;"><label class="form-label" for="cliente">Cliente</label><div class="input-with-button"><select class="form-select" id="cliente" name="cliente" required><option value="">Seleccionar cliente...</option>${getClientes().map(c => `<option value="${c.id}" ${formData.cliente === c.id ? 'selected' : ''}>${c.nombre}${c.documento ? ' - ' + c.documento : ''}</option>`).join('')}</select><button type="button" class="btn-add" id="addClientBtn" title="Crear nuevo cliente">+</button></div></div>
-                                <div class="form-group" style="margin-bottom: 32px;"><label class="form-label" for="detalle">Detalle</label><textarea class="form-textarea" id="detalle" name="detalle" placeholder="Descripción de la operación">${formData.detalle || ''}</textarea></div>
+                                <div class="form-group hidden" id="detalleContainer" style="margin-bottom: 32px;"><label class="form-label" for="detalle">Detalle</label><textarea class="form-textarea" id="detalle" name="detalle" placeholder="Descripción de la operación">${formData.detalle || ''}</textarea></div>
                                 <div class="dynamic-fields-container" id="dynamicFieldsContainer"></div>
                                 <div id="mixedPaymentsContainer" class="${formData.isMixedPaymentActive ? '' : 'hidden'}"></div>
                                 <div class="form-grid ${['WALLET', 'ADMINISTRATIVAS'].includes(formData.operacion) ? 'hidden' : ''}" id="estadoPorContainer">
@@ -1888,6 +1980,12 @@
                 // Ocultar contenedores que no aplican
                 document.getElementById('clienteContainer')?.classList.add('hidden');
                 
+                // Ocultar campo Detalle al cambiar la operación principal
+                const detalleContainer = document.getElementById('detalleContainer');
+                if (detalleContainer) {
+                    detalleContainer.classList.add('hidden');
+                }
+                
                 // Renderizar suboperaciones
                 const subOpContainer = document.getElementById('subOperationContainer');
                 if (subOpContainer) {
@@ -1902,6 +2000,7 @@
                 const clienteContainer = document.getElementById('clienteContainer');
                 const estadoPorContainer = document.getElementById('estadoPorContainer');
                 const mixedPaymentsContainer = document.getElementById('mixedPaymentsContainer');
+                const detalleContainer = document.getElementById('detalleContainer');
                 
                 // PRIMERO: Limpiar completamente todos los contenedores
                 if (dynamicContainer) {
@@ -1935,6 +2034,30 @@
                          estadoPorContainer.classList.add('hidden');
                     } else {
                         estadoPorContainer.classList.remove('hidden');
+                    }
+                }
+                
+                // Mostrar/ocultar campo Detalle según la operación y sub-operación
+                if (detalleContainer) {
+                    // Operaciones que necesitan el campo Detalle:
+                    // - TRANSACCIONES: COMPRA, VENTA, ARBITRAJE
+                    // - CUENTAS_CORRIENTES: INGRESO, EGRESO, COMPRA, VENTA, ARBITRAJE
+                    // - WALLET: INGRESO, SALIDA, PRESTAMO, DEVOLUCION, MOV ENTRE CUENTAS
+                    // - ADMINISTRATIVAS: AJUSTE, GASTO
+                    // - PRESTAMISTAS: PRESTAMO, RETIRO
+                    // NO debe aparecer en: WALLET > CREAR WALLET, WALLET > LISTA DE WALLETS
+                    const necesitaDetalle = (
+                        (formData.operacion === 'TRANSACCIONES' && ['COMPRA', 'VENTA', 'ARBITRAJE'].includes(subOperation)) ||
+                        (formData.operacion === 'CUENTAS_CORRIENTES' && ['INGRESO', 'EGRESO', 'COMPRA', 'VENTA', 'ARBITRAJE'].includes(subOperation)) ||
+                        (formData.operacion === 'WALLET' && ['INGRESO', 'SALIDA', 'PRESTAMO', 'DEVOLUCION', 'MOV ENTRE CUENTAS'].includes(subOperation)) ||
+                        (formData.operacion === 'ADMINISTRATIVAS' && ['AJUSTE', 'GASTO'].includes(subOperation)) ||
+                        (formData.operacion === 'PRESTAMISTAS' && ['PRESTAMO', 'RETIRO'].includes(subOperation))
+                    ) && !['CREAR WALLET', 'LISTA DE WALLETS'].includes(subOperation);
+                    
+                    if (necesitaDetalle && formData.operacion && subOperation) {
+                        detalleContainer.classList.remove('hidden');
+                    } else {
+                        detalleContainer.classList.add('hidden');
                     }
                 }
 
@@ -2080,6 +2203,12 @@
                         const subBtn = document.querySelector(`#subOperationButtons [data-value="${formData.subOperacion}"]`);
                         if (subBtn) subBtn.classList.add('active');
                         handleSubOperationChange(formData.subOperacion);
+                    } else {
+                        // Si no hay sub-operación, ocultar el campo detalle
+                        const detalleContainer = document.getElementById('detalleContainer');
+                        if (detalleContainer) {
+                            detalleContainer.classList.add('hidden');
+                        }
                     }
                 }
                 
@@ -2535,7 +2664,9 @@
                     <div class="operations-container">
                         <div class="form-card">
                             <div class="form-header">
+                                <button type="button" class="btn-back" id="btnVolverClientes" title="Volver">← Volver</button>
                                 <h2 class="form-title">👥 Gestión de Clientes</h2>
+                                <div style="width: 100px;"></div>
                             </div>
                             
                             <!-- Tabs para Crear / Listar -->
@@ -2593,6 +2724,7 @@
                                     
                                     <div class="form-actions">
                                         <button type="button" class="btn-cancel" id="limpiarClienteBtn">Limpiar</button>
+                                        <button type="button" class="btn-remove" id="eliminarClienteBtn" style="display: none;">Eliminar Cliente</button>
                                         <button type="submit" class="btn-submit">Guardar Cliente</button>
                                     </div>
                                 </form>
@@ -2605,6 +2737,123 @@
                         </div>
                     </div>
                 `;
+            }
+
+            // Variables globales para el módulo de clientes
+            let tipoClienteSeleccionado = 'diario';
+            let clienteEditandoId = null;
+            let tipoButtons = {};
+            
+            // Función para actualizar el botón de volver según el contexto en el módulo de clientes
+            function actualizarBotonVolverClientes() {
+                const btnVolver = document.getElementById('btnVolverClientes');
+                if (!btnVolver) return;
+                
+                const tabCrear = document.getElementById('tabCrearCliente');
+                const isEnCrear = tabCrear?.classList.contains('active');
+                const isEditando = clienteEditandoId !== null;
+                
+                if (isEnCrear || isEditando) {
+                    // Si estás en "Crear Cliente" o editando, volver al listado
+                    btnVolver.onclick = () => {
+                        const tabListar = document.getElementById('tabListarClientes');
+                        if (tabListar) {
+                            tabListar.click();
+                            actualizarBotonVolverClientes(); // Actualizar el botón después de cambiar
+                        }
+                    };
+                    btnVolver.title = 'Volver al listado de clientes';
+                } else {
+                    // Si estás en "Listar Clientes", volver a la pantalla principal
+                    btnVolver.onclick = () => window.loadModule('');
+                    btnVolver.title = 'Volver al inicio';
+                }
+            }
+            
+            // Función para cargar cliente en el formulario para editar
+            function cargarClienteParaEditar(clienteId) {
+                const cliente = getClienteCompleto(clienteId);
+                if (!cliente) return;
+                
+                clienteEditandoId = clienteId;
+                
+                // Cargar datos en el formulario
+                document.getElementById('clienteNombre').value = cliente.nombre || '';
+                document.getElementById('clienteDocumento').value = cliente.documento || '';
+                document.getElementById('clienteTelefono').value = cliente.telefono || '';
+                document.getElementById('clienteTelefonoRespaldo').value = cliente.telefonoRespaldo || '';
+                document.getElementById('clienteEmail').value = cliente.email || '';
+                document.getElementById('clienteDireccion').value = cliente.direccion || '';
+                document.getElementById('clienteRecomendado').value = cliente.recomendado || '';
+                document.getElementById('clienteNotas').value = cliente.notas || '';
+                
+                // Establecer tipo de cliente
+                tipoClienteSeleccionado = cliente.tipo || 'diario';
+                Object.values(tipoButtons).forEach(btn => {
+                    if (btn) btn.classList.remove('active');
+                });
+                if (tipoButtons[tipoClienteSeleccionado]) {
+                    tipoButtons[tipoClienteSeleccionado].classList.add('active');
+                }
+                
+                // Cambiar texto del botón y mostrar botón cancelar y eliminar
+                const submitBtn = document.querySelector('#clienteForm button[type="submit"]');
+                const limpiarBtn = document.getElementById('limpiarClienteBtn');
+                const eliminarBtn = document.getElementById('eliminarClienteBtn');
+                if (submitBtn) submitBtn.textContent = 'Actualizar Cliente';
+                if (limpiarBtn) {
+                    limpiarBtn.textContent = 'Cancelar';
+                    limpiarBtn.style.display = 'inline-block';
+                }
+                if (eliminarBtn) {
+                    eliminarBtn.style.display = 'inline-block';
+                }
+                
+                // Cambiar a la pestaña de crear
+                const tabCrear = document.getElementById('tabCrearCliente');
+                const tabListar = document.getElementById('tabListarClientes');
+                const sectionCrear = document.getElementById('crearClienteSection');
+                const sectionListar = document.getElementById('listarClientesSection');
+                
+                if (tabCrear && tabListar && sectionCrear && sectionListar) {
+                    tabCrear.classList.add('active');
+                    tabListar.classList.remove('active');
+                    sectionCrear.classList.remove('hidden');
+                    sectionListar.classList.add('hidden');
+                    tabCrear.style.borderBottomColor = 'var(--active-bg)';
+                    tabListar.style.borderBottomColor = 'transparent';
+                }
+                
+                // Scroll al formulario
+                document.getElementById('crearClienteSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                
+                // Actualizar botón de volver (estamos editando, debe volver al listado)
+                actualizarBotonVolverClientes();
+            }
+            
+            // Función para resetear el formulario a modo crear
+            function resetearFormularioCliente() {
+                clienteEditandoId = null;
+                const clienteForm = document.getElementById('clienteForm');
+                clienteForm?.reset();
+                
+                // Resetear tipo de cliente
+                tipoClienteSeleccionado = 'diario';
+                Object.values(tipoButtons).forEach(btn => {
+                    if (btn) btn.classList.remove('active');
+                });
+                if (tipoButtons.diario) tipoButtons.diario.classList.add('active');
+                
+                // Restaurar texto del botón y ocultar botón eliminar
+                const submitBtn = document.querySelector('#clienteForm button[type="submit"]');
+                const limpiarBtn = document.getElementById('limpiarClienteBtn');
+                const eliminarBtn = document.getElementById('eliminarClienteBtn');
+                if (submitBtn) submitBtn.textContent = 'Guardar Cliente';
+                if (limpiarBtn) limpiarBtn.textContent = 'Limpiar';
+                if (eliminarBtn) eliminarBtn.style.display = 'none';
+                
+                // Actualizar botón de volver (ya no estamos editando)
+                actualizarBotonVolverClientes();
             }
 
             function initClientesModule() {
@@ -2621,6 +2870,7 @@
                     sectionListar?.classList.add('hidden');
                     tabCrear.style.borderBottomColor = 'var(--active-bg)';
                     tabListar.style.borderBottomColor = 'transparent';
+                    actualizarBotonVolverClientes();
                 });
                 
                 tabListar?.addEventListener('click', () => {
@@ -2631,11 +2881,14 @@
                     tabListar.style.borderBottomColor = 'var(--active-bg)';
                     tabCrear.style.borderBottomColor = 'transparent';
                     renderClientesList();
+                    actualizarBotonVolverClientes();
                 });
                 
-                // Manejo de tipo de cliente
-                let tipoClienteSeleccionado = 'diario';
-                const tipoButtons = {
+                // Inicializar el botón de volver
+                actualizarBotonVolverClientes();
+                
+                // Inicializar tipoButtons
+                tipoButtons = {
                     diario: document.getElementById('tipoClienteDiario'),
                     prestamista: document.getElementById('tipoClientePrestamista'),
                     cuenta_corriente: document.getElementById('tipoClienteCuentaCorriente')
@@ -2651,7 +2904,7 @@
                     });
                 });
                 
-                // Formulario de crear cliente
+                // Formulario de crear/editar cliente
                 const clienteForm = document.getElementById('clienteForm');
                 clienteForm?.addEventListener('submit', (e) => {
                     e.preventDefault();
@@ -2669,48 +2922,82 @@
                         return;
                     }
                     
-                    // Verificar si ya existe un cliente con el mismo nombre
-                    const clientes = getClientes();
-                    if (clientes.some(c => c.nombre.toLowerCase() === nombre.toLowerCase())) {
-                        if (!confirm('Ya existe un cliente con ese nombre. ¿Deseas agregarlo de todas formas?')) {
-                            return;
+                    // Si está editando
+                    if (clienteEditandoId) {
+                        const datosActualizados = {
+                            nombre,
+                            documento: documento || '',
+                            telefono: telefono || '',
+                            telefonoRespaldo: telefonoRespaldo || '',
+                            email: email || '',
+                            direccion: direccion || '',
+                            recomendado: recomendado || '',
+                            tipo: tipoClienteSeleccionado,
+                            notas: notas || ''
+                        };
+                        
+                        updateCliente(clienteEditandoId, datosActualizados);
+                        showToast(`Cliente "${nombre}" actualizado exitosamente`, 'success');
+                        resetearFormularioCliente();
+                        renderClientesList();
+                    } else {
+                        // Verificar si ya existe un cliente con el mismo nombre
+                        const clientes = getClientes();
+                        if (clientes.some(c => c.nombre.toLowerCase() === nombre.toLowerCase())) {
+                            if (!confirm('Ya existe un cliente con ese nombre. ¿Deseas agregarlo de todas formas?')) {
+                                return;
+                            }
                         }
+                        
+                        // Generar ID aleatorio único
+                        const id = 'CLI_' + crypto.randomUUID();
+                        
+                        const nuevoCliente = {
+                            id,
+                            nombre,
+                            documento: documento || '',
+                            telefono: telefono || '',
+                            telefonoRespaldo: telefonoRespaldo || '',
+                            email: email || '',
+                            direccion: direccion || '',
+                            recomendado: recomendado || '',
+                            tipo: tipoClienteSeleccionado,
+                            notas: notas || '',
+                            fechaCreacion: new Date().toISOString()
+                        };
+                        
+                        addCliente(nuevoCliente);
+                        showToast(`Cliente "${nombre}" creado exitosamente`, 'success');
+                        resetearFormularioCliente();
                     }
-                    
-                    // Generar ID aleatorio único
-                    const id = 'CLI_' + crypto.randomUUID();
-                    
-                    const nuevoCliente = {
-                        id,
-                        nombre,
-                        documento: documento || '',
-                        telefono: telefono || '',
-                        telefonoRespaldo: telefonoRespaldo || '',
-                        email: email || '',
-                        direccion: direccion || '',
-                        recomendado: recomendado || '',
-                        tipo: tipoClienteSeleccionado,
-                        notas: notas || '',
-                        fechaCreacion: new Date().toISOString()
-                    };
-                    
-                    addCliente(nuevoCliente);
-                    showToast(`Cliente "${nombre}" creado exitosamente`, 'success');
-                    clienteForm.reset();
-                    // Resetear tipo de cliente
-                    tipoClienteSeleccionado = 'diario';
-                    Object.values(tipoButtons).forEach(btn => {
-                        if (btn) btn.classList.remove('active');
-                    });
-                    if (tipoButtons.diario) tipoButtons.diario.classList.add('active');
                     
                     // Actualizar select de clientes en operaciones si existe
                     updateClientesSelect();
                 });
                 
-                // Botón limpiar
+                // Botón limpiar/cancelar
                 document.getElementById('limpiarClienteBtn')?.addEventListener('click', () => {
-                    clienteForm?.reset();
+                    resetearFormularioCliente();
+                });
+                
+                // Botón eliminar cliente (solo visible en modo edición)
+                document.getElementById('eliminarClienteBtn')?.addEventListener('click', () => {
+                    if (!clienteEditandoId) return;
+                    
+                    const cliente = getClienteCompleto(clienteEditandoId);
+                    if (!cliente) return;
+                    
+                    if (confirm(`¿Estás seguro de que deseas eliminar el cliente "${cliente.nombre}"? Esta acción no se puede deshacer.`)) {
+                        deleteCliente(clienteEditandoId);
+                        showToast('Cliente eliminado', 'success');
+                        resetearFormularioCliente();
+                        renderClientesList();
+                        updateClientesSelect();
+                        
+                        // Cambiar a la pestaña de listar
+                        const tabListar = document.getElementById('tabListarClientes');
+                        if (tabListar) tabListar.click();
+                    }
                 });
                 
                 // Renderizar lista inicial
@@ -2740,10 +3027,12 @@
              */
             function renderMovimientosModule() {
                 return `
-                    <div class="operations-container">
+                    <div class="operations-container" style="max-width: 100%;">
                         <div class="form-card">
                             <div class="form-header">
+                                <button type="button" class="btn-back" onclick="window.loadModule('')" title="Volver al inicio">← Volver</button>
                                 <h2 class="form-title">📊 Movimientos</h2>
+                                <div style="width: 100px;"></div>
                             </div>
                             <div id="movimientosListContainer"></div>
                         </div>
@@ -2774,30 +3063,84 @@
                     const operacionLabel = mov.operacion ? mov.operacion.replace('_', ' ') : '';
                     const subOperacionLabel = mov.subOperacion || '';
                     
-                    // Información relevante según el tipo de operación
-                    let infoRelevante = '';
+                    // Estado
+                    let estadoLabel = '';
+                    let estadoColor = 'var(--text-secondary)';
+                    if (mov.estado === 'pendiente_retiro') {
+                        estadoLabel = 'P. RETIRO';
+                        estadoColor = 'var(--error-color)';
+                    } else if (mov.estado === 'pendiente_entrega') {
+                        estadoLabel = 'P. ENTREGA';
+                        estadoColor = 'var(--success-color)';
+                    } else if (mov.estado === 'realizado') {
+                        estadoLabel = 'FINALIZADO';
+                        estadoColor = 'var(--success-color)';
+                    } else if (mov.estado) {
+                        estadoLabel = mov.estado.toUpperCase();
+                    }
+                    
+                    // Monto y moneda
+                    let montoInfo = '';
                     if (mov.monto && mov.moneda) {
                         let moneda = mov.moneda;
                         if (moneda === 'PESO') moneda = 'ARS';
                         const monedaLabel = monedas.find(m => m.value === moneda)?.label || moneda;
-                        infoRelevante = `${monedaLabel} ${parseFloat(mov.monto).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                        montoInfo = `${monedaLabel} ${formatNumberWithThousands(mov.monto)}`;
                     }
+                    
+                    // Total
+                    let totalInfo = '';
                     if (mov.total) {
-                        infoRelevante += infoRelevante ? ` | ${parseFloat(mov.total).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : `${parseFloat(mov.total).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                        let monedaTotal = mov.monedaTC || mov.moneda || 'ARS';
+                        if (monedaTotal === 'PESO') monedaTotal = 'ARS';
+                        const monedaTotalLabel = monedas.find(m => m.value === monedaTotal)?.label || monedaTotal;
+                        totalInfo = `${monedaTotalLabel} ${formatNumberWithThousands(mov.total)}`;
+                    }
+                    
+                    // Tipo de cambio
+                    let tcInfo = '';
+                    if (mov.tc) {
+                        tcInfo = `TC: ${formatNumberWithThousands(mov.tc)}`;
+                    }
+                    
+                    // Wallet
+                    let walletInfo = '';
+                    const walletId = mov.walletCompra || mov.walletTC || mov.walletBase || mov.walletProfit || '';
+                    if (walletId && walletId !== 'pago_mixto') {
+                        const walletNombre = getWalletNombre(walletId);
+                        if (walletNombre) {
+                            walletInfo = `💳 ${walletNombre}`;
+                        }
                     }
                     
                     return `
-                        <div class="movimiento-row" style="display: grid; grid-template-columns: 2fr 1.5fr 1fr 1fr auto; gap: 12px; padding: 12px; margin-bottom: 8px; background: var(--bg-secondary); border-radius: 8px; align-items: center; overflow: hidden; ${mov.anulado ? 'opacity: 0.6; border: 2px solid var(--error-color);' : 'border: 1px solid var(--border-color);'}" data-movimiento-id="${mov.id}">
-                            ${mov.anulado ? '<div style="grid-column: 1 / -1; background: var(--error-color); color: white; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; display: inline-block; width: fit-content; margin-bottom: 4px;">ANULADO</div>' : ''}
-                            <div style="cursor: pointer; min-width: 0; overflow: hidden; text-overflow: ellipsis;" class="movimiento-item">
-                                <div style="font-weight: 600; font-size: 14px; color: var(--text-primary); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${operacionLabel} ${subOperacionLabel ? '> ' + subOperacionLabel : ''}</div>
-                                ${mov.detalle ? `<div style="font-size: 11px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${mov.detalle.substring(0, 50)}${mov.detalle.length > 50 ? '...' : ''}</div>` : ''}
+                        <div class="movimiento-row" style="display: grid; grid-template-columns: 2.5fr 1.5fr 1fr 1.2fr 1.2fr 1fr 1fr auto; gap: 16px; padding: 16px; margin-bottom: 12px; background: var(--bg-secondary); border-radius: 8px; align-items: start; overflow: hidden; ${mov.anulado ? 'opacity: 0.6; border: 2px solid var(--error-color);' : 'border: 1px solid var(--border-color);'}" data-movimiento-id="${mov.id}">
+                            ${mov.anulado ? '<div style="grid-column: 1 / -1; background: var(--error-color); color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; display: inline-block; width: fit-content; margin-bottom: 8px;">ANULADO</div>' : ''}
+                            <div style="cursor: pointer; min-width: 0;" class="movimiento-item">
+                                <div style="font-weight: 600; font-size: 15px; color: var(--text-primary); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${operacionLabel} ${subOperacionLabel ? '> ' + subOperacionLabel : ''}</div>
+                                ${mov.detalle ? `<div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px; line-height: 1.4;">${mov.detalle.length > 60 ? mov.detalle.substring(0, 60) + '...' : mov.detalle}</div>` : ''}
                             </div>
-                            <div style="font-size: 13px; color: var(--text-primary); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${clienteNombre}</div>
-                            <div style="font-size: 12px; color: var(--text-secondary); min-width: 0; white-space: nowrap;">${fechaFormateada}<br>${horaFormateada}</div>
-                            <div style="font-size: 13px; color: var(--text-primary); font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${infoRelevante || '-'}</div>
-                            <div style="display: flex; gap: 6px; min-width: 0; flex-shrink: 0;">
-                                ${!mov.anulado ? `<button type="button" class="btn-option" style="font-size: 11px; padding: 4px 8px; white-space: nowrap; flex-shrink: 0;" data-action="anular" data-mov-id="${mov.id}">Anular</button>` : ''}
+                            <div style="min-width: 0;">
+                                <div style="font-size: 13px; color: var(--text-primary); font-weight: 500; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${clienteNombre}</div>
+                                ${walletInfo ? `<div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${walletInfo}</div>` : ''}
+                            </div>
+                            <div style="min-width: 0;">
+                                <div style="font-size: 12px; color: var(--text-secondary); white-space: nowrap;">${fechaFormateada}</div>
+                                <div style="font-size: 12px; color: var(--text-secondary); white-space: nowrap;">${horaFormateada}</div>
+                            </div>
+                            <div style="min-width: 0;">
+                                ${montoInfo ? `<div style="font-size: 13px; color: var(--text-primary); font-weight: 600; margin-bottom: 2px; white-space: nowrap;">${montoInfo}</div>` : ''}
+                                ${totalInfo ? `<div style="font-size: 12px; color: var(--text-primary); white-space: nowrap;">Total: ${totalInfo}</div>` : ''}
+                            </div>
+                            <div style="min-width: 0;">
+                                ${tcInfo ? `<div style="font-size: 11px; color: var(--text-secondary); white-space: nowrap;">${tcInfo}</div>` : ''}
+                                ${estadoLabel ? `<div style="font-size: 11px; color: ${estadoColor}; font-weight: 600; margin-top: 4px; white-space: nowrap;">${estadoLabel}</div>` : ''}
+                            </div>
+                            <div style="min-width: 0; font-size: 11px; color: var(--text-secondary);">
+                                ${mov.por ? `<div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Por: ${mov.por}</div>` : ''}
+                            </div>
+                            <div style="display: flex; gap: 6px; min-width: 0; flex-shrink: 0; align-items: start;">
+                                ${!mov.anulado ? `<button type="button" class="btn-option" style="font-size: 11px; padding: 6px 12px; white-space: nowrap; flex-shrink: 0;" data-action="anular" data-mov-id="${mov.id}">Anular</button>` : ''}
                             </div>
                         </div>
                     `;
@@ -2968,7 +3311,9 @@
                     <div class="operations-container">
                         <div class="form-card">
                             <div class="form-header">
+                                <button type="button" class="btn-back" id="btnVolverPendientes" title="Volver">← Volver</button>
                                 <h2 class="form-title">⏳ Pendientes</h2>
+                                <div style="width: 100px;"></div>
                             </div>
                             <div id="pendientesSummaryContainer"></div>
                             <div id="pendientesListContainer"></div>
@@ -2978,8 +3323,29 @@
                 `;
             }
 
+            // Función para actualizar el botón de volver según el contexto en el módulo de pendientes
+            function actualizarBotonVolverPendientes() {
+                const btnVolver = document.getElementById('btnVolverPendientes');
+                if (!btnVolver) return;
+                
+                if (viewingPendienteDetail) {
+                    // Si estamos viendo un detalle, volver al listado de pendientes
+                    btnVolver.onclick = () => {
+                        viewingPendienteDetail = null;
+                        renderPendientesList();
+                        actualizarBotonVolverPendientes(); // Actualizar el botón después de cambiar
+                    };
+                    btnVolver.title = 'Volver al listado de pendientes';
+                } else {
+                    // Si estamos en el listado, volver a la pantalla principal
+                    btnVolver.onclick = () => window.loadModule('');
+                    btnVolver.title = 'Volver al inicio';
+                }
+            }
+
             function initPendientesModule() {
                 renderPendientesList();
+                actualizarBotonVolverPendientes();
             }
 
             function renderPendientesList() {
@@ -3001,13 +3367,18 @@
                 summaryContainer.style.display = 'block';
                 detailContainer.style.display = 'none';
                 
+                // Actualizar botón de volver cuando volvemos al listado
+                actualizarBotonVolverPendientes();
+                
                 const movimientos = getMovimientos();
                 
                 // Filtrar solo pendientes (no anulados y estado pendiente)
-                const pendientes = movimientos.filter(m => 
-                    !m.anulado && 
-                    (m.estado === 'pendiente_retiro' || m.estado === 'pendiente_entrega')
-                );
+                const pendientes = movimientos.filter(m => {
+                    if (!m) return false;
+                    if (m.anulado) return false;
+                    const estado = String(m.estado || '').trim();
+                    return estado === 'pendiente_retiro' || estado === 'pendiente_entrega';
+                });
                 
                 if (pendientes.length === 0) {
                     container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 40px;">No hay operaciones pendientes.</p>';
@@ -3068,6 +3439,7 @@
                 // Agrupar por cliente
                 const pendientesPorCliente = {};
                 pendientes.forEach(mov => {
+                    if (!mov || !mov.id) return; // Validar que el movimiento sea válido
                     const clienteId = mov.cliente || 'sin_cliente';
                     if (!pendientesPorCliente[clienteId]) {
                         const clienteCompleto = getClienteCompleto(clienteId);
@@ -3092,13 +3464,14 @@
                     let moneda = mov.moneda || mov.monedaTC || 'ARS';
                     if (moneda === 'PESO') moneda = 'ARS';
                     
-                    if (mov.estado === 'pendiente_retiro') {
+                    const estado = mov.estado || '';
+                    if (estado === 'pendiente_retiro') {
                         pendientesPorCliente[clienteId].totalRetiro += monto;
                         if (!pendientesPorCliente[clienteId].monedasRetiro[moneda]) {
                             pendientesPorCliente[clienteId].monedasRetiro[moneda] = 0;
                         }
                         pendientesPorCliente[clienteId].monedasRetiro[moneda] += monto;
-                    } else if (mov.estado === 'pendiente_entrega') {
+                    } else if (estado === 'pendiente_entrega') {
                         pendientesPorCliente[clienteId].totalEntrega += monto;
                         if (!pendientesPorCliente[clienteId].monedasEntrega[moneda]) {
                             pendientesPorCliente[clienteId].monedasEntrega[moneda] = 0;
@@ -3107,8 +3480,16 @@
                     }
                 });
                 
+                // Verificar que hay grupos de clientes
+                const gruposClientes = Object.values(pendientesPorCliente);
+                if (gruposClientes.length === 0) {
+                    container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 40px;">No hay operaciones pendientes.</p>';
+                    if (summaryContainer) summaryContainer.innerHTML = '';
+                    return;
+                }
+                
                 // Renderizar por cliente
-                container.innerHTML = Object.values(pendientesPorCliente).map(grupo => {
+                container.innerHTML = gruposClientes.map(grupo => {
                     const fechaCreacion = new Date(grupo.movimientos[0].fechaCreacion);
                     const fechaFormateada = fechaCreacion.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
                     
@@ -3193,7 +3574,7 @@
                                     let monedaMov = mov.moneda || mov.monedaTC || 'ARS';
                                     if (monedaMov === 'PESO') monedaMov = 'ARS';
                                     const monedaLabel = monedas.find(m => m.value === monedaMov)?.label || monedaMov;
-                                    const tipoPendiente = mov.estado === 'pendiente_retiro' ? 'RETIRO' : 'ENTREGA';
+                                    const tipoPendiente = mov.estado === 'pendiente_retiro' ? 'P. RETIRO' : 'P. ENTREGA';
                                     const colorTipo = mov.estado === 'pendiente_retiro' ? 'var(--error-color)' : 'var(--success-color)';
                                     
                                     // Obtener información de wallet
@@ -3222,7 +3603,7 @@
                                             </div>
                                             <div style="font-size: 12px; color: var(--text-secondary); min-width: 0; white-space: nowrap;">${fechaMovFormateada}<br>${horaMov}</div>
                                             <div style="font-size: 13px; color: var(--text-primary); font-weight: 600; white-space: nowrap; flex-shrink: 0;">${monedaLabel} ${formatNumberWithThousands(montoMov)}</div>
-                                            <button type="button" class="btn-submit" style="font-size: 11px; padding: 6px 12px; white-space: nowrap; flex-shrink: 0;" data-mov-id="${mov.id}" data-action="finalizar" onclick="event.stopPropagation();">
+                                            <button type="button" class="btn-submit" style="font-size: 11px; padding: 6px 12px; white-space: nowrap; flex-shrink: 0;" data-mov-id="${mov.id}" data-action="finalizar">
                                                 Finalizar
                                             </button>
                                         </div>
@@ -3233,24 +3614,40 @@
                     `;
                 }).join('');
                 
-                // Event listeners
-                container.addEventListener('click', (e) => {
-                    // Ver detalle
-                    if (e.target.closest('[data-action="ver-detalle"]')) {
-                        const row = e.target.closest('[data-action="ver-detalle"]');
-                        const movimientoId = row.dataset.movId;
-                        showPendienteDetail(movimientoId);
-                    }
-                    // Finalizar
-                    if (e.target.dataset.action === 'finalizar') {
-                        const movimientoId = e.target.dataset.movId;
-                        if (confirm('¿Marcar esta operación como finalizada? Desaparecerá de la lista de pendientes.')) {
+                // Remover event listeners anteriores usando una función nombrada
+                if (container._pendientesClickHandler) {
+                    container.removeEventListener('click', container._pendientesClickHandler);
+                }
+                
+                // Crear nuevo handler
+                container._pendientesClickHandler = (e) => {
+                    // Finalizar - debe ir primero para evitar conflictos
+                    const finalizarBtn = e.target.closest('[data-action="finalizar"]');
+                    if (finalizarBtn) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const movimientoId = finalizarBtn.dataset.movId;
+                        if (movimientoId && confirm('¿Marcar esta operación como finalizada? Desaparecerá de la lista de pendientes.')) {
                             updateMovimiento(movimientoId, { estado: 'realizado' });
                             showToast('Operación marcada como finalizada', 'success');
                             renderPendientesList();
                         }
+                        return false;
                     }
-                });
+                    
+                    // Ver detalle - solo si no se hizo clic en el botón finalizar
+                    const detalleRow = e.target.closest('[data-action="ver-detalle"]');
+                    if (detalleRow && !e.target.closest('[data-action="finalizar"]')) {
+                        const movimientoId = detalleRow.dataset.movId;
+                        if (movimientoId) {
+                            showPendienteDetail(movimientoId);
+                        }
+                        return false;
+                    }
+                };
+                
+                // Agregar event listener
+                container.addEventListener('click', container._pendientesClickHandler);
             }
             
             function showPendienteDetail(movimientoId) {
@@ -3271,9 +3668,6 @@
                 // Construir HTML del detalle
                 let detailHTML = `
                     <div style="padding: 20px;">
-                        <button type="button" class="btn-cancel" id="volverPendientesBtn" style="margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
-                            ← Volver
-                        </button>
                         <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 20px; color: var(--text-primary);">Detalle de Operación</h2>
                         <div style="background: var(--bg-secondary); padding: 20px; border-radius: 12px; border: 2px solid var(--border-color);">
                 `;
@@ -3359,14 +3753,8 @@
                 detailContainer.innerHTML = detailHTML;
                 renderPendientesList(); // Esto ocultará la lista y mostrará el detalle
                 
-                // Event listener para el botón volver
-                const volverBtn = document.getElementById('volverPendientesBtn');
-                if (volverBtn) {
-                    volverBtn.addEventListener('click', () => {
-                        viewingPendienteDetail = null;
-                        renderPendientesList();
-                    });
-                }
+                // Actualizar el botón del header cuando se muestra el detalle
+                actualizarBotonVolverPendientes();
             }
 
             function renderClientesList() {
@@ -3426,7 +3814,10 @@
                                 </div>
                                 ${cliente.notas ? `<div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color);"><p style="color: var(--text-secondary); font-size: 13px; margin: 0;">${cliente.notas}</p></div>` : ''}
                             </div>
-                            <button type="button" class="btn-remove" data-cliente-id="${cliente.id}" style="flex-shrink: 0;">✕</button>
+                            <div style="display: flex; gap: 8px; flex-shrink: 0;">
+                                <button type="button" class="btn-edit" data-cliente-id="${cliente.id}" style="padding: 8px 12px; font-size: 13px;" title="Editar cliente">✏️</button>
+                                <button type="button" class="btn-remove" data-cliente-id="${cliente.id}" style="flex-shrink: 0;" title="Eliminar cliente">✕</button>
+                            </div>
                         </div>
                         <div style="font-size: 11px; color: var(--text-secondary);">
                             ID: ${cliente.id}
@@ -3435,12 +3826,21 @@
                     `;
                 }).join('');
                 
-                // Event listener para eliminar
+                // Event listener para editar y eliminar
                 container.addEventListener('click', (e) => {
+                    // Editar cliente
+                    if (e.target.classList.contains('btn-edit') || e.target.closest('.btn-edit')) {
+                        const btn = e.target.classList.contains('btn-edit') ? e.target : e.target.closest('.btn-edit');
+                        const clienteId = btn.dataset.clienteId;
+                        cargarClienteParaEditar(clienteId);
+                    }
+                    
+                    // Eliminar cliente
                     if (e.target.classList.contains('btn-remove') || e.target.closest('.btn-remove')) {
                         const btn = e.target.classList.contains('btn-remove') ? e.target : e.target.closest('.btn-remove');
                         const clienteId = btn.dataset.clienteId;
-                        const cliente = clientes.find(c => c.id === clienteId);
+                        const clientesList = getClientes(); // Obtener clientes dentro del event listener
+                        const cliente = clientesList.find(c => c.id === clienteId);
                         if (cliente && confirm(`¿Eliminar el cliente "${cliente.nombre}"?`)) {
                             deleteCliente(clienteId);
                             showToast('Cliente eliminado', 'success');
@@ -3454,7 +3854,7 @@
             updateDateDisplay();
             setupTheme();
             loadModule(localStorage.getItem('activeModule') || 'operaciones');
-        });
+        );
     </script>
 </body>
 </html>
