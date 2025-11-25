@@ -989,7 +989,7 @@
             transition: all 0.2s ease;
         }
         .movimiento-row:hover {
-            background: var(--bg-surface-hover);
+            background: var(--bg-primary);
         }
         @media (max-width: 1400px) {
             .movimiento-row {
@@ -3298,7 +3298,7 @@
                 
                 detallesHTML += `
                         <div class="form-actions">
-                            ${!movimiento.anulado ? `<button type="button" class="btn-secondary" id="editarMovimientoBtn" data-mov-id="${movimiento.id}">Editar</button>` : ''}
+                            ${!movimiento.anulado ? `<button type="button" class="btn-edit" id="editarMovimientoBtn" data-mov-id="${movimiento.id}">Editar</button>` : ''}
                             ${!movimiento.anulado ? `<button type="button" class="btn-cancel" id="anularMovimientoBtn" data-mov-id="${movimiento.id}">Anular Movimiento</button>` : ''}
                             <button type="button" class="btn-submit" id="cerrarDetallesBtn">Cerrar</button>
                         </div>
@@ -3463,7 +3463,7 @@
                                 return `<strong>${monedaLabel}</strong> ${formatNumberWithThousands(total)}`;
                             })
                             .join(' | ');
-                        resumenHTML += `<div style="color: var(--error-color); font-size: 15px; font-weight: 600; margin-bottom: 8px; padding: 8px; background: var(--error-surface); border-radius: 8px; white-space: nowrap; overflow-x: auto;">🔴 TOTAL A RETIRAR: ${retiroStr}</div>`;
+                        resumenHTML += `<div style="color: var(--error-color); font-size: 15px; font-weight: 600; margin-bottom: 8px; padding: 8px; background: rgba(255, 69, 58, 0.1); border-radius: 8px; white-space: nowrap; overflow-x: auto;">🔴 TOTAL A RETIRAR: ${retiroStr}</div>`;
                     }
                     
                     if (Object.keys(totalEntregaGeneral).length > 0) {
@@ -3475,7 +3475,7 @@
                                 return `<strong>${monedaLabel}</strong> ${formatNumberWithThousands(total)}`;
                             })
                             .join(' | ');
-                        resumenHTML += `<div style="color: var(--success-color); font-size: 15px; font-weight: 600; padding: 8px; background: var(--success-surface); border-radius: 8px; white-space: nowrap; overflow-x: auto;">🟢 TOTAL A ENTREGAR: ${entregaStr}</div>`;
+                        resumenHTML += `<div style="color: var(--success-color); font-size: 15px; font-weight: 600; padding: 8px; background: rgba(48, 209, 88, 0.1); border-radius: 8px; white-space: nowrap; overflow-x: auto;">🟢 TOTAL A ENTREGAR: ${entregaStr}</div>`;
                     }
                     
                     resumenHTML += '</div>';
@@ -3639,7 +3639,7 @@
                                     
                                     return `
                                         <div class="pendiente-operacion-row" style="display: grid; grid-template-columns: auto 2fr 1fr 1fr auto auto; gap: 12px; padding: 10px; margin-bottom: 8px; background: var(--bg-secondary); border-radius: 8px; align-items: center; border-left: 3px solid ${colorTipo}; overflow: hidden; cursor: pointer;" data-mov-id="${mov.id}" data-action="ver-detalle">
-                                            <span style="font-size: 11px; padding: 2px 6px; border-radius: 4px; background: ${colorTipo === 'var(--error-color)' ? 'var(--error-surface)' : 'var(--success-surface)'}; color: ${colorTipo}; font-weight: 600; white-space: nowrap; flex-shrink: 0;">
+                                            <span style="font-size: 11px; padding: 2px 6px; border-radius: 4px; background: ${colorTipo === 'var(--error-color)' ? 'rgba(255, 69, 58, 0.1)' : 'rgba(48, 209, 88, 0.1)'}; color: ${colorTipo}; font-weight: 600; white-space: nowrap; flex-shrink: 0;">
                                                 ${tipoPendiente}
                                             </span>
                                             <div style="min-width: 0; overflow: hidden;">
@@ -3738,7 +3738,7 @@
                             <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--text-primary);">Cliente</h3>
                             <div style="display: grid; gap: 8px;">
                                 <div><strong>Nombre:</strong> ${clienteCompleto.nombre || 'N/A'}</div>
-                                ${clienteCompleto.dni ? `<div><strong>DNI:</strong> ${clienteCompleto.dni}</div>` : ''}
+                                ${clienteCompleto.documento ? `<div><strong>DNI:</strong> ${clienteCompleto.documento}</div>` : ''}
                                 ${clienteCompleto.telefono ? `<div><strong>Teléfono:</strong> ${clienteCompleto.telefono}</div>` : ''}
                                 ${clienteCompleto.telefonoRespaldo ? `<div><strong>Teléfono Respaldo:</strong> ${clienteCompleto.telefonoRespaldo}</div>` : ''}
                                 ${clienteCompleto.direccion ? `<div><strong>Dirección:</strong> ${clienteCompleto.direccion}</div>` : ''}
@@ -3820,7 +3820,7 @@
                     const colorDias = diasTranscurridos === null ? 'var(--text-secondary)' : 
                                      diasTranscurridos === 0 ? 'var(--success-color)' : 
                                      diasTranscurridos <= 7 ? 'var(--text-primary)' : 
-                                     diasTranscurridos <= 30 ? 'var(--warning)' : 'var(--error-color)';
+                                     diasTranscurridos <= 30 ? '#ffa500' : 'var(--error-color)';
                     
                     return `
                     <div class="form-card" style="padding: 20px; margin-bottom: 16px; overflow: hidden;">
@@ -3828,7 +3828,7 @@
                             <div style="min-width: 0; overflow: hidden;">
                                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap;">
                                     <h3 style="font-size: 18px; font-weight: 600; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${cliente.nombre}</h3>
-                                    <span style="font-size: 11px; padding: 2px 8px; border-radius: 12px; background: ${cliente.tipo === 'prestamista' ? 'var(--accent-surface)' : cliente.tipo === 'cuenta_corriente' ? 'var(--success-surface)' : 'var(--bg-surface-variant)'}; color: ${cliente.tipo === 'prestamista' ? 'var(--accent-primary)' : cliente.tipo === 'cuenta_corriente' ? 'var(--success-color)' : 'var(--text-secondary)'};">
+                                    <span style="font-size: 11px; padding: 2px 8px; border-radius: 12px; background: ${cliente.tipo === 'prestamista' ? 'rgba(119, 171, 255, 0.2)' : cliente.tipo === 'cuenta_corriente' ? 'rgba(48, 209, 88, 0.1)' : 'var(--bg-secondary)'}; color: ${cliente.tipo === 'prestamista' ? 'var(--button-bg)' : cliente.tipo === 'cuenta_corriente' ? 'var(--success-color)' : 'var(--text-secondary)'};">
                                         ${cliente.tipo === 'prestamista' ? 'Prestamista' : cliente.tipo === 'cuenta_corriente' ? 'Cuenta Corriente' : 'Diario'}
                                     </span>
                                 </div>
