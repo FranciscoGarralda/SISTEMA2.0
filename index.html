@@ -2608,22 +2608,58 @@
              * =================================================================
              */
             const setupMenu = () => {
-                const sidebar = document.getElementById('sidebar'), overlay = document.getElementById('overlay');
-                const closeMenu = () => { sidebar.classList.remove('open'); overlay.classList.remove('active'); };
-                document.getElementById('menuBtn').addEventListener('click', () => { sidebar.classList.add('open'); overlay.classList.add('active'); });
-                document.getElementById('closeBtn').addEventListener('click', closeMenu);
-                overlay.addEventListener('click', closeMenu);
-                document.querySelectorAll('.menu-link').forEach(link => link.addEventListener('click', e => {
-                    e.preventDefault();
-                    closeMenu();
-                    loadModule(e.target.getAttribute('href').substring(1));
-                }));
+                try {
+                    const sidebar = document.getElementById('sidebar');
+                    const overlay = document.getElementById('overlay');
+                    const menuBtn = document.getElementById('menuBtn');
+                    const closeBtn = document.getElementById('closeBtn');
+                    
+                    if (!sidebar || !overlay || !menuBtn || !closeBtn) {
+                        console.error('Error: Elementos del menú no encontrados');
+                        return;
+                    }
+                    
+                    const closeMenu = () => { 
+                        sidebar.classList.remove('open'); 
+                        overlay.classList.remove('active'); 
+                    };
+                    
+                    menuBtn.addEventListener('click', () => { 
+                        sidebar.classList.add('open'); 
+                        overlay.classList.add('active'); 
+                    });
+                    
+                    closeBtn.addEventListener('click', closeMenu);
+                    overlay.addEventListener('click', closeMenu);
+                    
+                    document.querySelectorAll('.menu-link').forEach(link => {
+                        link.addEventListener('click', e => {
+                            e.preventDefault();
+                            closeMenu();
+                            const href = e.target.getAttribute('href');
+                            if (href) {
+                                loadModule(href.substring(1));
+                            }
+                        });
+                    });
+                } catch (error) {
+                    console.error('Error en setupMenu:', error);
+                }
             };
 
             const updateDateDisplay = () => {
-                const now = new Date();
-                const formatted = now.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-                document.getElementById('dateDisplay').textContent = formatted.charAt(0).toUpperCase() + formatted.slice(1);
+                try {
+                    const dateDisplay = document.getElementById('dateDisplay');
+                    if (!dateDisplay) {
+                        console.error('Error: dateDisplay no encontrado');
+                        return;
+                    }
+                    const now = new Date();
+                    const formatted = now.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                    dateDisplay.textContent = formatted.charAt(0).toUpperCase() + formatted.slice(1);
+                } catch (error) {
+                    console.error('Error en updateDateDisplay:', error);
+                }
             };
 
             const applyTheme = (theme) => {
@@ -2632,8 +2668,12 @@
             };
 
             const setupTheme = () => {
-                const savedTheme = localStorage.getItem('theme') || 'dark';
-                applyTheme(savedTheme);
+                try {
+                    const savedTheme = localStorage.getItem('theme') || 'dark';
+                    applyTheme(savedTheme);
+                } catch (error) {
+                    console.error('Error en setupTheme:', error);
+                }
             };
 
             function initConfiguracion() {
@@ -3850,11 +3890,24 @@
                 });
             }
 
-            setupMenu();
-            updateDateDisplay();
-            setupTheme();
-            loadModule(localStorage.getItem('activeModule') || 'operaciones');
-        );
+            try {
+                setupMenu();
+                updateDateDisplay();
+                setupTheme();
+                const activeModule = localStorage.getItem('activeModule') || 'operaciones';
+                loadModule(activeModule);
+            } catch (error) {
+                console.error('Error en inicialización:', error);
+                // Intentar cargar al menos el módulo de operaciones
+                try {
+                    if (typeof loadModule === 'function') {
+                        loadModule('operaciones');
+                    }
+                } catch (e) {
+                    console.error('Error crítico al cargar módulo:', e);
+                }
+            }
+        });
     </script>
 </body>
 </html>
