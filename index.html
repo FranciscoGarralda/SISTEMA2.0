@@ -1246,6 +1246,14 @@
                         mainContent.innerHTML = renderMovimientosModule();
                         initMovimientosModule();
                         break;
+                    case 'saldos':
+                        mainContent.innerHTML = renderSaldosModule();
+                        initSaldosModule();
+                        break;
+                    case 'cuentas-corrientes':
+                        mainContent.innerHTML = renderCuentasCorrientesModule();
+                        initCuentasCorrientesModule();
+                        break;
                     case 'configuracion':
                         mainContent.innerHTML = `
                             <div class="operations-container">
@@ -3919,6 +3927,403 @@
                 
                 // Agregar event listener
                 container.addEventListener('click', container._clientesClickHandler);
+            }
+
+            /**
+             * =================================================================
+             * MÓDULO DE SALDOS
+             * =================================================================
+             */
+            function renderSaldosModule() {
+                return `
+                    <div class="operations-container" style="max-width: 100%;">
+                        <div class="form-card">
+                            <div class="form-header">
+                                <button type="button" class="btn-back" onclick="window.loadModule('')" title="Volver al inicio">← Volver</button>
+                                <h2 class="form-title">💰 Saldos de Wallets</h2>
+                                <div style="width: 100px;"></div>
+                            </div>
+                            <div id="saldosListContainer"></div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function calcularSaldosWallets() {
+                const wallets = getWallets();
+                const movimientos = getMovimientos().filter(m => !m.anulado);
+                const saldos = {};
+
+                // Inicializar saldos para todas las wallets
+                wallets.forEach(wallet => {
+                    saldos[wallet.id] = {};
+                });
+
+                // Procesar cada movimiento
+                movimientos.forEach(mov => {
+                    const operacion = mov.operacion;
+                    const subOperacion = mov.subOperacion;
+                    const moneda = mov.moneda || mov.monedaTC || 'ARS';
+                    const monto = safeParseFloat(mov.monto || 0);
+                    const total = safeParseFloat(mov.total || monto);
+
+                    // WALLET - INGRESO: suma a walletCompra
+                    if (operacion === 'WALLET' && subOperacion === 'INGRESO' && mov.walletCompra) {
+                        if (!saldos[mov.walletCompra]) saldos[mov.walletCompra] = {};
+                        if (!saldos[mov.walletCompra][moneda]) saldos[mov.walletCompra][moneda] = 0;
+                        saldos[mov.walletCompra][moneda] += monto;
+                    }
+
+                    // WALLET - SALIDA: resta de walletCompra
+                    if (operacion === 'WALLET' && subOperacion === 'SALIDA' && mov.walletCompra) {
+                        if (!saldos[mov.walletCompra]) saldos[mov.walletCompra] = {};
+                        if (!saldos[mov.walletCompra][moneda]) saldos[mov.walletCompra][moneda] = 0;
+                        saldos[mov.walletCompra][moneda] -= monto;
+                    }
+
+                    // TRANSACCIONES - COMPRA: resta de walletCompra (moneda de pago), suma a walletTC (moneda comprada)
+                    if (operacion === 'TRANSACCIONES' && subOperacion === 'COMPRA') {
+                        const monedaPago = mov.moneda || 'ARS';
+                        const monedaComprada = mov.monedaTC || 'USD';
+                        if (mov.walletCompra) {
+                            if (!saldos[mov.walletCompra]) saldos[mov.walletCompra] = {};
+                            if (!saldos[mov.walletCompra][monedaPago]) saldos[mov.walletCompra][monedaPago] = 0;
+                            saldos[mov.walletCompra][monedaPago] -= total;
+                        }
+                        if (mov.walletTC) {
+                            if (!saldos[mov.walletTC]) saldos[mov.walletTC] = {};
+                            if (!saldos[mov.walletTC][monedaComprada]) saldos[mov.walletTC][monedaComprada] = 0;
+                            saldos[mov.walletTC][monedaComprada] += monto;
+                        }
+                    }
+
+                    // TRANSACCIONES - VENTA: suma a walletCompra (moneda recibida), resta de walletTC (moneda vendida)
+                    if (operacion === 'TRANSACCIONES' && subOperacion === 'VENTA') {
+                        const monedaRecibida = mov.moneda || 'ARS';
+                        const monedaVendida = mov.monedaTC || 'USD';
+                        if (mov.walletCompra) {
+                            if (!saldos[mov.walletCompra]) saldos[mov.walletCompra] = {};
+                            if (!saldos[mov.walletCompra][monedaRecibida]) saldos[mov.walletCompra][monedaRecibida] = 0;
+                            saldos[mov.walletCompra][monedaRecibida] += total;
+                        }
+                        if (mov.walletTC) {
+                            if (!saldos[mov.walletTC]) saldos[mov.walletTC] = {};
+                            if (!saldos[mov.walletTC][monedaVendida]) saldos[mov.walletTC][monedaVendida] = 0;
+                            saldos[mov.walletTC][monedaVendida] -= monto;
+                        }
+                    }
+
+                    // TRANSACCIONES - ARBITRAJE: walletBase resta, walletProfit suma
+                    if (operacion === 'TRANSACCIONES' && subOperacion === 'ARBITRAJE') {
+                        const monedaBase = mov.moneda || 'ARS';
+                        const monedaProfit = mov.monedaProfit || 'USD';
+                        if (mov.walletBase) {
+                            if (!saldos[mov.walletBase]) saldos[mov.walletBase] = {};
+                            if (!saldos[mov.walletBase][monedaBase]) saldos[mov.walletBase][monedaBase] = 0;
+                            saldos[mov.walletBase][monedaBase] -= safeParseFloat(mov.costoReal || total);
+                        }
+                        if (mov.walletProfit) {
+                            if (!saldos[mov.walletProfit]) saldos[mov.walletProfit] = {};
+                            if (!saldos[mov.walletProfit][monedaProfit]) saldos[mov.walletProfit][monedaProfit] = 0;
+                            saldos[mov.walletProfit][monedaProfit] += safeParseFloat(mov.profit || 0);
+                        }
+                    }
+
+                    // CUENTAS_CORRIENTES - INGRESO: suma a walletCompra
+                    if (operacion === 'CUENTAS_CORRIENTES' && subOperacion === 'INGRESO' && mov.walletCompra) {
+                        if (!saldos[mov.walletCompra]) saldos[mov.walletCompra] = {};
+                        if (!saldos[mov.walletCompra][moneda]) saldos[mov.walletCompra][moneda] = 0;
+                        saldos[mov.walletCompra][moneda] += monto;
+                    }
+
+                    // CUENTAS_CORRIENTES - EGRESO: resta de walletCompra
+                    if (operacion === 'CUENTAS_CORRIENTES' && subOperacion === 'EGRESO' && mov.walletCompra) {
+                        if (!saldos[mov.walletCompra]) saldos[mov.walletCompra] = {};
+                        if (!saldos[mov.walletCompra][moneda]) saldos[mov.walletCompra][moneda] = 0;
+                        saldos[mov.walletCompra][moneda] -= monto;
+                    }
+
+                    // CUENTAS_CORRIENTES - COMPRA/VENTA: similar a TRANSACCIONES
+                    if (operacion === 'CUENTAS_CORRIENTES' && (subOperacion === 'COMPRA' || subOperacion === 'VENTA')) {
+                        const monedaPago = mov.moneda || 'ARS';
+                        const monedaOperacion = mov.monedaTC || 'USD';
+                        if (subOperacion === 'COMPRA') {
+                            if (mov.walletCompra) {
+                                if (!saldos[mov.walletCompra]) saldos[mov.walletCompra] = {};
+                                if (!saldos[mov.walletCompra][monedaPago]) saldos[mov.walletCompra][monedaPago] = 0;
+                                saldos[mov.walletCompra][monedaPago] -= total;
+                            }
+                            if (mov.walletTC) {
+                                if (!saldos[mov.walletTC]) saldos[mov.walletTC] = {};
+                                if (!saldos[mov.walletTC][monedaOperacion]) saldos[mov.walletTC][monedaOperacion] = 0;
+                                saldos[mov.walletTC][monedaOperacion] += monto;
+                            }
+                        } else { // VENTA
+                            if (mov.walletCompra) {
+                                if (!saldos[mov.walletCompra]) saldos[mov.walletCompra] = {};
+                                if (!saldos[mov.walletCompra][monedaPago]) saldos[mov.walletCompra][monedaPago] = 0;
+                                saldos[mov.walletCompra][monedaPago] += total;
+                            }
+                            if (mov.walletTC) {
+                                if (!saldos[mov.walletTC]) saldos[mov.walletTC] = {};
+                                if (!saldos[mov.walletTC][monedaOperacion]) saldos[mov.walletTC][monedaOperacion] = 0;
+                                saldos[mov.walletTC][monedaOperacion] -= monto;
+                            }
+                        }
+                    }
+
+                    // ADMINISTRATIVAS - AJUSTE: puede sumar o restar según el signo
+                    if (operacion === 'ADMINISTRATIVAS' && subOperacion === 'AJUSTE' && mov.walletCompra) {
+                        if (!saldos[mov.walletCompra]) saldos[mov.walletCompra] = {};
+                        if (!saldos[mov.walletCompra][moneda]) saldos[mov.walletCompra][moneda] = 0;
+                        // El ajuste puede ser positivo o negativo según el monto
+                        saldos[mov.walletCompra][moneda] += monto;
+                    }
+
+                    // ADMINISTRATIVAS - GASTO: resta de walletCompra
+                    if (operacion === 'ADMINISTRATIVAS' && subOperacion === 'GASTO' && mov.walletCompra) {
+                        if (!saldos[mov.walletCompra]) saldos[mov.walletCompra] = {};
+                        if (!saldos[mov.walletCompra][moneda]) saldos[mov.walletCompra][moneda] = 0;
+                        saldos[mov.walletCompra][moneda] -= monto;
+                    }
+
+                    // PRESTAMISTAS - PRESTAMO: resta de walletCompra
+                    if (operacion === 'PRESTAMISTAS' && subOperacion === 'PRESTAMO' && mov.walletCompra) {
+                        if (!saldos[mov.walletCompra]) saldos[mov.walletCompra] = {};
+                        if (!saldos[mov.walletCompra][moneda]) saldos[mov.walletCompra][moneda] = 0;
+                        saldos[mov.walletCompra][moneda] -= total;
+                    }
+
+                    // PRESTAMISTAS - RETIRO: resta de walletCompra
+                    if (operacion === 'PRESTAMISTAS' && subOperacion === 'RETIRO' && mov.walletCompra) {
+                        if (!saldos[mov.walletCompra]) saldos[mov.walletCompra] = {};
+                        if (!saldos[mov.walletCompra][moneda]) saldos[mov.walletCompra][moneda] = 0;
+                        saldos[mov.walletCompra][moneda] -= monto;
+                    }
+
+                    // WALLET - MOV ENTRE CUENTAS: resta de walletBase, suma a walletProfit
+                    if (operacion === 'WALLET' && subOperacion === 'MOV ENTRE CUENTAS') {
+                        if (mov.walletBase) {
+                            if (!saldos[mov.walletBase]) saldos[mov.walletBase] = {};
+                            if (!saldos[mov.walletBase][moneda]) saldos[mov.walletBase][moneda] = 0;
+                            saldos[mov.walletBase][moneda] -= monto;
+                        }
+                        if (mov.walletProfit) {
+                            if (!saldos[mov.walletProfit]) saldos[mov.walletProfit] = {};
+                            if (!saldos[mov.walletProfit][moneda]) saldos[mov.walletProfit][moneda] = 0;
+                            saldos[mov.walletProfit][moneda] += monto;
+                        }
+                    }
+                });
+
+                return saldos;
+            }
+
+            function renderSaldosList() {
+                const container = document.getElementById('saldosListContainer');
+                if (!container) return;
+
+                const wallets = getWallets();
+                const saldos = calcularSaldosWallets();
+
+                if (wallets.length === 0) {
+                    container.innerHTML = '<p style="color: var(--text-secondary); padding: 20px; text-align: center;">No hay wallets creadas.</p>';
+                    return;
+                }
+
+                let html = '';
+                wallets.forEach(wallet => {
+                    const walletSaldos = saldos[wallet.id] || {};
+                    const monedasConSaldo = Object.keys(walletSaldos).filter(m => Math.abs(walletSaldos[m]) > 0.01);
+
+                    if (monedasConSaldo.length === 0) {
+                        html += `
+                            <div class="form-card" style="padding: 20px; margin-bottom: 15px; border: 1px solid var(--border-color);">
+                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                                    <div>
+                                        <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 5px;">${wallet.nombre}</h3>
+                                        <p style="color: var(--text-secondary); font-size: 13px;">ID: ${wallet.id}</p>
+                                    </div>
+                                </div>
+                                <div style="padding: 15px; background: var(--bg-primary); border-radius: 8px; text-align: center;">
+                                    <p style="color: var(--text-secondary);">Sin saldo</p>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        html += `
+                            <div class="form-card" style="padding: 20px; margin-bottom: 15px; border: 1px solid var(--border-color);">
+                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                                    <div>
+                                        <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 5px;">${wallet.nombre}</h3>
+                                        <p style="color: var(--text-secondary); font-size: 13px;">ID: ${wallet.id}</p>
+                                    </div>
+                                </div>
+                                <div style="display: grid; gap: 12px;">
+                                    ${monedasConSaldo.map(moneda => {
+                                        const saldo = walletSaldos[moneda];
+                                        const monedaLabel = monedas.find(m => m.value === moneda)?.label || moneda;
+                                        const esNegativo = saldo < 0;
+                                        return `
+                                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--bg-primary); border-radius: 8px; border: 1px solid var(--border-color);">
+                                                <span style="font-weight: 600; font-size: 15px;">${monedaLabel}</span>
+                                                <span style="font-size: 16px; font-weight: 600; color: ${esNegativo ? 'var(--error-color)' : 'var(--success-color)'};">
+                                                    ${esNegativo ? '-' : ''}${formatNumberWithThousands(Math.abs(saldo))}
+                                                </span>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+
+                container.innerHTML = html;
+            }
+
+            function initSaldosModule() {
+                renderSaldosList();
+            }
+
+            /**
+             * =================================================================
+             * MÓDULO DE CUENTAS CORRIENTES
+             * =================================================================
+             */
+            function renderCuentasCorrientesModule() {
+                return `
+                    <div class="operations-container" style="max-width: 100%;">
+                        <div class="form-card">
+                            <div class="form-header">
+                                <button type="button" class="btn-back" onclick="window.loadModule('')" title="Volver al inicio">← Volver</button>
+                                <h2 class="form-title">🏦 Cuentas Corrientes</h2>
+                                <div style="width: 100px;"></div>
+                            </div>
+                            <div id="cuentasCorrientesListContainer"></div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function calcularBalancesCuentasCorrientes() {
+                const clientes = getClientes().filter(c => c.tipo === 'cuenta_corriente');
+                const movimientos = getMovimientos().filter(m => !m.anulado && m.operacion === 'CUENTAS_CORRIENTES');
+                const balances = {};
+
+                // Inicializar balances para todos los clientes con cuenta corriente
+                clientes.forEach(cliente => {
+                    balances[cliente.id] = {};
+                });
+
+                // Procesar cada movimiento de cuentas corrientes
+                movimientos.forEach(mov => {
+                    const clienteId = mov.cliente;
+                    if (!clienteId || !balances[clienteId]) return;
+
+                    const subOperacion = mov.subOperacion;
+                    const moneda = mov.moneda || mov.monedaTC || 'ARS';
+                    const monto = safeParseFloat(mov.monto || 0);
+                    const total = safeParseFloat(mov.total || monto);
+
+                    if (!balances[clienteId][moneda]) {
+                        balances[clienteId][moneda] = 0;
+                    }
+
+                    // INGRESO: suma al balance (el cliente nos debe menos o nos pagó)
+                    if (subOperacion === 'INGRESO') {
+                        balances[clienteId][moneda] += monto;
+                    }
+                    // EGRESO: resta del balance (el cliente nos debe más)
+                    else if (subOperacion === 'EGRESO') {
+                        balances[clienteId][moneda] -= monto;
+                    }
+                    // COMPRA: el cliente compra, nos debe más (resta)
+                    else if (subOperacion === 'COMPRA') {
+                        balances[clienteId][moneda] -= total;
+                    }
+                    // VENTA: el cliente vende, nos debe menos o nos pagó (suma)
+                    else if (subOperacion === 'VENTA') {
+                        balances[clienteId][moneda] += total;
+                    }
+                    // ARBITRAJE: depende de la lógica específica, por ahora no afecta directamente
+                });
+
+                return balances;
+            }
+
+            function renderCuentasCorrientesList() {
+                const container = document.getElementById('cuentasCorrientesListContainer');
+                if (!container) return;
+
+                const clientes = getClientes().filter(c => c.tipo === 'cuenta_corriente');
+                const balances = calcularBalancesCuentasCorrientes();
+
+                if (clientes.length === 0) {
+                    container.innerHTML = '<p style="color: var(--text-secondary); padding: 20px; text-align: center;">No hay clientes con cuenta corriente.</p>';
+                    return;
+                }
+
+                let html = '';
+                clientes.forEach(cliente => {
+                    const clienteBalances = balances[cliente.id] || {};
+                    const monedasConBalance = Object.keys(clienteBalances).filter(m => Math.abs(clienteBalances[m]) > 0.01);
+
+                    if (monedasConBalance.length === 0) {
+                        html += `
+                            <div class="form-card" style="padding: 20px; margin-bottom: 15px; border: 1px solid var(--border-color);">
+                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                                    <div>
+                                        <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 5px;">${cliente.nombre}</h3>
+                                        ${cliente.documento ? `<p style="color: var(--text-secondary); font-size: 13px;">DNI: ${cliente.documento}</p>` : ''}
+                                    </div>
+                                    <span style="font-size: 11px; padding: 4px 8px; border-radius: 12px; background: rgba(48, 209, 88, 0.1); color: var(--success-color); font-weight: 600;">Cuenta Corriente</span>
+                                </div>
+                                <div style="padding: 15px; background: var(--bg-primary); border-radius: 8px; text-align: center;">
+                                    <p style="color: var(--text-secondary);">Balance en cero</p>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        html += `
+                            <div class="form-card" style="padding: 20px; margin-bottom: 15px; border: 1px solid var(--border-color);">
+                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                                    <div>
+                                        <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 5px;">${cliente.nombre}</h3>
+                                        ${cliente.documento ? `<p style="color: var(--text-secondary); font-size: 13px;">DNI: ${cliente.documento}</p>` : ''}
+                                    </div>
+                                    <span style="font-size: 11px; padding: 4px 8px; border-radius: 12px; background: rgba(48, 209, 88, 0.1); color: var(--success-color); font-weight: 600;">Cuenta Corriente</span>
+                                </div>
+                                <div style="display: grid; gap: 12px;">
+                                    ${monedasConBalance.map(moneda => {
+                                        const balance = clienteBalances[moneda];
+                                        const monedaLabel = monedas.find(m => m.value === moneda)?.label || moneda;
+                                        const esDeudor = balance < 0; // Si es negativo, el cliente nos debe
+                                        return `
+                                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--bg-primary); border-radius: 8px; border: 1px solid var(--border-color);">
+                                                <div>
+                                                    <span style="font-weight: 600; font-size: 15px;">${monedaLabel}</span>
+                                                    <span style="font-size: 12px; color: var(--text-secondary); margin-left: 8px;">
+                                                        ${esDeudor ? '(Nos debe)' : '(A nuestro favor)'}
+                                                    </span>
+                                                </div>
+                                                <span style="font-size: 16px; font-weight: 600; color: ${esDeudor ? 'var(--error-color)' : 'var(--success-color)'};">
+                                                    ${esDeudor ? '-' : ''}${formatNumberWithThousands(Math.abs(balance))}
+                                                </span>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+
+                container.innerHTML = html;
+            }
+
+            function initCuentasCorrientesModule() {
+                renderCuentasCorrientesList();
             }
 
             try {
