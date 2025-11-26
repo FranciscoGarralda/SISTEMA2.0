@@ -3176,13 +3176,16 @@
                 if (monedasNormalizadas.includes(monedaUpper)) {
                     return monedaUpper;
                 }
-                if (!moneda) return '';
+                
                 // Mapa de normalizaciones
                 const normalizaciones = {
                     'PESO': 'ARS',
-                    'EURO': 'EUR'
+                    'EURO': 'EUR',
+                    'REAL': 'BRL',
+                    'LIBRA': 'GBP'
                 };
-                return normalizaciones[moneda] || moneda;
+                
+                return normalizaciones[monedaUpper] || monedaUpper;
             }
             
             // Normalizar todas las monedas en un objeto de datos
