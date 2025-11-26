@@ -2781,12 +2781,12 @@
                     saveMovimientos(movimientos);
                 
                 // Refrescar lista si estamos en el módulo de movimientos
-                if (document.getElementById('movimientosListContainer')) {
+                if (safeGetElementById('movimientosListContainer')) {
                     renderMovimientosList(window.currentMovimientosPage || 1);
                 }
                 
                 // Refrescar saldos si estamos en el módulo de saldos
-                if (document.getElementById('saldosListContainer')) {
+                if (safeGetElementById('saldosListContainer')) {
                     renderSaldosList();
                 }
                 
@@ -5800,7 +5800,7 @@
                     </div>
                 `;
                 
-                const container = document.getElementById('movimientosListContainer');
+                const container = safeGetElementById('movimientosListContainer');
                 if (container) {
                     container.innerHTML = detallesHTML;
                     
