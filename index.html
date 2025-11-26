@@ -2040,8 +2040,8 @@
                 PRESTAMISTAS: { icon: '🤝', subMenu: ['PRESTAMO', 'RETIRO'] }
             };
             const monedas = [
-                { value: 'ARS', label: 'ARS' }, { value: 'USD', label: 'USD' }, { value: 'EURO', label: 'EUR' },
-                { value: 'USDT', label: 'USDT' }, { value: 'REAL', label: 'BRL' }, { value: 'LIBRA', label: 'GBP' },
+                { value: 'ARS', label: 'ARS' }, { value: 'USD', label: 'USD' }, { value: 'EUR', label: 'EUR' },
+                { value: 'USDT', label: 'USDT' }, { value: 'BRL', label: 'BRL' }, { value: 'GBP', label: 'GBP' },
                 { value: 'CLP', label: 'CLP' }
             ];
             const estados = [
@@ -2097,8 +2097,15 @@
                                 // y necesitamos limpiar espacio antes de reintentar
                                 try {
                                     localStorage.setItem('movimientos', JSON.stringify(movimientosLimitados));
+                                    // Notificar al usuario
+                                    if (typeof showToast === 'function') {
+                                        showToast('Se limpiaron movimientos antiguos para liberar espacio', 'info');
+                                    }
                                 } catch (cleanError) {
                                     console.error('No se pudo limpiar movimientos:', cleanError);
+                                    if (typeof showToast === 'function') {
+                                        showToast('Error: No se pudo limpiar espacio. Intenta eliminar datos manualmente.', 'error');
+                                    }
                                 }
                             }
                             // Reintentar la operación original
@@ -2109,16 +2116,24 @@
                                     return true;
                                 } catch (retryError) {
                                     console.error('Error al reintentar operación después de limpiar:', retryError);
+                                    if (typeof showToast === 'function') {
+                                        showToast('Error: No se pudo guardar. El almacenamiento está lleno.', 'error');
+                                    }
                                     return false;
                                 }
                             }
                         } catch (e) {
                             console.error('No se pudo limpiar datos antiguos:', e);
                             if (typeof showToast === 'function') {
-                                showToast('Error: Espacio de almacenamiento lleno. Limpia datos antiguos.', 'error');
+                                showToast('Error crítico: Espacio de almacenamiento lleno. Limpia datos antiguos manualmente.', 'error');
                             }
                         }
                         return false;
+                    } else {
+                        // Otros errores de localStorage
+                        if (typeof showToast === 'function') {
+                            showToast(`Error al ${operation === 'get' ? 'leer' : operation === 'set' ? 'guardar' : 'eliminar'} datos`, 'error');
+                        }
                     }
                     return false;
                 }
@@ -2129,6 +2144,7 @@
                 const success = safeLocalStorageOperation('set', 'formState', formData);
                 if (!success) {
                     console.error('No se pudo guardar el estado del formulario');
+                    // No mostrar toast aquí para evitar spam, solo en casos críticos
                 }
             }
 
@@ -2136,23 +2152,39 @@
                 try {
                     const savedState = safeLocalStorageOperation('get', 'formState');
                     if (savedState) {
-                        formData = JSON.parse(savedState);
-                        // Normalizar monedas al cargar
-                        formData = normalizeAllMonedas(formData);
-                        // Asegurar que mixedPayments siempre sea un array
-                        if (!Array.isArray(formData.mixedPayments)) {
-                            formData.mixedPayments = [];
+                        try {
+                            formData = JSON.parse(savedState);
+                            // Validar que formData sea un objeto válido
+                            if (!formData || typeof formData !== 'object') {
+                                throw new Error('Estado del formulario inválido');
+                            }
+                            // Normalizar monedas al cargar
+                            formData = normalizeAllMonedas(formData);
+                            // Asegurar que mixedPayments siempre sea un array
+                            if (!Array.isArray(formData.mixedPayments)) {
+                                formData.mixedPayments = [];
+                            }
+                            // Asegurar que isMixedPaymentActive sea booleano
+                            if (typeof formData.isMixedPaymentActive !== 'boolean') {
+                                formData.isMixedPaymentActive = false;
+                            }
+                            return true;
+                        } catch (parseError) {
+                            console.error('Error al parsear estado del formulario:', parseError);
+                            if (typeof showToast === 'function') {
+                                showToast('Error al cargar estado guardado. Se iniciará un formulario nuevo.', 'error');
+                            }
+                            formData = getInitialFormState();
+                            return false;
                         }
-                        // Asegurar que isMixedPaymentActive sea booleano
-                        if (typeof formData.isMixedPaymentActive !== 'boolean') {
-                            formData.isMixedPaymentActive = false;
-                        }
-                        return true;
                     }
                     formData = getInitialFormState();
                     return false;
                 } catch (error) {
                     console.error('Error al cargar estado del formulario:', error);
+                    if (typeof showToast === 'function') {
+                        showToast('Error al cargar estado guardado', 'error');
+                    }
                     formData = getInitialFormState();
                     return false;
                 }
@@ -2188,23 +2220,47 @@
             function getWallets() {
                 try {
                     const data = safeLocalStorageOperation('get', 'wallets');
-                    return data ? JSON.parse(data) : [];
+                    if (!data) return [];
+                    const parsed = JSON.parse(data);
+                    // Validar que sea un array
+                    if (!Array.isArray(parsed)) {
+                        console.error('Datos de wallets inválidos, se retorna array vacío');
+                        return [];
+                    }
+                    return parsed;
                 } catch (error) {
                     console.error('Error al obtener wallets:', error);
+                    if (typeof showToast === 'function') {
+                        showToast('Error al cargar wallets', 'error');
+                    }
                     return [];
                 }
             }
 
             function saveWallets(wallets) {
+                // Validar que wallets sea un array
+                if (!Array.isArray(wallets)) {
+                    console.error('Intento de guardar wallets inválido');
+                    if (typeof showToast === 'function') {
+                        showToast('Error: Datos de wallets inválidos', 'error');
+                    }
+                    return;
+                }
                 // Limitar a últimos 100 wallets para evitar acumulación excesiva
                 const MAX_WALLETS = 100;
                 let walletsLimitados = wallets;
                 if (wallets.length > MAX_WALLETS) {
                     walletsLimitados = wallets.slice(0, MAX_WALLETS);
+                    if (typeof showToast === 'function') {
+                        showToast(`Se mantienen solo las últimas ${MAX_WALLETS} wallets`, 'info');
+                    }
                 }
                 const success = safeLocalStorageOperation('set', 'wallets', walletsLimitados);
                 if (!success) {
                     console.error('No se pudo guardar wallets');
+                    if (typeof showToast === 'function') {
+                        showToast('Error al guardar wallets', 'error');
+                    }
                 }
             }
 
@@ -2228,23 +2284,47 @@
             function getClientes() {
                 try {
                     const data = safeLocalStorageOperation('get', 'clientes');
-                    return data ? JSON.parse(data) : [];
+                    if (!data) return [];
+                    const parsed = JSON.parse(data);
+                    // Validar que sea un array
+                    if (!Array.isArray(parsed)) {
+                        console.error('Datos de clientes inválidos, se retorna array vacío');
+                        return [];
+                    }
+                    return parsed;
                 } catch (error) {
                     console.error('Error al obtener clientes:', error);
+                    if (typeof showToast === 'function') {
+                        showToast('Error al cargar clientes', 'error');
+                    }
                     return [];
                 }
             }
 
             function saveClientes(clientes) {
+                // Validar que clientes sea un array
+                if (!Array.isArray(clientes)) {
+                    console.error('Intento de guardar clientes inválido');
+                    if (typeof showToast === 'function') {
+                        showToast('Error: Datos de clientes inválidos', 'error');
+                    }
+                    return;
+                }
                 // Limitar a últimos 500 clientes para evitar acumulación excesiva
                 const MAX_CLIENTES = 500;
                 let clientesLimitados = clientes;
                 if (clientes.length > MAX_CLIENTES) {
                     clientesLimitados = clientes.slice(0, MAX_CLIENTES);
+                    if (typeof showToast === 'function') {
+                        showToast(`Se mantienen solo los últimos ${MAX_CLIENTES} clientes`, 'info');
+                    }
                 }
                 const success = safeLocalStorageOperation('set', 'clientes', clientesLimitados);
                 if (!success) {
                     console.error('No se pudo guardar clientes');
+                    if (typeof showToast === 'function') {
+                        showToast('Error al guardar clientes', 'error');
+                    }
                 }
             }
 
@@ -2277,21 +2357,60 @@
             function getMovimientos() {
                 try {
                     const data = safeLocalStorageOperation('get', 'movimientos');
-                    return data ? JSON.parse(data) : [];
+                    if (!data) return [];
+                    const parsed = JSON.parse(data);
+                    // Validar que sea un array
+                    if (!Array.isArray(parsed)) {
+                        console.error('Datos de movimientos inválidos, se retorna array vacío');
+                        return [];
+                    }
+                    return parsed;
                 } catch (error) {
                     console.error('Error al obtener movimientos:', error);
+                    if (typeof showToast === 'function') {
+                        showToast('Error al cargar movimientos', 'error');
+                    }
                     return [];
                 }
             }
 
             function saveMovimientos(movimientos) {
+                // Validar que movimientos sea un array
+                if (!Array.isArray(movimientos)) {
+                    console.error('Intento de guardar movimientos inválido');
+                    if (typeof showToast === 'function') {
+                        showToast('Error: Datos de movimientos inválidos', 'error');
+                    }
+                    return;
+                }
                 const success = safeLocalStorageOperation('set', 'movimientos', movimientos);
                 if (!success) {
                     console.error('No se pudo guardar movimientos');
+                    if (typeof showToast === 'function') {
+                        showToast('Error al guardar movimientos', 'error');
+                    }
                 }
             }
 
             function addMovimiento(movimiento) {
+                // Validar que el movimiento tenga la estructura básica
+                if (!movimiento || typeof movimiento !== 'object') {
+                    console.error('Intento de agregar movimiento inválido');
+                    if (typeof showToast === 'function') {
+                        showToast('Error: Datos del movimiento inválidos', 'error');
+                    }
+                    return null;
+                }
+                
+                // Validar campos requeridos básicos
+                if (!movimiento.operacion || !movimiento.subOperacion) {
+                    console.error('Movimiento sin operación o subOperación');
+                    if (typeof showToast === 'function') {
+                        showToast('Error: El movimiento debe tener operación y tipo', 'error');
+                    }
+                    return null;
+                }
+                
                 let movimientos = getMovimientos();
                 
                 // Limitar a últimos 1000 movimientos para evitar acumulación excesiva
@@ -2299,10 +2418,21 @@
                 if (movimientos.length >= MAX_MOVIMIENTOS) {
                     // Mantener solo los últimos 999 movimientos (antes de agregar el nuevo)
                     movimientos = movimientos.slice(0, MAX_MOVIMIENTOS - 1);
+                    if (typeof showToast === 'function') {
+                        showToast(`Se mantienen solo los últimos ${MAX_MOVIMIENTOS} movimientos`, 'info');
+                    }
                 }
                 
                 // Normalizar monedas antes de guardar
                 const movimientoNormalizado = normalizeAllMonedas({ ...movimiento });
+                
+                // Validar fecha
+                if (!movimientoNormalizado.fecha || !isValidDate(movimientoNormalizado.fecha + 'T00:00:00')) {
+                    // Si no hay fecha válida, usar la fecha actual
+                    const hoy = new Date();
+                    movimientoNormalizado.fecha = hoy.toISOString().split('T')[0];
+                    movimientoNormalizado.nombreDia = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'][hoy.getDay()];
+                }
                 
                 // Generar ID único para el movimiento
                 const id = 'MOV_' + generateUUID();
@@ -2317,13 +2447,37 @@
             }
 
             function updateMovimiento(movimientoId, datosActualizados) {
+                // Validar que los datos sean válidos
+                if (!datosActualizados || typeof datosActualizados !== 'object') {
+                    console.error('Intento de actualizar movimiento con datos inválidos');
+                    if (typeof showToast === 'function') {
+                        showToast('Error: Datos de actualización inválidos', 'error');
+                    }
+                    return;
+                }
+                
                 let movimientos = getMovimientos();
                 const index = movimientos.findIndex(m => m.id === movimientoId);
                 if (index !== -1) {
                     // Normalizar monedas antes de actualizar
                     const datosNormalizados = normalizeAllMonedas({ ...datosActualizados });
+                    
+                    // Validar fecha si se actualiza
+                    if (datosNormalizados.fecha && !isValidDate(datosNormalizados.fecha + 'T00:00:00')) {
+                        console.error('Fecha inválida en actualización de movimiento');
+                        if (typeof showToast === 'function') {
+                            showToast('Error: La fecha no es válida', 'error');
+                        }
+                        return;
+                    }
+                    
                     movimientos[index] = { ...movimientos[index], ...datosNormalizados, fechaModificacion: new Date().toISOString() };
                     saveMovimientos(movimientos);
+                } else {
+                    console.error('Movimiento no encontrado para actualizar:', movimientoId);
+                    if (typeof showToast === 'function') {
+                        showToast('Error: Movimiento no encontrado', 'error');
+                    }
                 }
             }
 
@@ -2366,13 +2520,29 @@
 
             function calcularDiasDesdeUltimaOperacion(fechaUltimaOperacion) {
                 if (!fechaUltimaOperacion) return null;
-                const fechaUltima = new Date(fechaUltimaOperacion);
-                const fechaActual = new Date();
-                const diferencia = fechaActual - fechaUltima;
-                // CORRECCIÓN: Fórmula correcta: ms * s * m * h (sin el 60 extra)
-                // 1000ms * 60s * 60m * 24h = milisegundos en un día
-                const dias = Math.floor(diferencia / (1000 * 60 * 60 * 24));
-                return dias;
+                try {
+                    const fechaUltima = new Date(fechaUltimaOperacion);
+                    const fechaActual = new Date();
+                    
+                    // Validar que las fechas sean válidas
+                    if (isNaN(fechaUltima.getTime()) || isNaN(fechaActual.getTime())) {
+                        console.error('Fecha inválida en calcularDiasDesdeUltimaOperacion');
+                        return null;
+                    }
+                    
+                    // Normalizar a medianoche para comparar solo días (sin horas)
+                    const fechaUltimaNormalizada = new Date(fechaUltima.getFullYear(), fechaUltima.getMonth(), fechaUltima.getDate());
+                    const fechaActualNormalizada = new Date(fechaActual.getFullYear(), fechaActual.getMonth(), fechaActual.getDate());
+                    
+                    const diferencia = fechaActualNormalizada - fechaUltimaNormalizada;
+                    // Fórmula correcta: ms * s * m * h = milisegundos en un día
+                    // 1000ms * 60s * 60m * 24h = 86400000 ms por día
+                    const dias = Math.floor(diferencia / (1000 * 60 * 60 * 24));
+                    return dias;
+                } catch (error) {
+                    console.error('Error al calcular días desde última operación:', error);
+                    return null;
+                }
             }
 
             function formatearFechaUltimaOperacion(fechaUltimaOperacion) {
@@ -2417,7 +2587,12 @@
             // Normalización centralizada de monedas
             function normalizeMoneda(moneda) {
                 if (!moneda) return '';
-                return moneda === 'PESO' ? 'ARS' : moneda;
+                // Mapa de normalizaciones
+                const normalizaciones = {
+                    'PESO': 'ARS',
+                    'EURO': 'EUR'
+                };
+                return normalizaciones[moneda] || moneda;
             }
             
             // Normalizar todas las monedas en un objeto de datos
@@ -2444,8 +2619,25 @@
             // Validar fecha
             function isValidDate(dateString) {
                 if (!dateString) return false;
-                const date = new Date(dateString);
-                return date instanceof Date && !isNaN(date.getTime());
+                try {
+                    const date = new Date(dateString);
+                    // Verificar que sea una fecha válida y que no sea Invalid Date
+                    if (!(date instanceof Date) || isNaN(date.getTime())) {
+                        return false;
+                    }
+                    // Verificar que el string parseado corresponde a una fecha válida
+                    // (evitar fechas como "2025-13-45" que se parsean pero son inválidas)
+                    const year = date.getFullYear();
+                    const month = date.getMonth();
+                    const day = date.getDate();
+                    // Validar rangos razonables
+                    if (year < 1900 || year > 2100) return false;
+                    if (month < 0 || month > 11) return false;
+                    if (day < 1 || day > 31) return false;
+                    return true;
+                } catch (error) {
+                    return false;
+                }
             }
             
             // Validación segura de elementos DOM
@@ -2616,29 +2808,38 @@
             }
             
             function calculateTotal() {
-                // Si es VENTA y la moneda vendida es ARS, dividir en lugar de multiplicar
-                // Si es COMPRA y la moneda comprada es ARS, también dividir
+                // Validar que los valores necesarios existan
                 const subOp = String(formData.subOperacion || '').trim();
                 const monedaRaw = String(formData.moneda || '').trim();
                 const moneda = normalizeMoneda(monedaRaw); // Normalizar PESO -> ARS
-                
-                // Validar que los valores necesarios existan
                 const monto = safeParseFloat(formData.monto);
                 const tc = safeParseFloat(formData.tc);
                 
-                if (!monto || !tc || tc === 0) {
+                // Validaciones
+                if (!monto || monto <= 0 || !tc || tc <= 0) {
                     formData.total = '';
                     return;
                 }
                 
+                // Validar que la moneda esté seleccionada
+                if (!moneda) {
+                    formData.total = '';
+                    return;
+                }
+                
+                // Lógica de cálculo según el tipo de operación y moneda
+                // Si es VENTA y la moneda vendida es ARS, dividir en lugar de multiplicar
+                // Si es COMPRA y la moneda comprada es ARS, también dividir
                 const esVentaConARS = subOp === 'VENTA' && moneda === 'ARS';
                 const esCompraConARS = subOp === 'COMPRA' && moneda === 'ARS';
                 
                 if (esVentaConARS || esCompraConARS) {
-                    // CORRECCIÓN: Usar roundToTwo para evitar problemas de floating point
+                    // Cuando operamos con ARS, dividimos para obtener la cantidad en la otra moneda
+                    // Ejemplo: Vendo 1000 ARS a TC 1000 → Recibo 1 USD
                     formData.total = roundToTwo(monto / tc).toFixed(2);
                 } else {
-                    // Para otras operaciones, multiplicar (lógica original)
+                    // Para otras operaciones (venta/compra de otras monedas), multiplicar
+                    // Ejemplo: Vendo 100 USD a TC 1000 → Recibo 100000 ARS
                     formData.total = roundToTwo(monto * tc).toFixed(2);
                 }
             }
@@ -2712,8 +2913,13 @@
                 // Calcular Profit si tengo montoCobrado y costoReal
                 const montoCobradoFinal = safeParseFloat(formData.montoCobrado);
                 const costoRealFinal = safeParseFloat(formData.costoReal);
-                if (montoCobradoFinal > 0 && costoRealFinal > 0) {
-                    formData.profit = (montoCobradoFinal - costoRealFinal).toFixed(2);
+                // Validar que ambos valores sean positivos antes de calcular
+                if (montoCobradoFinal > 0 && costoRealFinal > 0 && !isNaN(montoCobradoFinal) && !isNaN(costoRealFinal)) {
+                    const profitCalculado = montoCobradoFinal - costoRealFinal;
+                    formData.profit = roundToTwo(profitCalculado).toFixed(2);
+                } else {
+                    // Si los valores no son válidos, limpiar profit
+                    formData.profit = '';
                 }
 
                 // Actualizar campos en el DOM
@@ -3310,6 +3516,10 @@
                         if (fechaValor && isValidDate(fechaValor + 'T00:00:00')) {
                             try {
                                 const fecha = new Date(fechaValor + 'T00:00:00');
+                                // Validar que la fecha sea válida
+                                if (isNaN(fecha.getTime())) {
+                                    throw new Error('Fecha inválida');
+                                }
                                 const nombreDia = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'][fecha.getDay()];
                                 if (nombreDiaInput) {
                                     nombreDiaInput.value = nombreDia;
@@ -3317,9 +3527,20 @@
                                 formData.nombreDia = nombreDia;
                             } catch (error) {
                                 console.error('Error al calcular nombre del día:', error);
+                                if (typeof showToast === 'function') {
+                                    showToast('Error al calcular el día de la semana', 'error');
+                                }
+                                // Establecer un valor por defecto
+                                if (nombreDiaInput) {
+                                    nombreDiaInput.value = '';
+                                }
+                                formData.nombreDia = '';
                             }
                         } else if (fechaValor) {
                             console.error('Fecha inválida:', fechaValor);
+                            if (typeof showToast === 'function') {
+                                showToast('La fecha ingresada no es válida', 'error');
+                            }
                         }
                     }
                 };
@@ -3597,13 +3818,34 @@
                                 showToast('Debes seleccionar una wallet válida', 'error');
                                 return;
                             }
+                            // Validar que la wallet exista
+                            const walletId = parseWalletId(formData.walletCompra).wallet;
+                            if (walletId && walletId !== 'pago_mixto') {
+                                const wallets = getWallets();
+                                if (!wallets.some(w => w.id === walletId)) {
+                                    showToast('La wallet seleccionada no existe', 'error');
+                                    return;
+                                }
+                            }
                         } else if (subOperacion === 'MOV ENTRE CUENTAS') {
                             if (!formData.cuentaSalida || !formData.cuentaIngreso) {
                                 showToast('Debes seleccionar wallet de salida e ingreso', 'error');
                                 return;
                             }
-                            if (formData.cuentaSalida === formData.cuentaIngreso) {
+                            const walletSalidaId = parseWalletId(formData.cuentaSalida).wallet;
+                            const walletIngresoId = parseWalletId(formData.cuentaIngreso).wallet;
+                            if (walletSalidaId === walletIngresoId) {
                                 showToast('Las wallets de salida e ingreso deben ser diferentes', 'error');
+                                return;
+                            }
+                            // Validar que las wallets existan
+                            const wallets = getWallets();
+                            if (walletSalidaId && !wallets.some(w => w.id === walletSalidaId)) {
+                                showToast('La wallet de salida no existe', 'error');
+                                return;
+                            }
+                            if (walletIngresoId && !wallets.some(w => w.id === walletIngresoId)) {
+                                showToast('La wallet de ingreso no existe', 'error');
                                 return;
                             }
                         }
@@ -3613,6 +3855,62 @@
                     if (operacion === 'ADMINISTRATIVAS') {
                         if (!formData.walletCompra || formData.walletCompra === 'pago_mixto') {
                             showToast('Debes seleccionar una wallet válida', 'error');
+                            return;
+                        }
+                        // Validar que la wallet exista
+                        const walletId = parseWalletId(formData.walletCompra).wallet;
+                        if (walletId && walletId !== 'pago_mixto') {
+                            const wallets = getWallets();
+                            if (!wallets.some(w => w.id === walletId)) {
+                                showToast('La wallet seleccionada no existe', 'error');
+                                return;
+                            }
+                        }
+                    }
+                    
+                    // Validar wallets para TRANSACCIONES y CUENTAS_CORRIENTES
+                    if ((operacion === 'TRANSACCIONES' || operacion === 'CUENTAS_CORRIENTES') && 
+                        (subOperacion === 'COMPRA' || subOperacion === 'VENTA')) {
+                        // Validar walletCompra y walletTC
+                        if (!formData.walletCompra || formData.walletCompra === 'pago_mixto') {
+                            showToast('Debes seleccionar una wallet válida', 'error');
+                            return;
+                        }
+                        if (!formData.walletTC || formData.walletTC === 'pago_mixto') {
+                            showToast('Debes seleccionar una wallet de pago/cobro válida', 'error');
+                            return;
+                        }
+                        // Validar que las wallets existan
+                        const wallets = getWallets();
+                        const walletCompraId = parseWalletId(formData.walletCompra).wallet;
+                        const walletTCId = parseWalletId(formData.walletTC).wallet;
+                        if (walletCompraId && walletCompraId !== 'pago_mixto' && !wallets.some(w => w.id === walletCompraId)) {
+                            showToast('La wallet seleccionada no existe', 'error');
+                            return;
+                        }
+                        if (walletTCId && walletTCId !== 'pago_mixto' && !wallets.some(w => w.id === walletTCId)) {
+                            showToast('La wallet de pago/cobro seleccionada no existe', 'error');
+                            return;
+                        }
+                        // Validar tipo de cambio
+                        const tc = safeParseFloat(formData.tc);
+                        if (!tc || tc <= 0) {
+                            showToast('El tipo de cambio debe ser mayor a cero', 'error');
+                            return;
+                        }
+                    }
+                    
+                    // Validar cliente para operaciones que lo requieren
+                    if ((operacion === 'TRANSACCIONES' || operacion === 'CUENTAS_CORRIENTES' || operacion === 'PRESTAMISTAS') && !formData.cliente) {
+                        showToast('Debes seleccionar un cliente', 'error');
+                        return;
+                    }
+                    
+                    // Validar cliente existe
+                    if (formData.cliente) {
+                        const clientes = getClientes();
+                        if (!clientes.some(c => c.id === formData.cliente)) {
+                            showToast('El cliente seleccionado no existe', 'error');
                             return;
                         }
                     }
