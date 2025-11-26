@@ -5521,12 +5521,32 @@
                         monto: p.monto || ''
                     };
                 });
-                listContainer.innerHTML = formData.mixedPayments.map((payment, index) => `
+                // Validar que wallets sea un array antes de usar map
+                const walletsArray = Array.isArray(wallets) ? wallets : [];
+                
+                listContainer.innerHTML = formData.mixedPayments.map((payment, index) => {
+                    // Validar payment
+                    if (!payment || typeof payment !== 'object') {
+                        payment = { wallet: '', monto: '' };
+                    }
+                    
+                    // Renderizar opciones de wallets de forma segura
+                    const walletOptions = walletsArray
+                        .filter(w => w && w.id && w.nombre && Array.isArray(w.tipos))
+                        .map(w => w.tipos
+                            .filter(t => t && typeof t === 'string')
+                            .map(t => `<option value="${escapeHTML(w.id)}_${escapeHTML(t)}" ${payment.wallet === `${w.id}_${t}` ? 'selected' : ''}>${escapeHTML(w.nombre)} - ${escapeHTML(t)}</option>`)
+                            .join('')
+                        )
+                        .join('');
+                    
+                    return `
                     <div class="mixed-payment-item">
-                        <div class="form-group"><label class="form-label">Wallet</label><select class="form-select" data-index="${index}" data-field="wallet"><option value="">Seleccionar</option>${wallets.map(w => w.tipos.map(t => `<option value="${escapeHTML(w.id)}_${escapeHTML(t)}" ${payment.wallet === `${w.id}_${t}` ? 'selected' : ''}>${escapeHTML(w.nombre)} - ${escapeHTML(t)}</option>`).join('')).join('')}</select></div>
+                        <div class="form-group"><label class="form-label">Wallet</label><select class="form-select" data-index="${index}" data-field="wallet"><option value="">Seleccionar</option>${walletOptions}</select></div>
                         <div class="form-group"><label class="form-label">Monto</label><input type="text" inputmode="numeric" class="form-input" data-index="${index}" data-field="monto" value="${formatNumberWithThousands(payment.monto || '')}" placeholder="0.00"></div>
                         <button type="button" class="btn-remove" data-index="${index}">✕</button>
-                    </div>`).join('');
+                    </div>`;
+                }).join('');
 
                 // Crear handlers nombrados
                 listContainer._inputHandler = (e) => {
