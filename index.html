@@ -2350,7 +2350,7 @@
                 if (typeof num !== 'number' || !isFinite(num)) return '';
                 // Formatear con separadores de miles (punto) y coma decimal
                 // Usar siempre 2 decimales para números con decimales, 0 para enteros
-                const hasDecimals = num % 1 !== 0;
+                const hasDecimals = (num % 1) !== 0;
                 try {
                     const formatted = num.toLocaleString('es-ES', { 
                         minimumFractionDigits: hasDecimals ? 2 : 0, 
@@ -2417,9 +2417,9 @@
                         formData.montoCobrado = roundToTwo(montoBase * cotizacionCliente).toFixed(2);
                     }
                 } else if (lastEditedField === 'montoCobrado') {
-                    if (montoBase > 0 && montoBase !== 0) {
+                    if (montoBase > 0) {
                         formData.cotizacionCliente = roundToTwo(montoCobrado / montoBase).toFixed(2);
-                    } else if (cotizacionCliente > 0 && cotizacionCliente !== 0) {
+                    } else if (cotizacionCliente > 0) {
                         formData.montoBase = roundToTwo(montoCobrado / cotizacionCliente).toFixed(2);
                     }
                 }
@@ -2431,9 +2431,9 @@
                         formData.costoReal = (montoBaseFinal * cotizacionReal).toFixed(2);
                     }
                 } else if (lastEditedField === 'costoReal') {
-                    if (montoBaseFinal > 0 && montoBaseFinal !== 0) {
+                    if (montoBaseFinal > 0) {
                         formData.cotizacionReal = (costoReal / montoBaseFinal).toFixed(2);
-                    } else if (cotizacionReal > 0 && cotizacionReal !== 0) {
+                    } else if (cotizacionReal > 0) {
                         formData.montoBase = (costoReal / cotizacionReal).toFixed(2);
                     }
                 }
