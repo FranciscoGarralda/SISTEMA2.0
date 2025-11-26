@@ -2361,13 +2361,47 @@
                 }
                 
                 // Validar campos requeridos
-                if (!wallet.id || !wallet.nombre) {
-                    console.error('Wallet sin ID o nombre');
+                if (!wallet.id || typeof wallet.id !== 'string' || wallet.id.trim() === '') {
+                    console.error('Wallet sin ID válido');
                     if (typeof showToast === 'function') {
-                        showToast('Error: La wallet debe tener ID y nombre', 'error');
+                        showToast('Error: La wallet debe tener un ID válido', 'error');
                     }
                     return;
                 }
+                
+                if (!wallet.nombre || typeof wallet.nombre !== 'string' || wallet.nombre.trim() === '') {
+                    console.error('Wallet sin nombre válido');
+                    if (typeof showToast === 'function') {
+                        showToast('Error: La wallet debe tener un nombre válido', 'error');
+                    }
+                    return;
+                }
+                
+                // Sanitizar ID y nombre
+                wallet.id = wallet.id.trim();
+                wallet.nombre = wallet.nombre.trim();
+                
+                // Validar tipos
+                if (!Array.isArray(wallet.tipos) || wallet.tipos.length === 0) {
+                    console.error('Wallet sin tipos válidos');
+                    if (typeof showToast === 'function') {
+                        showToast('Error: La wallet debe tener al menos un tipo', 'error');
+                    }
+                    return;
+                }
+                
+                // Validar monedas
+                if (!Array.isArray(wallet.monedas) || wallet.monedas.length === 0) {
+                    console.error('Wallet sin monedas válidas');
+                    if (typeof showToast === 'function') {
+                        showToast('Error: La wallet debe tener al menos una moneda', 'error');
+                    }
+                    return;
+                }
+                
+                // Sanitizar tipos y monedas
+                wallet.tipos = wallet.tipos.filter(t => t && typeof t === 'string').map(t => String(t).toLowerCase());
+                wallet.monedas = wallet.monedas.filter(m => m && typeof m === 'string').map(m => normalizeMoneda(String(m)));
                 
                 // Validar que no exista ya
                 const wallets = getWallets();
