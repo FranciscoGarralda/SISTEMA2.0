@@ -3293,8 +3293,29 @@
             
             // Función para redondear a 2 decimales evitando problemas de floating point
             function roundToTwo(num) {
-                if (isNaN(num) || !isFinite(num)) return 0;
-                return Number(Math.round(parseFloat(num) + 'e+2') + 'e-2');
+                // Validar entrada
+                if (num === null || num === undefined) return 0;
+                
+                // Convertir a número si es string
+                const parsed = typeof num === 'string' ? parseFloat(num) : Number(num);
+                
+                // Validar que sea un número válido
+                if (isNaN(parsed) || !isFinite(parsed)) return 0;
+                
+                // Manejar números muy grandes o muy pequeños
+                if (Math.abs(parsed) > Number.MAX_SAFE_INTEGER) {
+                    console.warn('roundToTwo: número muy grande, puede perder precisión');
+                    return parsed;
+                }
+                
+                // Redondear usando método seguro
+                try {
+                    return Number(Math.round(parseFloat(parsed) + 'e+2') + 'e-2');
+                } catch (error) {
+                    console.error('Error en roundToTwo:', error);
+                    // Fallback: usar toFixed
+                    return parseFloat(parsed.toFixed(2));
+                }
             }
             
             // Constante global para campos numéricos (evita duplicación)
@@ -3315,18 +3336,42 @@
             
             // División segura de wallet ID (maneja IDs con múltiples _)
             function parseWalletId(walletValue) {
-                if (!walletValue || walletValue === 'pago_mixto') {
-                    return { wallet: walletValue === 'pago_mixto' ? 'pago_mixto' : '', type: '' };
+                // Validar entrada
+                if (!walletValue || typeof walletValue !== 'string') {
+                    return { wallet: '', type: '' };
                 }
-                // Usar lastIndexOf para obtener el último _ (tipo siempre está al final)
-                const lastUnderscore = walletValue.lastIndexOf('_');
-                if (lastUnderscore === -1) {
+                
+                // Caso especial para pago mixto
+                if (walletValue === 'pago_mixto') {
+                    return { wallet: 'pago_mixto', type: '' };
+                }
+                
+                try {
+                    // Usar lastIndexOf para obtener el último _ (tipo siempre está al final)
+                    const lastUnderscore = walletValue.lastIndexOf('_');
+                    if (lastUnderscore === -1) {
+                        return { wallet: walletValue.trim(), type: '' };
+                    }
+                    
+                    const wallet = walletValue.substring(0, lastUnderscore).trim();
+                    const type = walletValue.substring(lastUnderscore + 1).trim();
+                    
+                    return {
+                        wallet: wallet || walletValue, // Si wallet está vacío, devolver el valor original
+                        type: type
+                    };
+                } catch (error) {
+                    console.error('Error en parseWalletId:', error);
                     return { wallet: walletValue, type: '' };
                 }
-                return {
-                    wallet: walletValue.substring(0, lastUnderscore),
-                    type: walletValue.substring(lastUnderscore + 1)
-                };
+            }
+            
+            // Helper para obtener solo el ID de wallet sin el tipo
+            function getWalletIdOnly(walletId) {
+                if (!walletId || typeof walletId !== 'string') return null;
+                if (walletId === 'pago_mixto') return null;
+                const parsed = parseWalletId(walletId);
+                return parsed.wallet || null;
             }
             
             // Sistema de limpieza de timeouts e intervals
