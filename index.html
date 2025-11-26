@@ -2217,22 +2217,48 @@
              * GESTIÓN DE WALLETS (LocalStorage)
              * =================================================================
              */
+            // Cache para wallets
+            let walletsCache = null;
+            let walletsCacheTimestamp = null;
+            const WALLETS_CACHE_DURATION = 2000; // 2 segundos de cache
+
+            function invalidateWalletsCache() {
+                walletsCache = null;
+                walletsCacheTimestamp = null;
+            }
+
             function getWallets() {
+                // Verificar cache
+                const now = Date.now();
+                if (walletsCache && walletsCacheTimestamp && (now - walletsCacheTimestamp) < WALLETS_CACHE_DURATION) {
+                    return walletsCache;
+                }
+                
                 try {
                     const data = safeLocalStorageOperation('get', 'wallets');
-                    if (!data) return [];
+                    if (!data) {
+                        walletsCache = [];
+                        walletsCacheTimestamp = now;
+                        return [];
+                    }
                     const parsed = JSON.parse(data);
                     // Validar que sea un array
                     if (!Array.isArray(parsed)) {
                         console.error('Datos de wallets inválidos, se retorna array vacío');
+                        walletsCache = [];
+                        walletsCacheTimestamp = now;
                         return [];
                     }
+                    walletsCache = parsed;
+                    walletsCacheTimestamp = now;
                     return parsed;
                 } catch (error) {
                     console.error('Error al obtener wallets:', error);
                     if (typeof showToast === 'function') {
                         showToast('Error al cargar wallets', 'error');
                     }
+                    walletsCache = [];
+                    walletsCacheTimestamp = now;
                     return [];
                 }
             }
@@ -2255,6 +2281,9 @@
                         showToast(`Se mantienen solo las últimas ${MAX_WALLETS} wallets`, 'info');
                     }
                 }
+                // Invalidar cache al guardar
+                invalidateWalletsCache();
+                invalidateSaldosCache();
                 const success = safeLocalStorageOperation('set', 'wallets', walletsLimitados);
                 if (!success) {
                     console.error('No se pudo guardar wallets');
@@ -2308,22 +2337,48 @@
              * GESTIÓN DE CLIENTES (LocalStorage)
              * =================================================================
              */
+            // Cache para clientes
+            let clientesCache = null;
+            let clientesCacheTimestamp = null;
+            const CLIENTES_CACHE_DURATION = 2000; // 2 segundos de cache
+
+            function invalidateClientesCache() {
+                clientesCache = null;
+                clientesCacheTimestamp = null;
+            }
+
             function getClientes() {
+                // Verificar cache
+                const now = Date.now();
+                if (clientesCache && clientesCacheTimestamp && (now - clientesCacheTimestamp) < CLIENTES_CACHE_DURATION) {
+                    return clientesCache;
+                }
+                
                 try {
                     const data = safeLocalStorageOperation('get', 'clientes');
-                    if (!data) return [];
+                    if (!data) {
+                        clientesCache = [];
+                        clientesCacheTimestamp = now;
+                        return [];
+                    }
                     const parsed = JSON.parse(data);
                     // Validar que sea un array
                     if (!Array.isArray(parsed)) {
                         console.error('Datos de clientes inválidos, se retorna array vacío');
+                        clientesCache = [];
+                        clientesCacheTimestamp = now;
                         return [];
                     }
+                    clientesCache = parsed;
+                    clientesCacheTimestamp = now;
                     return parsed;
                 } catch (error) {
                     console.error('Error al obtener clientes:', error);
                     if (typeof showToast === 'function') {
                         showToast('Error al cargar clientes', 'error');
                     }
+                    clientesCache = [];
+                    clientesCacheTimestamp = now;
                     return [];
                 }
             }
@@ -2346,7 +2401,8 @@
                         showToast(`Se mantienen solo los últimos ${MAX_CLIENTES} clientes`, 'info');
                     }
                 }
-                // Invalidar cache de balances al guardar clientes
+                // Invalidar caches al guardar clientes
+                invalidateClientesCache();
                 invalidateBalancesCache();
                 const success = safeLocalStorageOperation('set', 'clientes', clientesLimitados);
                 if (!success) {
@@ -2876,39 +2932,69 @@
             }
             
             function calculateTotal() {
-                // Validar que los valores necesarios existan
-                const subOp = String(formData.subOperacion || '').trim();
-                const monedaRaw = String(formData.moneda || '').trim();
-                const moneda = normalizeMoneda(monedaRaw); // Normalizar PESO -> ARS
-                const monto = safeParseFloat(formData.monto);
-                const tc = safeParseFloat(formData.tc);
-                
-                // Validaciones
-                if (!monto || monto <= 0 || !tc || tc <= 0) {
+                try {
+                    // Validar que los valores necesarios existan
+                    const subOp = String(formData.subOperacion || '').trim();
+                    const monedaRaw = String(formData.moneda || '').trim();
+                    const moneda = normalizeMoneda(monedaRaw); // Normalizar PESO -> ARS
+                    const monto = safeParseFloat(formData.monto);
+                    const tc = safeParseFloat(formData.tc);
+                    
+                    // Validaciones
+                    if (!monto || monto <= 0 || !tc || tc <= 0) {
+                        formData.total = '';
+                        return;
+                    }
+                    
+                    // Validar que la moneda esté seleccionada
+                    if (!moneda) {
+                        formData.total = '';
+                        return;
+                    }
+                    
+                    // Validar que el tipo de cambio sea positivo
+                    if (tc < 0) {
+                        if (typeof showToast === 'function') {
+                            showToast('El tipo de cambio no puede ser negativo', 'error');
+                        }
+                        formData.total = '';
+                        return;
+                    }
+                    
+                    // Lógica de cálculo según el tipo de operación y moneda
+                    // Si es VENTA y la moneda vendida es ARS, dividir en lugar de multiplicar
+                    // Si es COMPRA y la moneda comprada es ARS, también dividir
+                    const esVentaConARS = subOp === 'VENTA' && moneda === 'ARS';
+                    const esCompraConARS = subOp === 'COMPRA' && moneda === 'ARS';
+                    
+                    let resultado;
+                    if (esVentaConARS || esCompraConARS) {
+                        // Cuando operamos con ARS, dividimos para obtener la cantidad en la otra moneda
+                        // Ejemplo: Vendo 1000 ARS a TC 1000 → Recibo 1 USD
+                        resultado = monto / tc;
+                    } else {
+                        // Para otras operaciones (venta/compra de otras monedas), multiplicar
+                        // Ejemplo: Vendo 100 USD a TC 1000 → Recibo 100000 ARS
+                        resultado = monto * tc;
+                    }
+                    
+                    // Validar que el resultado sea válido
+                    if (!isFinite(resultado) || isNaN(resultado)) {
+                        console.error('Error en cálculo de total: resultado inválido', { monto, tc, resultado });
+                        formData.total = '';
+                        if (typeof showToast === 'function') {
+                            showToast('Error al calcular el total', 'error');
+                        }
+                        return;
+                    }
+                    
+                    formData.total = roundToTwo(resultado).toFixed(2);
+                } catch (error) {
+                    console.error('Error en calculateTotal:', error);
                     formData.total = '';
-                    return;
-                }
-                
-                // Validar que la moneda esté seleccionada
-                if (!moneda) {
-                    formData.total = '';
-                    return;
-                }
-                
-                // Lógica de cálculo según el tipo de operación y moneda
-                // Si es VENTA y la moneda vendida es ARS, dividir en lugar de multiplicar
-                // Si es COMPRA y la moneda comprada es ARS, también dividir
-                const esVentaConARS = subOp === 'VENTA' && moneda === 'ARS';
-                const esCompraConARS = subOp === 'COMPRA' && moneda === 'ARS';
-                
-                if (esVentaConARS || esCompraConARS) {
-                    // Cuando operamos con ARS, dividimos para obtener la cantidad en la otra moneda
-                    // Ejemplo: Vendo 1000 ARS a TC 1000 → Recibo 1 USD
-                    formData.total = roundToTwo(monto / tc).toFixed(2);
-                } else {
-                    // Para otras operaciones (venta/compra de otras monedas), multiplicar
-                    // Ejemplo: Vendo 100 USD a TC 1000 → Recibo 100000 ARS
-                    formData.total = roundToTwo(monto * tc).toFixed(2);
+                    if (typeof showToast === 'function') {
+                        showToast('Error al calcular el total', 'error');
+                    }
                 }
             }
             
