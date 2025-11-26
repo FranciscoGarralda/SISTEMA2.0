@@ -3809,7 +3809,7 @@
                 // Validar valores
                 const montoBaseValid = !isNaN(montoBaseFinal) && isFinite(montoBaseFinal) && montoBaseFinal > 0;
                 const cotizacionRealValid = !isNaN(cotizacionReal) && isFinite(cotizacionReal) && cotizacionReal > 0;
-                const costoRealValid = !isNaN(costoRealParsed) && isFinite(costoRealParsed) && costoRealParsed > 0;
+                const costoRealParsedValid = !isNaN(costoRealParsed) && isFinite(costoRealParsed) && costoRealParsed > 0;
                 
                 try {
                     if (lastEditedField === 'montoBase' || lastEditedField === 'cotizacionReal') {
@@ -3825,7 +3825,7 @@
                             if (isFinite(resultado) && !isNaN(resultado)) {
                                 formData.cotizacionReal = roundToTwo(resultado).toFixed(2);
                             }
-                        } else if (cotizacionRealValid && cotizacionReal !== 0) {
+                        } else if (cotizacionRealValid && cotizacionReal !== 0 && costoRealParsedValid) {
                             const resultado = costoRealParsed / cotizacionReal;
                             if (isFinite(resultado) && !isNaN(resultado)) {
                                 formData.montoBase = roundToTwo(resultado).toFixed(2);
