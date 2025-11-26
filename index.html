@@ -4034,6 +4034,9 @@
                 if (form._submitHandler) {
                     form.removeEventListener('submit', form._submitHandler);
                 }
+                if (form._keydownHandler) {
+                    form.removeEventListener('keydown', form._keydownHandler);
+                }
                 
                 // Crear handlers nombrados para poder removerlos
                 form._inputHandler = (e) => {
@@ -4176,7 +4179,7 @@
                 }
                 
                 // Navegación con teclado: Enter y flechas (dirección visual)
-                form.addEventListener('keydown', (e) => {
+                form._keydownHandler = (e) => {
                     // Obtener todos los elementos interactivos
                     const focusableElements = Array.from(form.querySelectorAll(
                         'input:not([type="hidden"]):not([readonly]), select, textarea, button:not([type="submit"])'
@@ -4429,24 +4432,32 @@
                 };
                 form.addEventListener('submit', form._submitHandler);
                 
-                document.getElementById('cancelBtn')?.addEventListener('click', () => {
-                    if (confirm('¿Deseas cancelar? Se perderán los datos.')) {
-                        clearFormState();
-                        loadModule('operaciones');
-                    }
-                });
+                const cancelBtn = safeGetElementById('cancelBtn');
+                if (cancelBtn && !cancelBtn._cancelClickHandler) {
+                    cancelBtn._cancelClickHandler = () => {
+                        if (confirm('¿Deseas cancelar? Se perderán los datos.')) {
+                            clearFormState();
+                            loadModule('operaciones');
+                        }
+                    };
+                    cancelBtn.addEventListener('click', cancelBtn._cancelClickHandler);
+                }
                 
-                document.getElementById('addClientBtn')?.addEventListener('click', () => {
-                    // Abrir módulo de clientes
-                    loadModule('clientes');
-                    // Cerrar sidebar si está abierto
-                    const sidebar = document.getElementById('sidebar');
-                    const overlay = document.getElementById('overlay');
-                    if (sidebar && overlay) {
-                        sidebar.classList.remove('open');
-                        overlay.classList.remove('active');
-                    }
-                });
+                const addClientBtn = safeGetElementById('addClientBtn');
+                if (addClientBtn && !addClientBtn._addClientClickHandler) {
+                    addClientBtn._addClientClickHandler = () => {
+                        // Abrir módulo de clientes
+                        loadModule('clientes');
+                        // Cerrar sidebar si está abierto
+                        const sidebar = safeGetElementById('sidebar');
+                        const overlay = safeGetElementById('overlay');
+                        if (sidebar && overlay) {
+                            sidebar.classList.remove('open');
+                            overlay.classList.remove('active');
+                        }
+                    };
+                    addClientBtn.addEventListener('click', addClientBtn._addClientClickHandler);
+                }
             }
             
             function initWalletButtons(containerId, fieldName, includesPagoMixto = false) {
