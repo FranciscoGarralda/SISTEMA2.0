@@ -2327,9 +2327,53 @@
             }
 
             function deleteWallet(walletId) {
-                let wallets = getWallets();
-                wallets = wallets.filter(w => w.id !== walletId);
-                saveWallets(wallets);
+                if (!walletId) {
+                    console.error('Intento de eliminar wallet sin ID');
+                    return;
+                }
+                
+                // Verificar que la wallet existe
+                const wallets = getWallets();
+                const wallet = wallets.find(w => w.id === walletId);
+                if (!wallet) {
+                    if (typeof showToast === 'function') {
+                        showToast('La wallet no existe', 'error');
+                    }
+                    return;
+                }
+                
+                // Verificar si hay movimientos que usan esta wallet
+                const movimientos = getMovimientosCached();
+                const movimientosConWallet = movimientos.filter(m => {
+                    if (!m.anulado) {
+                        const walletCompraId = parseWalletId(m.walletCompra || '').wallet;
+                        const walletTCId = parseWalletId(m.walletTC || '').wallet;
+                        const walletBaseId = parseWalletId(m.walletBase || '').wallet;
+                        const walletProfitId = parseWalletId(m.walletProfit || '').wallet;
+                        const cuentaSalidaId = parseWalletId(m.cuentaSalida || '').wallet;
+                        const cuentaIngresoId = parseWalletId(m.cuentaIngreso || '').wallet;
+                        return walletCompraId === walletId || walletTCId === walletId || 
+                               walletBaseId === walletId || walletProfitId === walletId ||
+                               cuentaSalidaId === walletId || cuentaIngresoId === walletId ||
+                               (m.mixedPayments && Array.isArray(m.mixedPayments) && 
+                                m.mixedPayments.some(p => parseWalletId(p.wallet || '').wallet === walletId));
+                    }
+                    return false;
+                });
+                
+                if (movimientosConWallet.length > 0) {
+                    if (typeof showToast === 'function') {
+                        showToast(`No se puede eliminar la wallet porque tiene ${movimientosConWallet.length} movimiento(s) asociado(s)`, 'error');
+                    }
+                    return;
+                }
+                
+                const walletsFiltradas = wallets.filter(w => w.id !== walletId);
+                saveWallets(walletsFiltradas);
+                
+                if (typeof showToast === 'function') {
+                    showToast(`Wallet "${wallet.nombre}" eliminada correctamente`, 'success');
+                }
             }
 
             /**
@@ -2456,9 +2500,38 @@
             }
 
             function deleteCliente(clienteId) {
-                let clientes = getClientes();
-                clientes = clientes.filter(c => c.id !== clienteId);
-                saveClientes(clientes);
+                if (!clienteId) {
+                    console.error('Intento de eliminar cliente sin ID');
+                    return;
+                }
+                
+                // Verificar que el cliente existe
+                const clientes = getClientes();
+                const cliente = clientes.find(c => c.id === clienteId);
+                if (!cliente) {
+                    if (typeof showToast === 'function') {
+                        showToast('El cliente no existe', 'error');
+                    }
+                    return;
+                }
+                
+                // Verificar si hay movimientos que usan este cliente
+                const movimientos = getMovimientosCached();
+                const movimientosConCliente = movimientos.filter(m => !m.anulado && m.cliente === clienteId);
+                
+                if (movimientosConCliente.length > 0) {
+                    if (typeof showToast === 'function') {
+                        showToast(`No se puede eliminar el cliente porque tiene ${movimientosConCliente.length} movimiento(s) asociado(s)`, 'error');
+                    }
+                    return;
+                }
+                
+                const clientesFiltrados = clientes.filter(c => c.id !== clienteId);
+                saveClientes(clientesFiltrados);
+                
+                if (typeof showToast === 'function') {
+                    showToast(`Cliente "${cliente.nombre}" eliminado correctamente`, 'success');
+                }
             }
 
             function updateCliente(clienteId, datosActualizados) {
@@ -2610,18 +2683,53 @@
             }
 
             function anularMovimiento(movimientoId) {
+                if (!movimientoId) {
+                    console.error('Intento de anular movimiento sin ID');
+                    if (typeof showToast === 'function') {
+                        showToast('Error: ID de movimiento inválido', 'error');
+                    }
+                    return;
+                }
+                
                 // Invalidar cache antes de obtener movimientos
                 invalidateMovimientosCache();
+                invalidateSaldosCache(); // Invalidar cache de saldos al anular movimiento
                 let movimientos = getMovimientos();
                 const index = movimientos.findIndex(m => m.id === movimientoId);
-                if (index !== -1) {
-                    movimientos[index].anulado = true;
-                    movimientos[index].fechaAnulacion = new Date().toISOString();
-                    saveMovimientos(movimientos);
-                    // Refrescar lista si estamos en el módulo de movimientos
-                    if (document.getElementById('movimientosListContainer')) {
-                        renderMovimientosList(window.currentMovimientosPage || 1);
+                
+                if (index === -1) {
+                    if (typeof showToast === 'function') {
+                        showToast('Movimiento no encontrado', 'error');
                     }
+                    return;
+                }
+                
+                const movimiento = movimientos[index];
+                
+                // Verificar si ya está anulado
+                if (movimiento.anulado) {
+                    if (typeof showToast === 'function') {
+                        showToast('El movimiento ya está anulado', 'info');
+                    }
+                    return;
+                }
+                
+                movimientos[index].anulado = true;
+                movimientos[index].fechaAnulacion = new Date().toISOString();
+                saveMovimientos(movimientos);
+                
+                // Refrescar lista si estamos en el módulo de movimientos
+                if (document.getElementById('movimientosListContainer')) {
+                    renderMovimientosList(window.currentMovimientosPage || 1);
+                }
+                
+                // Refrescar saldos si estamos en el módulo de saldos
+                if (document.getElementById('saldosListContainer')) {
+                    renderSaldosList();
+                }
+                
+                if (typeof showToast === 'function') {
+                    showToast('Movimiento anulado correctamente', 'success');
                 }
             }
 
