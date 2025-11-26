@@ -2652,6 +2652,80 @@
             }
 
             function addMovimiento(movimiento) {
+                // Validar estructura básica del movimiento
+                if (!movimiento || typeof movimiento !== 'object') {
+                    console.error('Intento de agregar movimiento inválido');
+                    if (typeof showToast === 'function') {
+                        showToast('Error: Datos de movimiento inválidos', 'error');
+                    }
+                    return null;
+                }
+                
+                // Validar campos requeridos
+                if (!movimiento.operacion || !movimiento.subOperacion) {
+                    console.error('Movimiento sin operación o sub-operación');
+                    if (typeof showToast === 'function') {
+                        showToast('Error: El movimiento debe tener operación y tipo', 'error');
+                    }
+                    return null;
+                }
+                
+                // Validar que las monedas estén normalizadas
+                if (movimiento.moneda) {
+                    movimiento.moneda = normalizeMoneda(movimiento.moneda);
+                }
+                if (movimiento.monedaTC) {
+                    movimiento.monedaTC = normalizeMoneda(movimiento.monedaTC);
+                }
+                if (movimiento.monedaBase) {
+                    movimiento.monedaBase = normalizeMoneda(movimiento.monedaBase);
+                }
+                if (movimiento.monedaProfit) {
+                    movimiento.monedaProfit = normalizeMoneda(movimiento.monedaProfit);
+                }
+                
+                // Validar que los IDs de wallets/clientes sean strings válidos si existen
+                if (movimiento.cliente && typeof movimiento.cliente !== 'string') {
+                    movimiento.cliente = String(movimiento.cliente);
+                }
+                
+                // Validar que mixedPayments sea un array si existe
+                if (movimiento.mixedPayments && !Array.isArray(movimiento.mixedPayments)) {
+                    console.warn('mixedPayments no es un array, se convierte a array vacío');
+                    movimiento.mixedPayments = [];
+                }
+                
+                // Validar estructura de mixedPayments si existe
+                if (movimiento.mixedPayments && Array.isArray(movimiento.mixedPayments)) {
+                    movimiento.mixedPayments = movimiento.mixedPayments.filter(p => {
+                        return p && typeof p === 'object' && p.wallet && p.monto;
+                    }).map(p => ({
+                        wallet: String(p.wallet || ''),
+                        monto: String(p.monto || '0')
+                    }));
+                }
+                
+                // Validar fecha si existe
+                if (movimiento.fecha) {
+                    try {
+                        if (!isValidDate(movimiento.fecha + 'T00:00:00')) {
+                            console.error('Fecha inválida en movimiento:', movimiento.fecha);
+                            if (typeof showToast === 'function') {
+                                showToast('Error: La fecha del movimiento no es válida', 'error');
+                            }
+                            return null;
+                        }
+                    } catch (dateError) {
+                        console.error('Error al validar fecha del movimiento:', dateError);
+                        if (typeof showToast === 'function') {
+                            showToast('Error al validar la fecha del movimiento', 'error');
+                        }
+                        return null;
+                    }
+                }
+                
+                // Normalizar todas las monedas en el movimiento completo
+                normalizeAllMonedas(movimiento);
                 // Validar que el movimiento tenga la estructura básica
                 if (!movimiento || typeof movimiento !== 'object') {
                     console.error('Intento de agregar movimiento inválido');
