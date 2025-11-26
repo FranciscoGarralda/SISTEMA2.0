@@ -3164,6 +3164,18 @@
             
             // Normalización centralizada de monedas
             function normalizeMoneda(moneda) {
+                // Validar entrada
+                if (!moneda || typeof moneda !== 'string') {
+                    return 'ARS'; // Valor por defecto
+                }
+                
+                const monedaUpper = moneda.trim().toUpperCase();
+                
+                // Si ya está normalizada, retornar directamente
+                const monedasNormalizadas = ['ARS', 'USD', 'EUR', 'BRL', 'GBP'];
+                if (monedasNormalizadas.includes(monedaUpper)) {
+                    return monedaUpper;
+                }
                 if (!moneda) return '';
                 // Mapa de normalizaciones
                 const normalizaciones = {
@@ -3942,7 +3954,17 @@
                 }
                 
                 if (formData.operacion === 'CUENTAS_CORRIENTES' && ['INGRESO', 'EGRESO'].includes(formData.subOperacion)) {
-                     formData.total = roundToTwo(monto + montoComision).toFixed(2);
+                    try {
+                        const totalCalculado = monto + montoComision;
+                        if (isFinite(totalCalculado) && !isNaN(totalCalculado)) {
+                            formData.total = roundToTwo(totalCalculado).toFixed(2);
+                        } else {
+                            formData.total = '';
+                        }
+                    } catch (error) {
+                        console.error('Error al calcular total con comisión:', error);
+                        formData.total = '';
+                    }
                 }
             }
 
