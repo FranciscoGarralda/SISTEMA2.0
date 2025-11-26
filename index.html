@@ -2946,10 +2946,36 @@
             
             // Validación segura de elementos DOM
             function safeGetElementById(id) {
+                if (!id) {
+                    console.warn('safeGetElementById: ID no proporcionado');
+                    return null;
+                }
                 try {
-                    return document.getElementById(id);
+                    const element = document.getElementById(id);
+                    if (!element) {
+                        console.warn(`safeGetElementById: Elemento con ID "${id}" no encontrado`);
+                    }
+                    return element;
                 } catch (error) {
                     console.error(`Error al obtener elemento con ID "${id}":`, error);
+                    return null;
+                }
+            }
+            
+            // Helper para querySelector con validación
+            function safeQuerySelector(selector) {
+                if (!selector) {
+                    console.warn('safeQuerySelector: Selector no proporcionado');
+                    return null;
+                }
+                try {
+                    const element = document.querySelector(selector);
+                    if (!element) {
+                        console.warn(`safeQuerySelector: Elemento con selector "${selector}" no encontrado`);
+                    }
+                    return element;
+                } catch (error) {
+                    console.error('safeQuerySelector: Error en selector:', error);
                     return null;
                 }
             }
@@ -4278,8 +4304,14 @@
                     
                     // Validar fecha si está presente
                     if (formData.fecha) {
-                        if (!isValidDate(formData.fecha + 'T00:00:00')) {
-                            showToast('La fecha ingresada no es válida. Por favor ingresa una fecha válida.', 'error');
+                        try {
+                            if (!isValidDate(formData.fecha + 'T00:00:00')) {
+                                showToast('La fecha ingresada no es válida. Por favor ingresa una fecha válida.', 'error');
+                                return;
+                            }
+                        } catch (dateError) {
+                            console.error('Error al validar fecha:', dateError);
+                            showToast('Error al validar la fecha. Por favor verifica el formato.', 'error');
                             return;
                         }
                     }
@@ -4290,6 +4322,36 @@
                         const montoValidado = safeParseFloat(formData.monto);
                         if (montoValidado <= 0) {
                             showToast('El monto debe ser mayor a cero', 'error');
+                            return;
+                        }
+                    }
+                    
+                    // Validar campos requeridos específicos según operación
+                    if (operacion === 'TRANSACCIONES' || operacion === 'CUENTAS_CORRIENTES') {
+                        if ((subOperacion === 'COMPRA' || subOperacion === 'VENTA') && !formData.tc) {
+                            showToast('El tipo de cambio es obligatorio para esta operación', 'error');
+                            return;
+                        }
+                    }
+                    
+                    if (operacion === 'PRESTAMISTAS' && subOperacion === 'PRESTAMO') {
+                        if (!formData.interes || safeParseFloat(formData.interes) <= 0) {
+                            showToast('El interés es obligatorio y debe ser mayor a cero', 'error');
+                            return;
+                        }
+                        if (!formData.lapso || safeParseFloat(formData.lapso) <= 0) {
+                            showToast('El lapso es obligatorio y debe ser mayor a cero', 'error');
+                            return;
+                        }
+                    }
+                    
+                    if (operacion === 'TRANSACCIONES' && subOperacion === 'ARBITRAJE') {
+                        if (!formData.montoBase || safeParseFloat(formData.montoBase) <= 0) {
+                            showToast('El monto base es obligatorio para arbitraje', 'error');
+                            return;
+                        }
+                        if (!formData.cotizacionCliente || safeParseFloat(formData.cotizacionCliente) <= 0) {
+                            showToast('La cotización del cliente es obligatoria para arbitraje', 'error');
                             return;
                         }
                     }
