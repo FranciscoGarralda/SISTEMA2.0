@@ -3072,9 +3072,17 @@
             }
 
             function actualizarUltimaOperacionCliente(clienteId) {
-                if (!clienteId) return;
-                const fechaActual = new Date().toISOString();
-                updateCliente(clienteId, { ultimaOperacion: fechaActual });
+                if (!clienteId || typeof clienteId !== 'string') {
+                    console.warn('actualizarUltimaOperacionCliente: clienteId inválido');
+                    return;
+                }
+                
+                try {
+                    const fechaActual = new Date().toISOString();
+                    updateCliente(clienteId, { ultimaOperacion: fechaActual });
+                } catch (error) {
+                    console.error('Error al actualizar última operación del cliente:', error);
+                }
             }
 
             function calcularDiasDesdeUltimaOperacion(fechaUltimaOperacion) {
@@ -3125,22 +3133,35 @@
 
             function formatearFechaUltimaOperacion(fechaUltimaOperacion) {
                 if (!fechaUltimaOperacion) return 'Nunca';
-                const fecha = new Date(fechaUltimaOperacion);
-                const hoy = new Date();
-                const ayer = new Date(hoy);
-                ayer.setDate(ayer.getDate() - 1);
                 
-                // Comparar solo fecha (sin hora)
-                const fechaSinHora = new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate());
-                const hoySinHora = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
-                const ayerSinHora = new Date(ayer.getFullYear(), ayer.getMonth(), ayer.getDate());
-                
-                if (fechaSinHora.getTime() === hoySinHora.getTime()) {
-                    return 'Hoy';
-                } else if (fechaSinHora.getTime() === ayerSinHora.getTime()) {
-                    return 'Ayer';
-                } else {
-                    return fecha.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                try {
+                    const fecha = new Date(fechaUltimaOperacion);
+                    
+                    // Validar que la fecha sea válida
+                    if (isNaN(fecha.getTime())) {
+                        console.error('Fecha inválida en formatearFechaUltimaOperacion:', fechaUltimaOperacion);
+                        return 'Fecha inválida';
+                    }
+                    
+                    const hoy = new Date();
+                    const ayer = new Date(hoy);
+                    ayer.setDate(ayer.getDate() - 1);
+                    
+                    // Comparar solo fecha (sin hora)
+                    const fechaSinHora = new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate());
+                    const hoySinHora = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+                    const ayerSinHora = new Date(ayer.getFullYear(), ayer.getMonth(), ayer.getDate());
+                    
+                    if (fechaSinHora.getTime() === hoySinHora.getTime()) {
+                        return 'Hoy';
+                    } else if (fechaSinHora.getTime() === ayerSinHora.getTime()) {
+                        return 'Ayer';
+                    } else {
+                        return fecha.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                    }
+                } catch (error) {
+                    console.error('Error en formatearFechaUltimaOperacion:', error);
+                    return 'Error al formatear fecha';
                 }
             }
 
@@ -3190,23 +3211,39 @@
             
             // Normalizar todas las monedas en un objeto de datos
             function normalizeAllMonedas(data) {
-                if (!data || typeof data !== 'object') return data;
-                const fields = ['moneda', 'monedaTC', 'monedaBase', 'monedaCobro', 'monedaProfit', 'monedaComision'];
-                fields.forEach(field => {
-                    if (data[field]) {
-                        data[field] = normalizeMoneda(data[field]);
-                    }
-                });
-                return data;
+                if (!data || typeof data !== 'object' || Array.isArray(data)) return data;
+                
+                try {
+                    const fields = ['moneda', 'monedaTC', 'monedaBase', 'monedaCobro', 'monedaProfit', 'monedaComision'];
+                    fields.forEach(field => {
+                        if (data.hasOwnProperty(field) && data[field]) {
+                            const normalized = normalizeMoneda(data[field]);
+                            if (normalized) {
+                                data[field] = normalized;
+                            }
+                        }
+                    });
+                    return data;
+                } catch (error) {
+                    console.error('Error en normalizeAllMonedas:', error);
+                    return data;
+                }
             }
             
             // Validar entrada numérica
             function validateNumericInput(value, min = 0, max = 999999999) {
-                const num = safeParseFloat(value);
-                if (isNaN(num) || num < min || num > max) {
+                if (value === null || value === undefined) return false;
+                
+                try {
+                    const num = safeParseFloat(value);
+                    if (isNaN(num) || !isFinite(num) || num < min || num > max) {
+                        return false;
+                    }
+                    return true;
+                } catch (error) {
+                    console.error('Error en validateNumericInput:', error);
                     return false;
                 }
-                return true;
             }
             
             // Validar fecha
