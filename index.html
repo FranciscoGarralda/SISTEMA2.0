@@ -1347,6 +1347,7 @@
             font-size: 16px;
             font-weight: 500;
             max-width: 100%;
+            text-align: center;
         }
         @media (max-width: 600px) {
             .fecha-dia-group > input[type="date"] {
@@ -2161,6 +2162,7 @@
                 safeLocalStorageOperation('remove', 'formState');
                 formData = getInitialFormState();
                 editingMovimientoId = null;
+                walletEditandoId = null;
             }
             
             function showToast(message, type = 'info') {
@@ -2549,12 +2551,18 @@
              * LÓGICA DE CÁLCULOS (PRESERVADA COMPLETA DEL ORIGINAL)
              * =================================================================
              */
-            function safeParseFloat(value, defaultValue = 0) {
+            function safeParseFloat(value, defaultValue = 0, allowNegative = false) {
                 if (!value && value !== 0) return defaultValue;
                 // Convertir a string y eliminar espacios
                 let str = String(value).trim();
-                // Eliminar símbolos de moneda y caracteres no numéricos (excepto punto, coma y guion)
+                // Guardar si es negativo
+                const isNegative = str.startsWith('-');
+                // Eliminar símbolos de moneda y caracteres no numéricos (excepto punto, coma y guion al inicio)
                 str = str.replace(/[^\d.,-]/g, '');
+                // Si no se permite negativo, eliminar el guion
+                if (!allowNegative && str.startsWith('-')) {
+                    str = str.substring(1);
+                }
                 // Eliminar separadores de miles (puntos que no son decimales)
                 // Si hay coma, los puntos son miles. Si hay punto y no coma, el punto es decimal
                 const hasComa = str.includes(',');
@@ -2574,27 +2582,33 @@
                     }
                     // Si hay un solo punto, asumimos que es decimal (ya está bien)
                 }
+                // Restaurar signo negativo si estaba al inicio y se permite
+                if (allowNegative && isNegative && !str.startsWith('-')) {
+                    str = '-' + str;
+                }
                 const parsed = parseFloat(str);
                 return isNaN(parsed) ? defaultValue : parsed;
             }
             
-            function formatNumberWithThousands(value) {
+            function formatNumberWithThousands(value, allowNegative = false) {
                 if (!value && value !== 0) return '';
-                const num = safeParseFloat(value);
+                const num = safeParseFloat(value, 0, allowNegative);
                 if (isNaN(num)) return '';
                 // Permitir mostrar el valor 0
                 // Validar que sea realmente un número
                 if (typeof num !== 'number' || !isFinite(num)) return '';
                 // Formatear con separadores de miles (punto) y coma decimal
                 // Usar siempre 2 decimales para números con decimales, 0 para enteros
-                const hasDecimals = (num % 1) !== 0;
+                const hasDecimals = (Math.abs(num) % 1) !== 0;
+                const isNegative = num < 0;
+                const absNum = Math.abs(num);
                 try {
-                    const formatted = num.toLocaleString('es-ES', { 
+                    const formatted = absNum.toLocaleString('es-ES', { 
                         minimumFractionDigits: hasDecimals ? 2 : 0, 
                         maximumFractionDigits: 2,
                         useGrouping: true
                     });
-                    return formatted;
+                    return isNegative ? '-' + formatted : formatted;
                 } catch (error) {
                     console.error('Error al formatear número:', error);
                     return String(num);
@@ -2631,9 +2645,28 @@
             
             function calculatePrestamo() {
                 const monto = safeParseFloat(formData.monto);
-                const interesTotal = (monto * safeParseFloat(formData.interes) * safeParseFloat(formData.lapso)) / (365 * 100);
-                // CORRECCIÓN: Usar roundToTwo para evitar problemas de floating point
-                formData.total = roundToTwo(monto + interesTotal).toFixed(2);
+                const interes = safeParseFloat(formData.interes);
+                const lapso = safeParseFloat(formData.lapso);
+                
+                // Validar que los valores sean válidos
+                if (!monto || monto <= 0 || !interes || interes < 0 || !lapso || lapso <= 0) {
+                    formData.total = '';
+                    return;
+                }
+                
+                // Calcular interés: (monto * interés anual * días) / (365 * 100)
+                // El interés se calcula pero NO se suma al monto inicial todavía
+                // El total es el monto que prestamos (salida), el interés se pagará cuando se devuelva
+                const interesTotal = (monto * interes * lapso) / (365 * 100);
+                
+                // El total a mostrar es el monto prestado (el interés se pagará después)
+                // Pero mostramos también el interés calculado para referencia
+                formData.total = roundToTwo(monto).toFixed(2);
+                
+                // Guardar el interés calculado en un campo separado si existe
+                if (formData.hasOwnProperty('interesCalculado')) {
+                    formData.interesCalculado = roundToTwo(interesTotal).toFixed(2);
+                }
             }
             
             function calculateArbitraje() {
@@ -2871,10 +2904,13 @@
                         <div class="form-group"><label class="form-label">Wallet de Origen</label><div class="wallet-buttons-container" id="walletCompraButtons"></div></div>`,
                      'ADMINISTRATIVAS_AJUSTE': `
                         <div class="form-grid">
-                            <div class="form-group"><label class="form-label">Monto del Ajuste</label><input type="text" inputmode="numeric" class="form-input" name="monto" value="${formData.monto || ''}" placeholder="0.00" step="0.01"></div>
+                            <div class="form-group"><label class="form-label">Monto del Ajuste (positivo o negativo)</label><input type="text" inputmode="numeric" class="form-input" name="monto" value="${formData.monto || ''}" placeholder="0.00 o -0.00" step="0.01"></div>
                             <div class="form-group"><label class="form-label">Moneda</label><div class="moneda-buttons-container" id="monedaButtons"></div></div>
                         </div>
-                        <div class="form-group"><label class="form-label">Wallet a ajustar</label><div class="wallet-buttons-container" id="walletCompraButtons"></div></div>`,
+                        <div class="form-group"><label class="form-label">Wallet a ajustar</label><div class="wallet-buttons-container" id="walletCompraButtons"></div></div>
+                        <div style="padding: 12px; background: var(--bg-primary); border-radius: 8px; margin-top: 12px; border: 1px solid var(--border-color);">
+                            <p style="font-size: 12px; color: var(--text-secondary); margin: 0;">💡 <strong>Nota:</strong> Usa valores positivos para aumentar el saldo y negativos para disminuirlo.</p>
+                        </div>`,
                     'PRESTAMISTAS_PRESTAMO': `
                         <div class="form-grid">
                             <div class="form-group"><label class="form-label">Monto del Préstamo</label><input type="text" inputmode="numeric" class="form-input" name="monto" value="${formData.monto || ''}" placeholder="0.00" step="0.01"></div>
@@ -2885,7 +2921,10 @@
                             <div class="form-group"><label class="form-label">Lapso (días)</label><input type="text" inputmode="numeric" class="form-input" name="lapso" value="${formData.lapso || ''}" placeholder="30"></div>
                         </div>
                         <div class="form-group"><label class="form-label">Wallet de donde sale</label><div class="wallet-buttons-container" id="walletCompraButtons"></div></div>
-                        <div class="form-group" style="margin-top: 24px;"><label class="form-label">Monto Total a Devolver (con interés)</label><input type="text" inputmode="numeric" class="form-input form-input-readonly" name="total" value="${formData.total || ''}" readonly></div>`,
+                        <div style="padding: 12px; background: var(--bg-primary); border-radius: 8px; margin-top: 12px; border: 1px solid var(--border-color);">
+                            <p style="font-size: 12px; color: var(--text-secondary); margin: 0 0 8px 0;">💡 <strong>Nota:</strong> Nosotros prestamos el monto. El interés se calculará y se pagará cuando se devuelva el préstamo.</p>
+                            <div class="form-group" style="margin: 0;"><label class="form-label">Monto a Prestar</label><input type="text" inputmode="numeric" class="form-input form-input-readonly" name="total" value="${formData.total || ''}" readonly></div>
+                        </div>`,
                     'PRESTAMISTAS_RETIRO': `
                         <div class="form-grid">
                             <div class="form-group"><label class="form-label">Monto a Retirar</label><input type="text" inputmode="numeric" class="form-input" name="monto" value="${formData.monto || ''}" placeholder="0.00" step="0.01"></div>
@@ -3028,6 +3067,9 @@
              */
             function handleOperationChange(operation) {
                 formData.subOperacion = '';
+                
+                // Limpiar estado de edición de wallet si existe
+                walletEditandoId = null;
                 
                 // LIMPIAR TODOS los contenedores de campos dinámicos
                 const dynamicContainer = document.getElementById('dynamicFieldsContainer');
@@ -3329,14 +3371,49 @@
                         lastEditedField = e.target.name;
                     }
                     const name = e.target.name;
+                    const numericFields = ['monto', 'tc', 'montoBase', 'cotizacionCliente', 'cotizacionReal', 'montoCobrado', 'costoReal', 'interes', 'lapso', 'comisionValor'];
+                    
                     if (name && formData.hasOwnProperty(name)) {
-                        // Guardar el valor sin formatear para cálculos
-                        const numericValue = safeParseFloat(e.target.value);
-                        formData[name] = numericValue > 0 ? numericValue.toString() : '';
+                        // Para campos numéricos, formatear mientras se escribe
+                        if (numericFields.includes(name)) {
+                            // Guardar posición del cursor
+                            const cursorPosition = e.target.selectionStart;
+                            const originalLength = e.target.value.length;
+                            
+                            // Permitir negativos solo para ajuste
+                            const allowNegative = name === 'monto' && formData.operacion === 'ADMINISTRATIVAS' && formData.subOperacion === 'AJUSTE';
+                            
+                            // Parsear y formatear el valor
+                            const numericValue = safeParseFloat(e.target.value, 0, allowNegative);
+                            if (!isNaN(numericValue) && (numericValue >= 0 || allowNegative)) {
+                                // Formatear con separadores de miles
+                                const formatted = formatNumberWithThousands(numericValue, allowNegative);
+                                
+                                // Actualizar el valor formateado
+                                e.target.value = formatted;
+                                
+                                // Restaurar posición del cursor ajustada por los separadores
+                                const newLength = formatted.length;
+                                const lengthDiff = newLength - originalLength;
+                                const newCursorPosition = Math.max(0, Math.min(formatted.length, cursorPosition + lengthDiff));
+                                e.target.setSelectionRange(newCursorPosition, newCursorPosition);
+                                
+                                // Guardar el valor numérico sin formatear para cálculos
+                                formData[name] = numericValue > 0 ? numericValue.toString() : '';
+                            } else if (e.target.value === '' || e.target.value === '-') {
+                                // Permitir campo vacío o signo negativo al inicio
+                                formData[name] = '';
+                            } else {
+                                // Si no es un número válido, mantener el valor anterior
+                                const previousValue = formData[name] || '';
+                                e.target.value = previousValue ? formatNumberWithThousands(safeParseFloat(previousValue, 0, allowNegative), allowNegative) : '';
+                            }
+                        } else {
+                            // Para campos no numéricos, guardar directamente
+                            formData[name] = e.target.value;
+                        }
                         
-                        // No formatear mientras se escribe, solo guardar el valor numérico
-                        
-                        if (['monto', 'tc', 'montoBase', 'cotizacionCliente', 'cotizacionReal', 'montoCobrado', 'costoReal', 'interes', 'lapso', 'comisionValor'].includes(name)) {
+                        if (numericFields.includes(name)) {
                             updateCalculatedFieldsAndUI();
                         }
                         saveFormState();
@@ -3352,9 +3429,11 @@
                     const name = e.target.name;
                     const numericFields = ['monto', 'tc', 'montoBase', 'cotizacionCliente', 'cotizacionReal', 'montoCobrado', 'costoReal', 'interes', 'lapso', 'comisionValor', 'total', 'profit', 'montoComision'];
                     if (numericFields.includes(name) && !e.target.readOnly && e.target.value) {
-                        const numValue = safeParseFloat(e.target.value);
-                        if (!isNaN(numValue) && numValue > 0) {
-                            const formatted = formatNumberWithThousands(numValue);
+                        // Permitir negativos solo para ajuste
+                        const allowNegative = name === 'monto' && formData.operacion === 'ADMINISTRATIVAS' && formData.subOperacion === 'AJUSTE';
+                        const numValue = safeParseFloat(e.target.value, 0, allowNegative);
+                        if (!isNaN(numValue) && (numValue > 0 || (allowNegative && numValue !== 0))) {
+                            const formatted = formatNumberWithThousands(numValue, allowNegative);
                             if (formatted && e.target.value !== formatted) {
                                 e.target.value = formatted;
                             }
@@ -3463,6 +3542,57 @@
                 
                 form._submitHandler = (e) => {
                     e.preventDefault();
+                    
+                    // Validaciones específicas según el tipo de operación
+                    const { operacion, subOperacion } = formData;
+                    
+                    // Validar campos requeridos según el tipo de operación
+                    if (!operacion || !subOperacion) {
+                        showToast('Debes seleccionar una operación y tipo', 'error');
+                        return;
+                    }
+                    
+                    // Validar monto para operaciones que lo requieren
+                    const monto = safeParseFloat(formData.monto);
+                    if (['WALLET_INGRESO', 'WALLET_SALIDA', 'WALLET_MOV ENTRE CUENTAS'].includes(`${operacion}_${subOperacion}`)) {
+                        if (!monto || monto <= 0) {
+                            showToast('El monto debe ser mayor a cero', 'error');
+                            return;
+                        }
+                    }
+                    
+                    // Validar moneda
+                    if (!formData.moneda) {
+                        showToast('Debes seleccionar una moneda', 'error');
+                        return;
+                    }
+                    
+                    // Validar wallet según el tipo de operación
+                    if (operacion === 'WALLET') {
+                        if (subOperacion === 'INGRESO' || subOperacion === 'SALIDA' || subOperacion === 'PRESTAMO' || subOperacion === 'DEVOLUCION') {
+                            if (!formData.walletCompra || formData.walletCompra === 'pago_mixto') {
+                                showToast('Debes seleccionar una wallet válida', 'error');
+                                return;
+                            }
+                        } else if (subOperacion === 'MOV ENTRE CUENTAS') {
+                            if (!formData.cuentaSalida || !formData.cuentaIngreso) {
+                                showToast('Debes seleccionar wallet de salida e ingreso', 'error');
+                                return;
+                            }
+                            if (formData.cuentaSalida === formData.cuentaIngreso) {
+                                showToast('Las wallets de salida e ingreso deben ser diferentes', 'error');
+                                return;
+                            }
+                        }
+                    }
+                    
+                    // Validar wallet para ADMINISTRATIVAS
+                    if (operacion === 'ADMINISTRATIVAS') {
+                        if (!formData.walletCompra || formData.walletCompra === 'pago_mixto') {
+                            showToast('Debes seleccionar una wallet válida', 'error');
+                            return;
+                        }
+                    }
                     
                     // Crear copia del formData para guardar
                     const movimientoData = JSON.parse(JSON.stringify(formData));
@@ -3630,11 +3760,38 @@
                         const monedas = [...document.querySelectorAll('.wallet-moneda-checkbox:checked')].map(cb => cb.value);
 
                         if (!id || !nombre || tipos.length === 0 || monedas.length === 0) return showToast('Todos los campos son obligatorios.', 'error');
-                        if (getWallets().some(w => w.id === id)) return showToast('Ya existe una wallet con ese ID.', 'error');
-
-                        addWallet({ id, nombre, tipos, monedas });
-                        showToast(`Wallet "${nombre}" creada con éxito.`, 'success');
-                        handleSubOperationChange('CREAR WALLET');
+                        
+                        // Si estamos editando
+                        if (walletEditandoId) {
+                            // Verificar que el ID no cambió o que no existe otro con ese ID
+                            if (id !== walletEditandoId && getWallets().some(w => w.id === id)) {
+                                return showToast('Ya existe una wallet con ese ID.', 'error');
+                            }
+                            
+                            // Actualizar la wallet existente
+                            const wallets = getWallets();
+                            const walletIndex = wallets.findIndex(w => w.id === walletEditandoId);
+                            if (walletIndex !== -1) {
+                                wallets[walletIndex] = { ...wallets[walletIndex], nombre, tipos, monedas };
+                                if (id !== walletEditandoId) {
+                                    wallets[walletIndex].id = id;
+                                }
+                                saveWallets(wallets);
+                                showToast(`Wallet "${nombre}" actualizada con éxito.`, 'success');
+                                walletEditandoId = null;
+                                
+                                // Limpiar formulario
+                                document.getElementById('walletId').disabled = false;
+                                handleSubOperationChange('CREAR WALLET');
+                                renderWalletsList();
+                            }
+                        } else {
+                            // Crear nueva wallet
+                            if (getWallets().some(w => w.id === id)) return showToast('Ya existe una wallet con ese ID.', 'error');
+                            addWallet({ id, nombre, tipos, monedas });
+                            showToast(`Wallet "${nombre}" creada con éxito.`, 'success');
+                            handleSubOperationChange('CREAR WALLET');
+                        }
                     };
                     
                     // Agregar listener
@@ -3650,8 +3807,11 @@
                     wallets.map(w => `
                         <div class="form-card" style="padding: 15px; margin-bottom: 15px;">
                             <div style="display: flex; justify-content: space-between; align-items: start;">
-                                <div><h3 style="font-size: 16px;">${escapeHTML(w.nombre)}</h3><p style="color: var(--text-secondary); font-size: 13px;">ID: ${escapeHTML(w.id)}</p></div>
-                                <button type="button" class="btn-remove" data-wallet-id="${escapeHTML(w.id)}">✕</button>
+                                <div style="flex: 1; cursor: pointer;" class="wallet-item" data-wallet-id="${escapeHTML(w.id)}"><h3 style="font-size: 16px;">${escapeHTML(w.nombre)}</h3><p style="color: var(--text-secondary); font-size: 13px;">ID: ${escapeHTML(w.id)}</p></div>
+                                <div style="display: flex; gap: 8px;">
+                                    <button type="button" class="btn-edit" data-wallet-id="${escapeHTML(w.id)}" title="Editar wallet">✏️</button>
+                                    <button type="button" class="btn-remove" data-wallet-id="${escapeHTML(w.id)}" title="Eliminar wallet">✕</button>
+                                </div>
                             </div>
                             <div class="form-grid" style="font-size: 13px; margin-top: 15px; margin-bottom: 0;">
                                 <div><p>Tipo: ${escapeHTML(w.tipos.join(', '))}</p></div><div><p>Monedas: ${escapeHTML(w.monedas.join(', '))}</p></div>
@@ -3665,18 +3825,75 @@
                 
                 // Crear nuevo handler
                 container._walletsClickHandler = (e) => {
-                    if (e.target.classList.contains('btn-remove')) {
-                        const walletId = e.target.dataset.walletId;
+                    const walletId = e.target.closest('[data-wallet-id]')?.dataset.walletId;
+                    if (!walletId) return;
+                    
+                    if (e.target.classList.contains('btn-remove') || e.target.closest('.btn-remove')) {
                         if (confirm(`¿Eliminar la wallet "${walletId}"?`)) {
                             deleteWallet(walletId);
                             showToast('Wallet eliminada.', 'success');
                             renderWalletsList();
+                        }
+                    } else if (e.target.classList.contains('btn-edit') || e.target.closest('.btn-edit') || e.target.closest('.wallet-item')) {
+                        // Cargar wallet para editar
+                        const wallet = getWallets().find(w => w.id === walletId);
+                        if (wallet) {
+                            editarWallet(wallet);
                         }
                     }
                 };
                 
                 // Agregar event listener
                 container.addEventListener('click', container._walletsClickHandler);
+            }
+            
+            // Variable global para wallet en edición
+            let walletEditandoId = null;
+            
+            function editarWallet(wallet) {
+                walletEditandoId = wallet.id;
+                
+                // Cambiar a la suboperación CREAR WALLET y cargar los datos
+                formData.operacion = 'WALLET';
+                formData.subOperacion = 'CREAR WALLET';
+                
+                // Renderizar los campos dinámicos
+                const dynamicContainer = document.getElementById('dynamicFieldsContainer');
+                if (dynamicContainer) {
+                    dynamicContainer.innerHTML = getDynamicFields();
+                    initAllDynamicFields();
+                }
+                
+                // Cargar datos de la wallet en los campos
+                const walletIdInput = document.getElementById('walletId');
+                const walletNombreInput = document.getElementById('walletNombre');
+                const walletTipoEfectivoCheck = document.getElementById('walletTipoEfectivo');
+                const walletTipoDigitalCheck = document.getElementById('walletTipoDigital');
+                
+                if (walletIdInput) {
+                    walletIdInput.value = wallet.id;
+                    walletIdInput.disabled = true; // No permitir cambiar el ID
+                }
+                if (walletNombreInput) walletNombreInput.value = wallet.nombre || '';
+                if (walletTipoEfectivoCheck) walletTipoEfectivoCheck.checked = wallet.tipos && wallet.tipos.includes('efectivo');
+                if (walletTipoDigitalCheck) walletTipoDigitalCheck.checked = wallet.tipos && wallet.tipos.includes('digital');
+                
+                // Marcar las monedas seleccionadas
+                if (wallet.monedas) {
+                    wallet.monedas.forEach(moneda => {
+                        const checkbox = document.querySelector(`.wallet-moneda-checkbox[value="${moneda}"]`);
+                        if (checkbox) checkbox.checked = true;
+                    });
+                }
+                
+                // Actualizar el botón de guardar
+                const saveBtn = document.getElementById('saveWalletBtn');
+                if (saveBtn) {
+                    saveBtn.textContent = 'Actualizar Wallet';
+                }
+                
+                // Mostrar mensaje
+                showToast('Wallet cargada para editar. Modifica y guarda para actualizar.', 'info');
             }
 
             function initComisionEvents() {
@@ -4359,12 +4576,34 @@
                 const clientes = getClientes();
                 const currentValue = clienteSelect.value;
                 
-                clienteSelect.innerHTML = '<option value="">Seleccionar cliente...</option>' + 
-                    clientes.map(c => `<option value="${escapeHTML(c.id)}">${escapeHTML(c.nombre)}${c.documento ? ' - ' + escapeHTML(c.documento) : ''}</option>`).join('');
+                // Filtrar clientes según el tipo de operación
+                let clientesFiltrados = clientes;
+                const operacion = formData.operacion;
                 
-                // Restaurar valor seleccionado si existe
-                if (currentValue) {
+                if (operacion === 'CUENTAS_CORRIENTES') {
+                    // Solo clientes de cuenta corriente
+                    clientesFiltrados = clientes.filter(c => c.tipo === 'cuenta_corriente');
+                } else if (operacion === 'PRESTAMISTAS') {
+                    // Solo clientes prestamistas
+                    clientesFiltrados = clientes.filter(c => c.tipo === 'prestamista');
+                } else if (operacion === 'TRANSACCIONES') {
+                    // Solo clientes comunes (diario)
+                    clientesFiltrados = clientes.filter(c => c.tipo === 'diario' || !c.tipo);
+                }
+                
+                clienteSelect.innerHTML = '<option value="">Seleccionar cliente...</option>' + 
+                    clientesFiltrados.map(c => `<option value="${escapeHTML(c.id)}">${escapeHTML(c.nombre)}${c.documento ? ' - ' + escapeHTML(c.documento) : ''}</option>`).join('');
+                
+                // Restaurar valor seleccionado si existe y está en la lista filtrada
+                if (currentValue && clientesFiltrados.some(c => c.id === currentValue)) {
                     clienteSelect.value = currentValue;
+                } else {
+                    // Si el cliente actual no está en la lista filtrada, limpiar selección
+                    clienteSelect.value = '';
+                    if (formData.cliente) {
+                        formData.cliente = '';
+                        saveFormState();
+                    }
                 }
             }
 
