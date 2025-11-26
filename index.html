@@ -449,6 +449,150 @@
                 gap: 6px;
             }
         }
+        
+        /* Estilos para pantalla de inicio - Responsive */
+        .home-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .home-calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            margin-top: 10px;
+        }
+        
+        .home-calendar-day-header {
+            text-align: center;
+            font-weight: 600;
+            font-size: 12px;
+            color: var(--text-secondary);
+            padding: 8px;
+        }
+        
+        .home-calendar-empty {
+            /* Espacio vacío */
+        }
+        
+        .home-calendar-day {
+            text-align: center;
+            padding: 8px;
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            font-size: 14px;
+            min-height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .home-calendar-today {
+            background: var(--button-bg);
+            color: white;
+            font-weight: 600;
+        }
+        
+        .home-calendar-header {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .home-calendar-month {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .home-calendar-time {
+            font-size: 32px;
+            font-weight: 600;
+            color: var(--button-bg);
+            margin: 10px 0;
+        }
+        
+        .home-calendar-date {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        /* Block de notas siempre ocupa todo el ancho */
+        .home-notes-card {
+            grid-column: 1 / -1;
+        }
+        
+        @media (max-width: 768px) {
+            .home-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .home-notes-card {
+                grid-column: 1;
+            }
+            
+            .home-calendar-grid {
+                gap: 3px;
+            }
+            
+            .home-calendar-day-header {
+                font-size: 11px;
+                padding: 6px 4px;
+            }
+            
+            .home-calendar-day {
+                padding: 6px 4px;
+                font-size: 12px;
+                min-height: 28px;
+            }
+            
+            .home-calendar-month {
+                font-size: 18px;
+            }
+            
+            .home-calendar-time {
+                font-size: 28px;
+            }
+            
+            .home-calendar-date {
+                font-size: 13px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .home-grid {
+                gap: 12px;
+            }
+            
+            .home-calendar-grid {
+                gap: 2px;
+            }
+            
+            .home-calendar-day-header {
+                font-size: 10px;
+                padding: 5px 2px;
+            }
+            
+            .home-calendar-day {
+                padding: 5px 2px;
+                font-size: 11px;
+                min-height: 24px;
+            }
+            
+            .home-calendar-month {
+                font-size: 16px;
+            }
+            
+            .home-calendar-time {
+                font-size: 24px;
+            }
+            
+            .home-calendar-date {
+                font-size: 12px;
+            }
+        }
+        
         .btn-option {
             background: var(--bg-secondary);
             border: 1px solid var(--border-color);
@@ -1388,20 +1532,20 @@
                 const nombresMeses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
                 const nombresDias = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
                 
-                let calendarioHTML = '<div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 10px;">';
+                let calendarioHTML = '<div class="home-calendar-grid">';
                 // Días de la semana
                 nombresDias.forEach(dia => {
-                    calendarioHTML += `<div style="text-align: center; font-weight: 600; font-size: 12px; color: var(--text-secondary); padding: 8px;">${dia}</div>`;
+                    calendarioHTML += `<div class="home-calendar-day-header">${dia}</div>`;
                 });
                 // Espacios vacíos antes del primer día
                 for (let i = 0; i < primerDia; i++) {
-                    calendarioHTML += '<div></div>';
+                    calendarioHTML += '<div class="home-calendar-empty"></div>';
                 }
                 // Días del mes
                 for (let dia = 1; dia <= diasEnMes; dia++) {
                     const esHoy = dia === hoy.getDate();
                     calendarioHTML += `
-                        <div style="text-align: center; padding: 8px; border-radius: 8px; ${esHoy ? 'background: var(--button-bg); color: white; font-weight: 600;' : 'background: var(--bg-secondary);'}">
+                        <div class="home-calendar-day ${esHoy ? 'home-calendar-today' : ''}">
                             ${dia}
                         </div>
                     `;
@@ -1410,7 +1554,7 @@
 
                 return `
                     <div class="operations-container" style="max-width: 100%; padding: 20px;">
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                        <div class="home-grid">
                             <!-- Cotizaciones -->
                             <div class="form-card" style="padding: 20px;">
                                 <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 15px;">💱 Cotizaciones</h3>
@@ -1476,17 +1620,17 @@
                             <div class="form-card" style="padding: 20px;">
                                 <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 15px;">📅 Calendario</h3>
                                 <div style="background: var(--bg-primary); border-radius: 8px; padding: 15px; border: 1px solid var(--border-color);">
-                                    <div style="text-align: center; margin-bottom: 15px;">
-                                        <div style="font-size: 20px; font-weight: 600; margin-bottom: 5px;">${nombresMeses[mes]} ${año}</div>
-                                        <div style="font-size: 32px; font-weight: 600; color: var(--button-bg); margin: 10px 0;" id="horaDisplay">00:00:00</div>
-                                        <div style="font-size: 14px; color: var(--text-secondary);" id="fechaDisplay">${hoy.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
+                                    <div class="home-calendar-header">
+                                        <div class="home-calendar-month">${nombresMeses[mes]} ${año}</div>
+                                        <div class="home-calendar-time" id="horaDisplay">00:00:00</div>
+                                        <div class="home-calendar-date" id="fechaDisplay">${hoy.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
                                     </div>
                                     ${calendarioHTML}
                                 </div>
                             </div>
 
                             <!-- Block de Notas -->
-                            <div class="form-card" style="padding: 20px; grid-column: 1 / -1;">
+                            <div class="form-card home-notes-card" style="padding: 20px;">
                                 <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 15px;">📝 Block de Notas</h3>
                                 <textarea id="homeNotes" style="width: 100%; min-height: 200px; padding: 15px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-size: 14px; font-family: inherit; resize: vertical;" placeholder="Escribe tus notas aquí..."></textarea>
                             </div>
@@ -1610,8 +1754,8 @@
                             if (sidebar && overlay) {
                                 sidebar.classList.add('open');
                                 overlay.classList.add('active');
-                                // CORRECCIÓN: Usar transform en lugar de left
-                                overlay.style.display = 'block';
+                                // CORRECCIÓN: No establecer display directamente, dejar que CSS lo maneje
+                                // overlay.style.display se maneja con la clase 'active'
                             }
                         }, 300);
                     });
@@ -3495,7 +3639,9 @@
                     
                     const closeMenu = () => { 
                         sidebar.classList.remove('open'); 
-                        overlay.classList.remove('active'); 
+                        overlay.classList.remove('active');
+                        // CORRECCIÓN: Resetear display para evitar que quede bloqueado
+                        overlay.style.display = '';
                     };
                     
                     // Limpiar listeners anteriores para evitar duplicados
