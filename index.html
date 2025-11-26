@@ -2131,8 +2131,8 @@
                         try {
                             // Limpiar datos antiguos de movimientos (mantener solo los últimos 500)
                             const movimientos = getMovimientos();
-                            if (movimientos.length > 500) {
-                                const movimientosLimitados = movimientos.slice(0, 500);
+                            if (movimientos.length > MAX_MOVIMIENTOS / 2) {
+                                const movimientosLimitados = movimientos.slice(0, MAX_MOVIMIENTOS / 2);
                                 // Usar directamente localStorage aquí porque estamos en el catch de QuotaExceededError
                                 // y necesitamos limpiar espacio antes de reintentar
                                 try {
@@ -2307,7 +2307,6 @@
             // Cache para wallets
             let walletsCache = null;
             let walletsCacheTimestamp = null;
-            const WALLETS_CACHE_DURATION = 2000; // 2 segundos de cache
 
             function invalidateWalletsCache() {
                 walletsCache = null;
@@ -2317,7 +2316,7 @@
             function getWallets() {
                 // Verificar cache
                 const now = Date.now();
-                if (walletsCache && walletsCacheTimestamp && (now - walletsCacheTimestamp) < WALLETS_CACHE_DURATION) {
+                if (walletsCache && walletsCacheTimestamp && (now - walletsCacheTimestamp) < CACHE_DURATION_WALLETS_MS) {
                     return walletsCache;
                 }
                 
@@ -2505,7 +2504,6 @@
             // Cache para clientes
             let clientesCache = null;
             let clientesCacheTimestamp = null;
-            const CLIENTES_CACHE_DURATION = 2000; // 2 segundos de cache
 
             function invalidateClientesCache() {
                 clientesCache = null;
@@ -2515,7 +2513,7 @@
             function getClientes() {
                 // Verificar cache
                 const now = Date.now();
-                if (clientesCache && clientesCacheTimestamp && (now - clientesCacheTimestamp) < CLIENTES_CACHE_DURATION) {
+                if (clientesCache && clientesCacheTimestamp && (now - clientesCacheTimestamp) < CACHE_DURATION_CLIENTES_MS) {
                     return clientesCache;
                 }
                 
@@ -3398,14 +3396,32 @@
                 }
             }
             
+            // Constantes globales para evitar números mágicos
+            const DIAS_EN_ANIO = 365;
+            const PORCENTAJE_BASE = 100;
+            const MAX_MOVIMIENTOS = 1000;
+            const CACHE_DURATION_MOVIMIENTOS_MS = 1000; // 1 segundo
+            const CACHE_DURATION_SALDOS_MS = 2000; // 2 segundos
+            const CACHE_DURATION_CLIENTES_MS = 2000; // 2 segundos
+            const CACHE_DURATION_WALLETS_MS = 2000; // 2 segundos
+            const LIMITE_LOCALSTORAGE_MB = 4.5;
+            const PAGINACION_MOVIMIENTOS_POR_PAGINA = 50;
+            
             // Constante global para campos numéricos (evita duplicación)
             const NUMERIC_FIELDS = ['monto', 'tc', 'total', 'montoBase', 'cotizacionCliente', 'cotizacionReal', 'montoCobrado', 'costoReal', 'profit', 'interes', 'lapso', 'comisionValor', 'montoComision'];
             
             // Función helper para formatear campos numéricos (consolida código duplicado)
+            // Optimizada: solo formatea campos que tienen valor y no están siendo editados
             function formatNumericFields(fields = NUMERIC_FIELDS, skipReadOnly = true) {
+                const activeElement = document.activeElement;
                 fields.forEach(fieldName => {
                     const input = document.querySelector(`[name="${fieldName}"]`);
-                    if (input && (!skipReadOnly || !input.readOnly) && formData[fieldName]) {
+                    // Solo formatear si: existe, no está siendo editado, tiene valor, y no es readonly (si skipReadOnly)
+                    if (input && 
+                        input !== activeElement && 
+                        (!skipReadOnly || !input.readOnly) && 
+                        formData[fieldName] && 
+                        String(formData[fieldName]).trim() !== '') {
                         const formatted = formatNumberWithThousands(formData[fieldName]);
                         if (formatted && input.value !== formatted) {
                             input.value = formatted;
@@ -3804,12 +3820,12 @@
                     return;
                 }
                 
-                // Calcular interés: (monto * interés anual * días) / (365 * 100)
+                // Calcular interés: (monto * interés anual * días) / (DIAS_EN_ANIO * PORCENTAJE_BASE)
                 // El interés se calcula pero NO se suma al monto inicial todavía
                 // Cuando nos prestan dinero: recibimos el monto (INGRESO), el interés se pagará cuando devolvamos el préstamo
                 let interesTotal = 0;
                 try {
-                    interesTotal = (monto * interes * lapso) / (365 * 100);
+                    interesTotal = (monto * interes * lapso) / (DIAS_EN_ANIO * PORCENTAJE_BASE);
                     // Validar resultado
                     if (!isFinite(interesTotal) || isNaN(interesTotal)) {
                         console.error('Error en cálculo de interés: resultado inválido', { monto, interes, lapso });
@@ -6211,7 +6227,6 @@
             // Cache para movimientos (se invalida cuando se modifica)
             let movimientosCache = null;
             let movimientosCacheTimestamp = null;
-            const CACHE_DURATION = 1000; // 1 segundo de cache
 
             function getMovimientosCached() {
                 const now = Date.now();
