@@ -1932,7 +1932,7 @@
                 const toast = document.createElement('div');
                 toast.className = `toast ${type}`;
                 const icon = type === 'success' ? '✅' : (type === 'error' ? '❌' : 'ℹ️');
-                toast.innerHTML = `<span>${icon}</span> ${message}`;
+                toast.innerHTML = `<span>${icon}</span> ${escapeHTML(message)}`;
                 container.appendChild(toast);
                 setTimeout(() => { toast.classList.add('show'); }, 10);
                 setTimeout(() => {
@@ -2682,12 +2682,12 @@
                                 </div>
                                 <div class="form-group"><label class="form-label section-title">Paso 1: Seleccionar Operación</label><div class="button-grid" id="operationButtons"></div></div>
                                 <div class="form-group ${!formData.operacion ? 'hidden' : ''}" id="subOperationContainer"><label class="form-label section-title">Paso 2: Seleccionar Tipo</label><div class="button-grid" id="subOperationButtons"></div></div>
-                                <div class="form-group hidden" id="clienteContainer" style="margin-bottom: 20px;"><label class="form-label" for="cliente">Cliente</label><div class="input-with-button"><select class="form-select" id="cliente" name="cliente" required><option value="">Seleccionar cliente...</option>${getClientes().map(c => `<option value="${c.id}" ${formData.cliente === c.id ? 'selected' : ''}>${c.nombre}${c.documento ? ' - ' + c.documento : ''}</option>`).join('')}</select><button type="button" class="btn-add" id="addClientBtn" title="Crear nuevo cliente">+</button></div></div>
+                                <div class="form-group hidden" id="clienteContainer" style="margin-bottom: 20px;"><label class="form-label" for="cliente">Cliente</label><div class="input-with-button"><select class="form-select" id="cliente" name="cliente" required><option value="">Seleccionar cliente...</option>${getClientes().map(c => `<option value="${escapeHTML(c.id)}" ${formData.cliente === c.id ? 'selected' : ''}>${escapeHTML(c.nombre)}${c.documento ? ' - ' + escapeHTML(c.documento) : ''}</option>`).join('')}</select><button type="button" class="btn-add" id="addClientBtn" title="Crear nuevo cliente">+</button></div></div>
                                 <div class="form-group hidden" id="detalleContainer" style="margin-bottom: 32px;"><label class="form-label" for="detalle">Detalle</label><textarea class="form-textarea" id="detalle" name="detalle" placeholder="Descripción de la operación">${escapeHTML(formData.detalle || '')}</textarea></div>
                                 <div class="dynamic-fields-container" id="dynamicFieldsContainer"></div>
                                 <div id="mixedPaymentsContainer" class="${formData.isMixedPaymentActive ? '' : 'hidden'}"></div>
                                 <div class="form-grid ${['WALLET', 'ADMINISTRATIVAS'].includes(formData.operacion) ? 'hidden' : ''}" id="estadoPorContainer">
-                                    <div class="form-group"><label class="form-label" for="estado">Estado</label><select class="form-select" id="estado" name="estado">${estados.map(e => `<option value="${e.value}" ${formData.estado === e.value ? 'selected' : ''}>${e.label}</option>`).join('')}</select></div>
+                                    <div class="form-group"><label class="form-label" for="estado">Estado</label><select class="form-select" id="estado" name="estado">${estados.map(e => `<option value="${escapeHTML(e.value)}" ${formData.estado === e.value ? 'selected' : ''}>${escapeHTML(e.label)}</option>`).join('')}</select></div>
                                     <div class="form-group"><label class="form-label" for="por">Por</label><input type="text" class="form-input" id="por" name="por" value="${formData.por || ''}" placeholder="Nombre"></div>
                                 </div>
                                 ${formData.subOperacion !== 'CREAR WALLET' && formData.subOperacion !== 'LISTA DE WALLETS' ? '<div class="form-actions"><button type="button" class="btn-cancel" id="cancelBtn">Cancelar</button><button type="submit" class="btn-submit">Guardar Operación</button></div>' : ''}
@@ -3299,7 +3299,7 @@
                     <div class="wallet-step-label">Paso 1: Seleccionar Wallet</div>
                     <div class="wallet-step" id="${containerId}_wallets">
                         ${wallets.length === 0 ? `<p style="color: var(--text-secondary); font-size: 13px;">No hay wallets creadas.</p>` : 
-                            wallets.map(w => `<button type="button" class="btn-wallet ${currentWallet === w.id ? 'active' : ''}" data-wallet="${w.id}">${w.nombre}</button>`).join('')}
+                            wallets.map(w => `<button type="button" class="btn-wallet ${currentWallet === w.id ? 'active' : ''}" data-wallet="${escapeHTML(w.id)}">${escapeHTML(w.nombre)}</button>`).join('')}
                         ${includesPagoMixto ? `<button type="button" class="btn-wallet ${currentValue === 'pago_mixto' ? 'active' : ''}" data-wallet="pago_mixto">${tipoLabel} Mixto</button>` : ''}
                     </div>
                     <div class="wallet-step-label">Paso 2: Tipo de ${tipoLabel}</div>
@@ -3414,10 +3414,10 @@
                         <div class="form-card" style="padding: 15px; margin-bottom: 15px;">
                             <div style="display: flex; justify-content: space-between; align-items: start;">
                                 <div><h3 style="font-size: 16px;">${escapeHTML(w.nombre)}</h3><p style="color: var(--text-secondary); font-size: 13px;">ID: ${escapeHTML(w.id)}</p></div>
-                                <button type="button" class="btn-remove" data-wallet-id="${w.id}">✕</button>
+                                <button type="button" class="btn-remove" data-wallet-id="${escapeHTML(w.id)}">✕</button>
                             </div>
                             <div class="form-grid" style="font-size: 13px; margin-top: 15px; margin-bottom: 0;">
-                                <div><p>Tipo: ${w.tipos.join(', ')}</p></div><div><p>Monedas: ${w.monedas.join(', ')}</p></div>
+                                <div><p>Tipo: ${escapeHTML(w.tipos.join(', '))}</p></div><div><p>Monedas: ${escapeHTML(w.monedas.join(', '))}</p></div>
                             </div>
                         </div>`).join('');
 
@@ -3531,7 +3531,7 @@
                 });
                 listContainer.innerHTML = formData.mixedPayments.map((payment, index) => `
                     <div class="mixed-payment-item">
-                        <div class="form-group"><label class="form-label">Wallet</label><select class="form-select" data-index="${index}" data-field="wallet"><option value="">Seleccionar</option>${wallets.map(w => w.tipos.map(t => `<option value="${w.id}_${t}" ${payment.wallet === `${w.id}_${t}` ? 'selected' : ''}>${w.nombre} - ${t}</option>`).join('')).join('')}</select></div>
+                        <div class="form-group"><label class="form-label">Wallet</label><select class="form-select" data-index="${index}" data-field="wallet"><option value="">Seleccionar</option>${wallets.map(w => w.tipos.map(t => `<option value="${escapeHTML(w.id)}_${escapeHTML(t)}" ${payment.wallet === `${w.id}_${t}` ? 'selected' : ''}>${escapeHTML(w.nombre)} - ${escapeHTML(t)}</option>`).join('')).join('')}</select></div>
                         <div class="form-group"><label class="form-label">Monto</label><input type="text" inputmode="numeric" class="form-input" data-index="${index}" data-field="monto" value="${formatNumberWithThousands(payment.monto || '')}" placeholder="0.00"></div>
                         <button type="button" class="btn-remove" data-index="${index}">✕</button>
                     </div>`).join('');
@@ -3872,14 +3872,23 @@
                 clienteEditandoId = clienteId;
                 
                 // Cargar datos en el formulario
-                document.getElementById('clienteNombre').value = cliente.nombre || '';
-                document.getElementById('clienteDocumento').value = cliente.documento || '';
-                document.getElementById('clienteTelefono').value = cliente.telefono || '';
-                document.getElementById('clienteTelefonoRespaldo').value = cliente.telefonoRespaldo || '';
-                document.getElementById('clienteEmail').value = cliente.email || '';
-                document.getElementById('clienteDireccion').value = cliente.direccion || '';
-                document.getElementById('clienteRecomendado').value = cliente.recomendado || '';
-                document.getElementById('clienteNotas').value = cliente.notas || '';
+                const nombreEl = safeGetElementById('clienteNombre');
+                const documentoEl = safeGetElementById('clienteDocumento');
+                const telefonoEl = safeGetElementById('clienteTelefono');
+                const telefonoRespaldoEl = safeGetElementById('clienteTelefonoRespaldo');
+                const emailEl = safeGetElementById('clienteEmail');
+                const direccionEl = safeGetElementById('clienteDireccion');
+                const recomendadoEl = safeGetElementById('clienteRecomendado');
+                const notasEl = safeGetElementById('clienteNotas');
+                
+                if (nombreEl) nombreEl.value = cliente.nombre || '';
+                if (documentoEl) documentoEl.value = cliente.documento || '';
+                if (telefonoEl) telefonoEl.value = cliente.telefono || '';
+                if (telefonoRespaldoEl) telefonoRespaldoEl.value = cliente.telefonoRespaldo || '';
+                if (emailEl) emailEl.value = cliente.email || '';
+                if (direccionEl) direccionEl.value = cliente.direccion || '';
+                if (recomendadoEl) recomendadoEl.value = cliente.recomendado || '';
+                if (notasEl) notasEl.value = cliente.notas || '';
                 
                 // Establecer tipo de cliente
                 tipoClienteSeleccionado = cliente.tipo || 'diario';
@@ -4114,7 +4123,7 @@
                 const currentValue = clienteSelect.value;
                 
                 clienteSelect.innerHTML = '<option value="">Seleccionar cliente...</option>' + 
-                    clientes.map(c => `<option value="${c.id}">${c.nombre}${c.documento ? ' - ' + c.documento : ''}</option>`).join('');
+                    clientes.map(c => `<option value="${escapeHTML(c.id)}">${escapeHTML(c.nombre)}${c.documento ? ' - ' + escapeHTML(c.documento) : ''}</option>`).join('');
                 
                 // Restaurar valor seleccionado si existe
                 if (currentValue) {
@@ -4187,7 +4196,7 @@
                         let moneda = mov.moneda;
                         moneda = normalizeMoneda(moneda);
                         const monedaLabel = monedas.find(m => m.value === moneda)?.label || moneda;
-                        montoInfo = `${monedaLabel} ${formatNumberWithThousands(mov.monto)}`;
+                        montoInfo = `${escapeHTML(monedaLabel)} ${formatNumberWithThousands(mov.monto)}`;
                     }
                     
                     // Total
@@ -4211,16 +4220,16 @@
                     if (walletId && walletId !== 'pago_mixto') {
                         const walletNombre = getWalletNombre(walletId);
                         if (walletNombre) {
-                            walletInfo = `💳 ${walletNombre}`;
+                            walletInfo = `💳 ${escapeHTML(walletNombre)}`;
                         }
                     }
                     
                     return `
-                        <div class="movimiento-row" style="display: grid; grid-template-columns: 2.5fr 1.5fr 1fr 1.2fr 1.2fr 1fr 1fr auto; gap: 16px; padding: 16px; margin-bottom: 12px; background: var(--bg-secondary); border-radius: 8px; align-items: start; overflow: hidden; ${mov.anulado ? 'opacity: 0.6; border: 2px solid var(--error-color);' : 'border: 1px solid var(--border-color);'}" data-movimiento-id="${mov.id}">
+                        <div class="movimiento-row" style="display: grid; grid-template-columns: 2.5fr 1.5fr 1fr 1.2fr 1.2fr 1fr 1fr auto; gap: 16px; padding: 16px; margin-bottom: 12px; background: var(--bg-secondary); border-radius: 8px; align-items: start; overflow: hidden; ${mov.anulado ? 'opacity: 0.6; border: 2px solid var(--error-color);' : 'border: 1px solid var(--border-color);'}" data-movimiento-id="${escapeHTML(mov.id)}">
                             ${mov.anulado ? '<div style="grid-column: 1 / -1; background: var(--error-color); color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; display: inline-block; width: fit-content; margin-bottom: 8px;">ANULADO</div>' : ''}
                             <div style="cursor: pointer; min-width: 0;" class="movimiento-item">
-                                <div style="font-weight: 600; font-size: 15px; color: var(--text-primary); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${operacionLabel} ${subOperacionLabel ? '> ' + subOperacionLabel : ''}</div>
-                                ${mov.detalle ? `<div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px; line-height: 1.4;">${mov.detalle.length > 60 ? mov.detalle.substring(0, 60) + '...' : mov.detalle}</div>` : ''}
+                                <div style="font-weight: 600; font-size: 15px; color: var(--text-primary); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHTML(operacionLabel)} ${subOperacionLabel ? '> ' + escapeHTML(subOperacionLabel) : ''}</div>
+                                ${mov.detalle ? `<div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px; line-height: 1.4;">${escapeHTML(mov.detalle.length > 60 ? mov.detalle.substring(0, 60) + '...' : mov.detalle)}</div>` : ''}
                             </div>
                             <div style="min-width: 0;">
                                 <div style="font-size: 13px; color: var(--text-primary); font-weight: 500; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${clienteNombre}</div>
@@ -4242,7 +4251,7 @@
                                 ${mov.por ? `<div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Por: ${mov.por}</div>` : ''}
                             </div>
                             <div style="display: flex; gap: 6px; min-width: 0; flex-shrink: 0; align-items: start;">
-                                ${!mov.anulado ? `<button type="button" class="btn-option" style="font-size: 11px; padding: 6px 12px; white-space: nowrap; flex-shrink: 0;" data-action="anular" data-mov-id="${mov.id}">Anular</button>` : ''}
+                                ${!mov.anulado ? `<button type="button" class="btn-option" style="font-size: 11px; padding: 6px 12px; white-space: nowrap; flex-shrink: 0;" data-action="anular" data-mov-id="${escapeHTML(mov.id)}">Anular</button>` : ''}
                             </div>
                         </div>
                     `;
@@ -4298,21 +4307,21 @@
                         <div class="form-grid">
                             <div class="form-group">
                                 <label class="form-label">Fecha</label>
-                                <input type="text" class="form-input" value="${fechaFormateada.charAt(0).toUpperCase() + fechaFormateada.slice(1)} ${horaFormateada}" readonly>
+                                <input type="text" class="form-input" value="${escapeHTML(fechaFormateada.charAt(0).toUpperCase() + fechaFormateada.slice(1) + ' ' + horaFormateada)}" readonly>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Cliente</label>
-                                <input type="text" class="form-input" value="${clienteNombre}" readonly>
+                                <input type="text" class="form-input" value="${escapeHTML(clienteNombre)}" readonly>
                             </div>
                         </div>
                         <div class="form-grid">
                             <div class="form-group">
                                 <label class="form-label">Operación</label>
-                                <input type="text" class="form-input" value="${movimiento.operacion ? movimiento.operacion.replace('_', ' ') : ''}" readonly>
+                                <input type="text" class="form-input" value="${escapeHTML(movimiento.operacion ? movimiento.operacion.replace('_', ' ') : '')}" readonly>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Tipo</label>
-                                <input type="text" class="form-input" value="${movimiento.subOperacion || ''}" readonly>
+                                <input type="text" class="form-input" value="${escapeHTML(movimiento.subOperacion || '')}" readonly>
                             </div>
                         </div>
                 `;
@@ -4323,11 +4332,11 @@
                         <div class="form-grid">
                             <div class="form-group">
                                 <label class="form-label">Monto</label>
-                                <input type="text" class="form-input" value="${movimiento.monto}" readonly>
+                                <input type="text" class="form-input" value="${escapeHTML(String(movimiento.monto || ''))}" readonly>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Moneda</label>
-                                <input type="text" class="form-input" value="${monedas.find(m => m.value === movimiento.moneda)?.label || movimiento.moneda || ''}" readonly>
+                                <input type="text" class="form-input" value="${escapeHTML(monedas.find(m => m.value === movimiento.moneda)?.label || movimiento.moneda || '')}" readonly>
                             </div>
                         </div>
                     `;
@@ -4337,7 +4346,7 @@
                     detallesHTML += `
                         <div class="form-group">
                             <label class="form-label">Tipo de Cambio</label>
-                            <input type="text" class="form-input" value="${movimiento.tc}" readonly>
+                            <input type="text" class="form-input" value="${escapeHTML(String(movimiento.tc || ''))}" readonly>
                         </div>
                     `;
                 }
@@ -4346,7 +4355,7 @@
                     detallesHTML += `
                         <div class="form-group">
                             <label class="form-label">Total</label>
-                            <input type="text" class="form-input" value="${movimiento.total}" readonly>
+                            <input type="text" class="form-input" value="${escapeHTML(String(movimiento.total || ''))}" readonly>
                         </div>
                     `;
                 }
@@ -4355,15 +4364,15 @@
                     detallesHTML += `
                         <div class="form-group">
                             <label class="form-label">Detalle</label>
-                            <textarea class="form-textarea" readonly>${movimiento.detalle}</textarea>
+                            <textarea class="form-textarea" readonly>${escapeHTML(movimiento.detalle || '')}</textarea>
                         </div>
                     `;
                 }
                 
                 detallesHTML += `
                         <div class="form-actions">
-                            ${!movimiento.anulado ? `<button type="button" class="btn-edit" id="editarMovimientoBtn" data-mov-id="${movimiento.id}">Editar</button>` : ''}
-                            ${!movimiento.anulado ? `<button type="button" class="btn-cancel" id="anularMovimientoBtn" data-mov-id="${movimiento.id}">Anular Movimiento</button>` : ''}
+                            ${!movimiento.anulado ? `<button type="button" class="btn-edit" id="editarMovimientoBtn" data-mov-id="${escapeHTML(movimiento.id)}">Editar</button>` : ''}
+                            ${!movimiento.anulado ? `<button type="button" class="btn-cancel" id="anularMovimientoBtn" data-mov-id="${escapeHTML(movimiento.id)}">Anular Movimiento</button>` : ''}
                             <button type="button" class="btn-submit" id="cerrarDetallesBtn">Cerrar</button>
                         </div>
                     </div>
@@ -4527,7 +4536,7 @@
                             .map(([moneda, total]) => {
                                 let monedaNorm = normalizeMoneda(moneda);
                                 const monedaLabel = monedas.find(m => m.value === monedaNorm)?.label || monedaNorm;
-                                return `<strong>${monedaLabel}</strong> ${formatNumberWithThousands(total)}`;
+                                return `<strong>${escapeHTML(monedaLabel)}</strong> ${formatNumberWithThousands(total)}`;
                             })
                             .join(' | ');
                         resumenHTML += `<div style="color: var(--error-color); font-size: 15px; font-weight: 600; margin-bottom: 8px; padding: 8px; background: rgba(255, 69, 58, 0.1); border-radius: 8px; white-space: nowrap; overflow-x: auto;">🔴 TOTAL A RETIRAR: ${retiroStr}</div>`;
@@ -4538,7 +4547,7 @@
                             .map(([moneda, total]) => {
                                 let monedaNorm = normalizeMoneda(moneda);
                                 const monedaLabel = monedas.find(m => m.value === monedaNorm)?.label || monedaNorm;
-                                return `<strong>${monedaLabel}</strong> ${formatNumberWithThousands(total)}`;
+                                return `<strong>${escapeHTML(monedaLabel)}</strong> ${formatNumberWithThousands(total)}`;
                             })
                             .join(' | ');
                         resumenHTML += `<div style="color: var(--success-color); font-size: 15px; font-weight: 600; padding: 8px; background: rgba(48, 209, 88, 0.1); border-radius: 8px; white-space: nowrap; overflow-x: auto;">🟢 TOTAL A ENTREGAR: ${entregaStr}</div>`;
@@ -4613,7 +4622,7 @@
                             .map(([moneda, total]) => {
                                 let monedaNorm = normalizeMoneda(moneda);
                                 const monedaLabel = monedas.find(m => m.value === monedaNorm)?.label || monedaNorm;
-                                return `${monedaLabel} ${formatNumberWithThousands(total)}`;
+                                return `${escapeHTML(monedaLabel)} ${formatNumberWithThousands(total)}`;
                             })
                             .join(', ');
                         resumenHTML += `<p style="color: var(--error-color); font-size: 14px; font-weight: 600; margin: 8px 0 4px 0;">🔴 RETIRAR: ${monedasRetiroStr}</p>`;
@@ -4623,7 +4632,7 @@
                             .map(([moneda, total]) => {
                                 let monedaNorm = normalizeMoneda(moneda);
                                 const monedaLabel = monedas.find(m => m.value === monedaNorm)?.label || monedaNorm;
-                                return `${monedaLabel} ${formatNumberWithThousands(total)}`;
+                                return `${escapeHTML(monedaLabel)} ${formatNumberWithThousands(total)}`;
                             })
                             .join(', ');
                         resumenHTML += `<p style="color: var(--success-color); font-size: 14px; font-weight: 600; margin: 4px 0 8px 0;">🟢 ENTREGAR: ${monedasEntregaStr}</p>`;
@@ -4641,33 +4650,33 @@
                     
                     let direccionHTML = '';
                     if (grupo.clienteDireccion) {
-                        direccionHTML = `<p style="color: var(--text-primary); font-size: 14px; margin: 4px 0 8px 0;"><strong>📍 Dónde ${grupo.totalRetiro > 0 && grupo.totalEntrega > 0 ? 'retirar/entregar' : grupo.totalRetiro > 0 ? 'retirar' : 'entregar'}:</strong> ${grupo.clienteDireccion}</p>`;
+                        direccionHTML = `<p style="color: var(--text-primary); font-size: 14px; margin: 4px 0 8px 0;"><strong>📍 Dónde ${grupo.totalRetiro > 0 && grupo.totalEntrega > 0 ? 'retirar/entregar' : grupo.totalRetiro > 0 ? 'retirar' : 'entregar'}:</strong> ${escapeHTML(grupo.clienteDireccion)}</p>`;
                     }
                     
                     return `
                         <div class="pendiente-cliente-card" style="padding: 16px; margin-bottom: 16px; background: var(--bg-primary); border: 2px solid var(--border-color); border-radius: 12px; overflow: hidden;">
                             <div style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 12px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color); align-items: center; overflow: hidden;">
                                 <div style="min-width: 0; overflow: hidden;">
-                                    <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${grupo.clienteNombre}</h3>
+                                    <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHTML(grupo.clienteNombre)}</h3>
                                     <p style="color: var(--text-secondary); font-size: 12px; margin: 2px 0;">${grupo.movimientos.length} operación${grupo.movimientos.length > 1 ? 'es' : ''}</p>
                                 </div>
                                 <div style="font-size: 12px; min-width: 0; overflow: hidden;">
-                                    ${grupo.clienteTelefono ? `<div style="color: var(--text-primary); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">📞 ${grupo.clienteTelefono}</div>` : ''}
-                                    ${grupo.clienteTelefonoRespaldo ? `<div style="color: var(--text-secondary); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${grupo.clienteTelefonoRespaldo}</div>` : ''}
+                                    ${grupo.clienteTelefono ? `<div style="color: var(--text-primary); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">📞 ${escapeHTML(grupo.clienteTelefono)}</div>` : ''}
+                                    ${grupo.clienteTelefonoRespaldo ? `<div style="color: var(--text-secondary); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHTML(grupo.clienteTelefonoRespaldo)}</div>` : ''}
                                 </div>
                                 <div style="font-size: 12px; color: var(--text-primary); min-width: 0; overflow: hidden;">
-                                    ${grupo.clienteDireccion ? `<div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">📍 ${grupo.clienteDireccion}</div>` : ''}
+                                    ${grupo.clienteDireccion ? `<div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">📍 ${escapeHTML(grupo.clienteDireccion)}</div>` : ''}
                                 </div>
                                 <div style="text-align: right; flex-shrink: 0;">
                                     ${grupo.totalRetiro > 0 ? `<div style="color: var(--error-color); font-size: 13px; font-weight: 600; margin-bottom: 2px; white-space: nowrap;">🔴 ${Object.entries(grupo.monedasRetiro).map(([m, t]) => {
                                         const monedaNorm = normalizeMoneda(m);
                                         const monedaLabel = monedas.find(mon => mon.value === monedaNorm)?.label || monedaNorm;
-                                        return `${monedaLabel} ${formatNumberWithThousands(t)}`;
+                                        return `${escapeHTML(monedaLabel)} ${formatNumberWithThousands(t)}`;
                                     }).join(', ')}</div>` : ''}
                                     ${grupo.totalEntrega > 0 ? `<div style="color: var(--success-color); font-size: 13px; font-weight: 600; white-space: nowrap;">🟢 ${Object.entries(grupo.monedasEntrega).map(([m, t]) => {
                                         const monedaNorm = normalizeMoneda(m);
                                         const monedaLabel = monedas.find(mon => mon.value === monedaNorm)?.label || monedaNorm;
-                                        return `${monedaLabel} ${formatNumberWithThousands(t)}`;
+                                        return `${escapeHTML(monedaLabel)} ${formatNumberWithThousands(t)}`;
                                     }).join(', ')}</div>` : ''}
                                 </div>
                             </div>
@@ -4702,18 +4711,18 @@
                                     }
                                     
                                     return `
-                                        <div class="pendiente-operacion-row" style="display: grid; grid-template-columns: auto 2fr 1fr 1fr auto auto; gap: 12px; padding: 10px; margin-bottom: 8px; background: var(--bg-secondary); border-radius: 8px; align-items: center; border-left: 3px solid ${colorTipo}; overflow: hidden; cursor: pointer;" data-mov-id="${mov.id}" data-action="ver-detalle">
+                                        <div class="pendiente-operacion-row" style="display: grid; grid-template-columns: auto 2fr 1fr 1fr auto auto; gap: 12px; padding: 10px; margin-bottom: 8px; background: var(--bg-secondary); border-radius: 8px; align-items: center; border-left: 3px solid ${colorTipo}; overflow: hidden; cursor: pointer;" data-mov-id="${escapeHTML(mov.id)}" data-action="ver-detalle">
                                             <span style="font-size: 11px; padding: 2px 6px; border-radius: 4px; background: ${colorTipo === 'var(--error-color)' ? 'rgba(255, 69, 58, 0.1)' : 'rgba(48, 209, 88, 0.1)'}; color: ${colorTipo}; font-weight: 600; white-space: nowrap; flex-shrink: 0;">
                                                 ${tipoPendiente}
                                             </span>
                                             <div style="min-width: 0; overflow: hidden;">
-                                                <div style="font-size: 13px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${operacionLabel} ${subOperacionLabel ? '> ' + subOperacionLabel : ''}</div>
-                                                ${walletNombre ? `<div style="font-size: 11px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">💳 ${walletNombre}</div>` : ''}
+                                                <div style="font-size: 13px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHTML(operacionLabel)} ${subOperacionLabel ? '> ' + escapeHTML(subOperacionLabel) : ''}</div>
+                                                ${walletNombre ? `<div style="font-size: 11px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">💳 ${escapeHTML(walletNombre)}</div>` : ''}
                                                 ${mov.detalle ? `<div style="font-size: 11px; color: var(--text-secondary); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHTML(mov.detalle.substring(0, 40))}${mov.detalle.length > 40 ? '...' : ''}</div>` : ''}
                                             </div>
-                                            <div style="font-size: 12px; color: var(--text-secondary); min-width: 0; white-space: nowrap;">${fechaMovFormateada}<br>${horaMov}</div>
-                                            <div style="font-size: 13px; color: var(--text-primary); font-weight: 600; white-space: nowrap; flex-shrink: 0;">${monedaLabel} ${formatNumberWithThousands(montoMov)}</div>
-                                            <button type="button" class="btn-submit" style="font-size: 11px; padding: 6px 12px; white-space: nowrap; flex-shrink: 0;" data-mov-id="${mov.id}" data-action="finalizar">
+                                            <div style="font-size: 12px; color: var(--text-secondary); min-width: 0; white-space: nowrap;">${escapeHTML(fechaMovFormateada)}<br>${escapeHTML(horaMov)}</div>
+                                            <div style="font-size: 13px; color: var(--text-primary); font-weight: 600; white-space: nowrap; flex-shrink: 0;">${escapeHTML(monedaLabel)} ${formatNumberWithThousands(montoMov)}</div>
+                                            <button type="button" class="btn-submit" style="font-size: 11px; padding: 6px 12px; white-space: nowrap; flex-shrink: 0;" data-mov-id="${escapeHTML(mov.id)}" data-action="finalizar">
                                                 Finalizar
                                             </button>
                                         </div>
@@ -4839,7 +4848,7 @@
                         <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
                             <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--text-primary);">Wallets</h3>
                             <div style="display: grid; gap: 8px;">
-                                ${walletInfo.map(w => `<div>💳 ${w}</div>`).join('')}
+                                ${walletInfo.map(w => `<div>💳 ${escapeHTML(w)}</div>`).join('')}
                             </div>
                         </div>
                     `;
@@ -4925,8 +4934,8 @@
                                 ${cliente.notas ? `<div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color);"><p style="color: var(--text-secondary); font-size: 13px; margin: 0;">${escapeHTML(cliente.notas)}</p></div>` : ''}
                             </div>
                             <div style="display: flex; gap: 8px; flex-shrink: 0;">
-                                <button type="button" class="btn-edit" data-cliente-id="${cliente.id}" style="padding: 8px 12px; font-size: 13px;" title="Editar cliente">✏️</button>
-                                <button type="button" class="btn-remove" data-cliente-id="${cliente.id}" style="flex-shrink: 0;" title="Eliminar cliente">✕</button>
+                                <button type="button" class="btn-edit" data-cliente-id="${escapeHTML(cliente.id)}" style="padding: 8px 12px; font-size: 13px;" title="Editar cliente">✏️</button>
+                                <button type="button" class="btn-remove" data-cliente-id="${escapeHTML(cliente.id)}" style="flex-shrink: 0;" title="Eliminar cliente">✕</button>
                             </div>
                         </div>
                         <div style="font-size: 11px; color: var(--text-secondary);">
@@ -5446,7 +5455,7 @@
 
                     if (monedasConBalance.length === 0) {
                         html += `
-                            <div class="form-card" style="padding: 20px; margin-bottom: 15px; border: 1px solid var(--border-color); cursor: pointer;" onclick="cuentaCorrienteSeleccionada = '${cliente.id}'; renderCuentasCorrientesList('${cliente.id}');">
+                            <div class="form-card" style="padding: 20px; margin-bottom: 15px; border: 1px solid var(--border-color); cursor: pointer;" onclick="cuentaCorrienteSeleccionada = '${escapeHTML(cliente.id)}'; renderCuentasCorrientesList('${escapeHTML(cliente.id)}');">
                                 <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
                                     <div>
                                         <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 5px;">${escapeHTML(cliente.nombre)}</h3>
@@ -5462,7 +5471,7 @@
                         `;
                     } else {
                         html += `
-                            <div class="form-card" style="padding: 20px; margin-bottom: 15px; border: 1px solid var(--border-color); cursor: pointer;" onclick="cuentaCorrienteSeleccionada = '${cliente.id}'; renderCuentasCorrientesList('${cliente.id}');">
+                            <div class="form-card" style="padding: 20px; margin-bottom: 15px; border: 1px solid var(--border-color); cursor: pointer;" onclick="cuentaCorrienteSeleccionada = '${escapeHTML(cliente.id)}'; renderCuentasCorrientesList('${escapeHTML(cliente.id)}');">
                                 <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
                                     <div>
                                         <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 5px;">${escapeHTML(cliente.nombre)}</h3>
