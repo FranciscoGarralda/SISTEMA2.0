@@ -2747,6 +2747,20 @@
                 if (!value && value !== 0) return defaultValue;
                 // Convertir a string y eliminar espacios
                 let str = String(value).trim();
+                
+                // Manejar notación científica (ej: "1e5", "1.5e-3", "1E+10")
+                const scientificNotationRegex = /^[-+]?(\d+\.?\d*|\.\d+)[eE][-+]?\d+$/;
+                if (scientificNotationRegex.test(str)) {
+                    const num = parseFloat(str);
+                    if (!isNaN(num) && isFinite(num)) {
+                        // Si no se permiten negativos y el número es negativo, retornar defaultValue
+                        if (!allowNegative && num < 0) {
+                            return defaultValue;
+                        }
+                        return num;
+                    }
+                }
+                
                 // Guardar si es negativo
                 const isNegative = str.startsWith('-');
                 // Eliminar símbolos de moneda y caracteres no numéricos (excepto punto, coma y guion al inicio)
