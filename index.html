@@ -6230,7 +6230,7 @@
 
             function getMovimientosCached() {
                 const now = Date.now();
-                if (movimientosCache && movimientosCacheTimestamp && (now - movimientosCacheTimestamp) < CACHE_DURATION) {
+                if (movimientosCache && movimientosCacheTimestamp && (now - movimientosCacheTimestamp) < CACHE_DURATION_MOVIMIENTOS_MS) {
                     return movimientosCache;
                 }
                 movimientosCache = getMovimientos();
