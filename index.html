@@ -2071,13 +2071,53 @@
                     if (operation === 'get') {
                         return localStorage.getItem(key);
                     } else if (operation === 'set') {
-                        // Verificar tamaño aproximado de los datos
-                        const dataString = typeof value === 'string' ? value : JSON.stringify(value);
-                        const size = new Blob([dataString]).size;
+                        // Validar que el valor no sea null o undefined
+                        if (value === null || value === undefined) {
+                            console.warn(`Intento de guardar valor null/undefined en clave "${key}"`);
+                            return false;
+                        }
+                        
+                        // Verificar tamaño aproximado de los datos ANTES de convertir a string
+                        // Estimar tamaño sin convertir todo a string primero (más eficiente)
+                        let estimatedSize = 0;
+                        if (typeof value === 'string') {
+                            estimatedSize = new Blob([value]).size;
+                        } else if (typeof value === 'object') {
+                            // Estimar tamaño del objeto sin stringificar completamente
+                            try {
+                                const sampleString = JSON.stringify(value).substring(0, 1000);
+                                const sampleSize = new Blob([sampleString]).size;
+                                // Estimar tamaño total basado en muestra (aproximado)
+                                estimatedSize = sampleSize * (JSON.stringify(value).length / 1000);
+                            } catch (e) {
+                                // Si falla, convertir completo
+                                const dataString = JSON.stringify(value);
+                                estimatedSize = new Blob([dataString]).size;
+                            }
+                        } else {
+                            estimatedSize = new Blob([String(value)]).size;
+                        }
+                        
                         // Límite aproximado de 4.5MB (localStorage tiene límite de ~5-10MB dependiendo del navegador)
-                        if (size > 4500000) {
+                        if (estimatedSize > 4500000) {
+                            if (typeof showToast === 'function') {
+                                showToast('Los datos son demasiado grandes para guardar. Intenta eliminar datos antiguos.', 'error');
+                            }
                             throw new Error('Datos muy grandes para almacenar');
                         }
+                        
+                        // Ahora convertir a string y guardar
+                        const dataString = typeof value === 'string' ? value : JSON.stringify(value);
+                        const finalSize = new Blob([dataString]).size;
+                        
+                        // Verificación final del tamaño real
+                        if (finalSize > 5000000) {
+                            if (typeof showToast === 'function') {
+                                showToast('Error: Los datos exceden el límite de almacenamiento', 'error');
+                            }
+                            return false;
+                        }
+                        
                         localStorage.setItem(key, dataString);
                         return true;
                     } else if (operation === 'remove') {
@@ -2170,22 +2210,22 @@
                         }
                         
                         try {
-                            formData = JSON.parse(savedState);
+                        formData = JSON.parse(savedState);
                             // Validar que formData sea un objeto válido
                             if (!formData || typeof formData !== 'object' || Array.isArray(formData)) {
                                 throw new Error('Estado del formulario inválido: debe ser un objeto');
                             }
-                            // Normalizar monedas al cargar
-                            formData = normalizeAllMonedas(formData);
-                            // Asegurar que mixedPayments siempre sea un array
-                            if (!Array.isArray(formData.mixedPayments)) {
-                                formData.mixedPayments = [];
-                            }
-                            // Asegurar que isMixedPaymentActive sea booleano
-                            if (typeof formData.isMixedPaymentActive !== 'boolean') {
-                                formData.isMixedPaymentActive = false;
-                            }
-                            return true;
+                        // Normalizar monedas al cargar
+                        formData = normalizeAllMonedas(formData);
+                        // Asegurar que mixedPayments siempre sea un array
+                        if (!Array.isArray(formData.mixedPayments)) {
+                            formData.mixedPayments = [];
+                        }
+                        // Asegurar que isMixedPaymentActive sea booleano
+                        if (typeof formData.isMixedPaymentActive !== 'boolean') {
+                            formData.isMixedPaymentActive = false;
+                        }
+                        return true;
                         } catch (parseError) {
                             console.error('Error al parsear estado del formulario:', parseError);
                             if (typeof showToast === 'function') {
@@ -2296,7 +2336,7 @@
                     walletsLimitados = wallets.slice(0, MAX_WALLETS);
                     if (typeof showToast === 'function') {
                         showToast(`Se mantienen solo las últimas ${MAX_WALLETS} wallets`, 'info');
-                    }
+                }
                 }
                 // Invalidar cache al guardar
                 invalidateWalletsCache();
@@ -2460,7 +2500,7 @@
                     clientesLimitados = clientes.slice(0, MAX_CLIENTES);
                     if (typeof showToast === 'function') {
                         showToast(`Se mantienen solo los últimos ${MAX_CLIENTES} clientes`, 'info');
-                    }
+                }
                 }
                 // Invalidar caches al guardar clientes
                 invalidateClientesCache();
@@ -2534,7 +2574,12 @@
                 
                 // Verificar si hay movimientos que usan este cliente
                 const movimientos = getMovimientosCached();
-                const movimientosConCliente = movimientos.filter(m => !m.anulado && m.cliente === clienteId);
+                // Optimizar filtrado: validar estructura y filtrar anulados primero
+                const movimientosConCliente = movimientos.filter(m => {
+                    if (!m || typeof m !== 'object') return false;
+                    if (m.anulado) return false;
+                    return m.cliente === clienteId;
+                });
                 
                 if (movimientosConCliente.length > 0) {
                     if (typeof showToast === 'function') {
@@ -2731,9 +2776,9 @@
                     return;
                 }
                 
-                movimientos[index].anulado = true;
-                movimientos[index].fechaAnulacion = new Date().toISOString();
-                saveMovimientos(movimientos);
+                    movimientos[index].anulado = true;
+                    movimientos[index].fechaAnulacion = new Date().toISOString();
+                    saveMovimientos(movimientos);
                 
                 // Refrescar lista si estamos en el módulo de movimientos
                 if (document.getElementById('movimientosListContainer')) {
@@ -2792,7 +2837,7 @@
                         fechaUltima = new Date(fechaUltimaOperacion);
                     }
                     
-                    const fechaActual = new Date();
+                const fechaActual = new Date();
                     
                     // Validar que las fechas sean válidas
                     if (isNaN(fechaUltima.getTime()) || isNaN(fechaActual.getTime())) {
@@ -2815,8 +2860,8 @@
                     const diferencia = fechaActualUTC - fechaUltimaUTC;
                     // Fórmula correcta: ms * s * m * h = milisegundos en un día
                     // 1000ms * 60s * 60m * 24h = 86400000 ms por día
-                    const dias = Math.floor(diferencia / (1000 * 60 * 60 * 24));
-                    return dias;
+                const dias = Math.floor(diferencia / (1000 * 60 * 60 * 24));
+                return dias;
                 } catch (error) {
                     console.error('Error al calcular días desde última operación:', error);
                     return null;
@@ -2904,7 +2949,7 @@
                         return false;
                     }
                     
-                    const date = new Date(dateString);
+                const date = new Date(dateString);
                     // Verificar que sea una fecha válida y que no sea Invalid Date
                     if (!(date instanceof Date) || isNaN(date.getTime())) {
                         return false;
@@ -3166,18 +3211,18 @@
             function calculateTotal() {
                 try {
                     // Validar que los valores necesarios existan
-                    const subOp = String(formData.subOperacion || '').trim();
-                    const monedaRaw = String(formData.moneda || '').trim();
-                    const moneda = normalizeMoneda(monedaRaw); // Normalizar PESO -> ARS
-                    const monto = safeParseFloat(formData.monto);
-                    const tc = safeParseFloat(formData.tc);
-                    
+                const subOp = String(formData.subOperacion || '').trim();
+                const monedaRaw = String(formData.moneda || '').trim();
+                const moneda = normalizeMoneda(monedaRaw); // Normalizar PESO -> ARS
+                const monto = safeParseFloat(formData.monto);
+                const tc = safeParseFloat(formData.tc);
+                
                     // Validaciones
                     if (!monto || monto <= 0 || !tc || tc <= 0) {
-                        formData.total = '';
-                        return;
-                    }
-                    
+                    formData.total = '';
+                    return;
+                }
+                
                     // Validar que la moneda esté seleccionada
                     if (!moneda) {
                         formData.total = '';
@@ -3196,15 +3241,15 @@
                     // Lógica de cálculo según el tipo de operación y moneda
                     // Si es VENTA y la moneda vendida es ARS, dividir en lugar de multiplicar
                     // Si es COMPRA y la moneda comprada es ARS, también dividir
-                    const esVentaConARS = subOp === 'VENTA' && moneda === 'ARS';
-                    const esCompraConARS = subOp === 'COMPRA' && moneda === 'ARS';
-                    
+                const esVentaConARS = subOp === 'VENTA' && moneda === 'ARS';
+                const esCompraConARS = subOp === 'COMPRA' && moneda === 'ARS';
+                
                     let resultado;
-                    if (esVentaConARS || esCompraConARS) {
+                if (esVentaConARS || esCompraConARS) {
                         // Cuando operamos con ARS, dividimos para obtener la cantidad en la otra moneda
                         // Ejemplo: Vendo 1000 ARS a TC 1000 → Recibo 1 USD
                         resultado = monto / tc;
-                    } else {
+                } else {
                         // Para otras operaciones (venta/compra de otras monedas), multiplicar
                         // Ejemplo: Vendo 100 USD a TC 1000 → Recibo 100000 ARS
                         resultado = monto * tc;
@@ -4516,18 +4561,41 @@
                     
                     // Crear handler nombrado
                     saveBtn._saveWalletHandler = () => {
-                        const id = document.getElementById('walletId')?.value.trim();
-                        const nombre = document.getElementById('walletNombre')?.value.trim();
+                        const idInput = safeGetElementById('walletId');
+                        const nombreInput = safeGetElementById('walletNombre');
+                        
+                        if (!idInput || !nombreInput) {
+                            showToast('Error: No se encontraron los campos del formulario', 'error');
+                            return;
+                        }
+                        
+                        const id = idInput.value.trim();
+                        const nombre = nombreInput.value.trim();
+                        
+                        // Sanitizar ID de wallet (solo letras, números y guiones bajos)
+                        const sanitizedId = id.replace(/[^a-zA-Z0-9_]/g, '');
+                        if (sanitizedId !== id) {
+                            showToast('El ID contiene caracteres inválidos. Se han removido caracteres especiales.', 'warning');
+                            idInput.value = sanitizedId;
+                        }
+                        
                         const tipos = [...document.querySelectorAll('#walletTipoEfectivo, #walletTipoDigital')].filter(cb => cb.checked).map(cb => cb.id.replace('walletTipo', '').toLowerCase());
                         const monedas = [...document.querySelectorAll('.wallet-moneda-checkbox:checked')].map(cb => cb.value);
 
-                        if (!id || !nombre || tipos.length === 0 || monedas.length === 0) return showToast('Todos los campos son obligatorios.', 'error');
+                        // Usar ID sanitizado si se modificó
+                        const finalId = sanitizedId || id;
+                        
+                        if (!finalId || !nombre || tipos.length === 0 || monedas.length === 0) {
+                            showToast('Todos los campos son obligatorios.', 'error');
+                            return;
+                        }
                         
                         // Si estamos editando
                         if (walletEditandoId) {
                             // Verificar que el ID no cambió o que no existe otro con ese ID
-                            if (id !== walletEditandoId && getWallets().some(w => w.id === id)) {
-                                return showToast('Ya existe una wallet con ese ID.', 'error');
+                            if (finalId !== walletEditandoId && getWallets().some(w => w.id === finalId)) {
+                                showToast('Ya existe una wallet con ese ID.', 'error');
+                                return;
                             }
                             
                             // Actualizar la wallet existente
@@ -4535,35 +4603,36 @@
                             const walletIndex = wallets.findIndex(w => w.id === walletEditandoId);
                             if (walletIndex !== -1) {
                                 wallets[walletIndex] = { ...wallets[walletIndex], nombre, tipos, monedas };
-                                if (id !== walletEditandoId) {
-                                    wallets[walletIndex].id = id;
+                                if (finalId !== walletEditandoId) {
+                                    wallets[walletIndex].id = finalId;
                                 }
                                 saveWallets(wallets);
                                 showToast(`Wallet "${nombre}" actualizada con éxito.`, 'success');
                                 walletEditandoId = null;
                                 
                                 // Limpiar formulario
-                                document.getElementById('walletId').disabled = false;
+                                const walletIdInput = safeGetElementById('walletId');
+                                if (walletIdInput) walletIdInput.disabled = false;
                                 handleSubOperationChange('CREAR WALLET');
                                 renderWalletsList();
                             }
                         } else {
                             // Crear nueva wallet
                             // Validar ID de wallet
-                            if (!id || id.trim() === '') {
+                            if (!finalId || finalId.trim() === '') {
                                 showToast('El ID de la wallet no puede estar vacío.', 'error');
                                 return;
                             }
                             
                             // Validar formato del ID (solo letras, números y guiones bajos)
                             const idRegex = /^[a-zA-Z0-9_]+$/;
-                            if (!idRegex.test(id.trim())) {
+                            if (!idRegex.test(finalId.trim())) {
                                 showToast('El ID de la wallet solo puede contener letras, números y guiones bajos.', 'error');
                                 return;
                             }
                             
                             // Validar que no exista ya una wallet con ese ID
-                            if (getWallets().some(w => w.id === id.trim())) {
+                            if (getWallets().some(w => w.id === finalId.trim())) {
                                 showToast('Ya existe una wallet con ese ID.', 'error');
                                 return;
                             }
@@ -4586,9 +4655,9 @@
                                 return;
                             }
                             
-                            addWallet({ id: id.trim(), nombre: nombre.trim(), tipos, monedas });
-                            showToast(`Wallet "${nombre}" creada con éxito.`, 'success');
-                            handleSubOperationChange('CREAR WALLET');
+                            addWallet({ id: finalId.trim(), nombre: nombre.trim(), tipos, monedas });
+                        showToast(`Wallet "${nombre}" creada con éxito.`, 'success');
+                        handleSubOperationChange('CREAR WALLET');
                         }
                     };
                     
@@ -5825,32 +5894,33 @@
             }
 
             function renderPendientesList() {
-                const container = document.getElementById('pendientesListContainer');
-                const summaryContainer = document.getElementById('pendientesSummaryContainer');
-                const detailContainer = document.getElementById('pendienteDetailContainer');
+                const container = safeGetElementById('pendientesListContainer');
+                const summaryContainer = safeGetElementById('pendientesSummaryContainer');
+                const detailContainer = safeGetElementById('pendienteDetailContainer');
                 if (!container) return;
                 
                 // Si estamos viendo un detalle, no renderizar la lista
                 if (viewingPendienteDetail) {
-                    container.style.display = 'none';
-                    summaryContainer.style.display = 'none';
-                    detailContainer.style.display = 'block';
+                    if (container) container.style.display = 'none';
+                    if (summaryContainer) summaryContainer.style.display = 'none';
+                    if (detailContainer) detailContainer.style.display = 'block';
                     return;
                 }
                 
                 // Mostrar lista y resumen, ocultar detalle
-                container.style.display = 'block';
-                summaryContainer.style.display = 'block';
-                detailContainer.style.display = 'none';
+                if (container) container.style.display = 'block';
+                if (summaryContainer) summaryContainer.style.display = 'block';
+                if (detailContainer) detailContainer.style.display = 'none';
                 
                 // Actualizar botón de volver cuando volvemos al listado
                 actualizarBotonVolverPendientes();
                 
-                const movimientos = getMovimientos();
+                // Usar cache para mejor rendimiento
+                const movimientos = getMovimientosCached();
                 
-                // Filtrar solo pendientes (no anulados y estado pendiente)
+                // Optimizar filtrado: validar estructura y filtrar anulados primero
                 const pendientes = movimientos.filter(m => {
-                    if (!m) return false;
+                    if (!m || typeof m !== 'object') return false;
                     if (m.anulado) return false;
                     const estado = String(m.estado || '').trim();
                     return estado === 'pendiente_retiro' || estado === 'pendiente_entrega';
@@ -6230,7 +6300,7 @@
             }
 
             function renderClientesList() {
-                const container = document.getElementById('clientesListContainer');
+                const container = safeGetElementById('clientesListContainer');
                 if (!container) return;
                 
                 const clientes = getClientes();
@@ -6576,7 +6646,7 @@
                         if (walletId) {
                             if (!saldos[walletId]) saldos[walletId] = {};
                             if (!saldos[walletId][moneda]) saldos[walletId][moneda] = 0;
-                            // El ajuste puede ser positivo o negativo según el monto
+                        // El ajuste puede ser positivo o negativo según el monto
                             saldos[walletId][moneda] += monto;
                         }
                     }
@@ -6653,12 +6723,12 @@
                 // Guardar en cache
                 saldosCache = saldos;
                 saldosCacheTimestamp = Date.now();
-                
+
                 return saldos;
             }
 
             function renderSaldosList() {
-                const container = document.getElementById('saldosListContainer');
+                const container = safeGetElementById('saldosListContainer');
                 if (!container) return;
 
                 const wallets = getWallets();
@@ -6776,7 +6846,12 @@
                 }
                 
                 const clientes = getClientes().filter(c => c.tipo === 'cuenta_corriente');
-                const movimientos = getMovimientosCached().filter(m => !m.anulado && m.operacion === 'CUENTAS_CORRIENTES');
+                // Optimizar filtrado: validar estructura y filtrar anulados primero
+                const movimientos = getMovimientosCached().filter(m => {
+                    if (!m || typeof m !== 'object') return false;
+                    if (m.anulado) return false;
+                    return m.operacion === 'CUENTAS_CORRIENTES';
+                });
                 const balances = {};
 
                 // Inicializar balances para todos los clientes con cuenta corriente
@@ -6835,7 +6910,7 @@
                 // Guardar en cache
                 balancesCache = balances;
                 balancesCacheTimestamp = Date.now();
-                
+
                 return balances;
             }
 
@@ -6860,7 +6935,11 @@
                     
                     // Obtener todas las operaciones de este cliente
                     const movimientos = getMovimientos()
-                        .filter(m => !m.anulado && m.operacion === 'CUENTAS_CORRIENTES' && m.cliente === clienteIdFiltro)
+                        .filter(m => {
+                            if (!m || typeof m !== 'object') return false;
+                            if (m.anulado) return false;
+                            return m.operacion === 'CUENTAS_CORRIENTES' && m.cliente === clienteIdFiltro;
+                        })
                         .sort((a, b) => new Date(b.fechaCreacion || b.fecha) - new Date(a.fechaCreacion || a.fecha));
 
                     let html = `
