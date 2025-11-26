@@ -6723,25 +6723,27 @@
                     else if (subOperacion === 'EGRESO') {
                         balances[clienteId][moneda] -= monto;
                     }
-                    // COMPRA: el cliente compra, suma a wallet, genera deuda (resta del balance)
-                    // El cliente me debe el total que pagué
+                    // COMPRA: el cliente compra, yo pago con mi wallet, genera deuda del cliente hacia mí
+                    // El cliente me debe el total que pagué (balance negativo = me debe)
                     else if (subOperacion === 'COMPRA') {
                         // El balance se calcula en la moneda de pago (monedaTC)
                         const monedaPago = normalizeMoneda(mov.monedaTC || mov.moneda || 'ARS');
                         if (!balances[clienteId][monedaPago]) {
                             balances[clienteId][monedaPago] = 0;
                         }
-                        balances[clienteId][monedaPago] -= total; // Me debe (negativo)
+                        // Restar del balance: el cliente me debe más (balance más negativo)
+                        balances[clienteId][monedaPago] -= total;
                     }
-                    // VENTA: el cliente vende, baja saldo de wallet, genera deuda (resta del balance)
-                    // El cliente me debe el total que me pagó
+                    // VENTA: el cliente vende, yo recibo dinero en mi wallet, el cliente me debe menos
+                    // El cliente me paga (o me debe menos), entonces el balance mejora (suma)
                     else if (subOperacion === 'VENTA') {
                         // El balance se calcula en la moneda de cobro (monedaTC)
                         const monedaCobro = normalizeMoneda(mov.monedaTC || mov.moneda || 'ARS');
                         if (!balances[clienteId][monedaCobro]) {
                             balances[clienteId][monedaCobro] = 0;
                         }
-                        balances[clienteId][monedaCobro] -= total; // Me debe (negativo)
+                        // Sumar al balance: el cliente me paga (balance menos negativo o más positivo)
+                        balances[clienteId][monedaCobro] += total;
                     }
                     // ARBITRAJE: depende de la lógica específica, por ahora no afecta directamente
                 });
