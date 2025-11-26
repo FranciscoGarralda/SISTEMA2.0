@@ -3510,9 +3510,21 @@
              * =================================================================
              */
             function safeParseFloat(value, defaultValue = 0, allowNegative = false) {
-                if (!value && value !== 0) return defaultValue;
+                // Validar entrada
+                if (value === null || value === undefined) return defaultValue;
+                
+                // Si ya es un número válido, retornarlo directamente (con validaciones)
+                if (typeof value === 'number') {
+                    if (isNaN(value) || !isFinite(value)) return defaultValue;
+                    if (!allowNegative && value < 0) return defaultValue;
+                    return value;
+                }
+                
                 // Convertir a string y eliminar espacios
                 let str = String(value).trim();
+                
+                // Si el string está vacío después de trim, retornar defaultValue
+                if (str === '' || str === '-') return defaultValue;
                 
                 // Manejar notación científica (ej: "1e5", "1.5e-3", "1E+10")
                 const scientificNotationRegex = /^[-+]?(\d+\.?\d*|\.\d+)[eE][-+]?\d+$/;
@@ -3558,8 +3570,28 @@
                 if (allowNegative && isNegative && !str.startsWith('-')) {
                     str = '-' + str;
                 }
-                const parsed = parseFloat(str);
-                return isNaN(parsed) ? defaultValue : parsed;
+                
+                // Validar que el string no esté vacío después de procesamiento
+                if (str === '' || str === '-') return defaultValue;
+                
+                try {
+                    const parsed = parseFloat(str);
+                    
+                    // Validar resultado
+                    if (isNaN(parsed) || !isFinite(parsed)) {
+                        return defaultValue;
+                    }
+                    
+                    // Validar negativos si no se permiten
+                    if (!allowNegative && parsed < 0) {
+                        return defaultValue;
+                    }
+                    
+                    return parsed;
+                } catch (error) {
+                    console.error('Error en safeParseFloat:', error);
+                    return defaultValue;
+                }
             }
             
             function formatNumberWithThousands(value, allowNegative = false) {
@@ -3608,11 +3640,15 @@
                 const monto = safeParseFloat(formData.monto);
                 const tc = safeParseFloat(formData.tc);
                 
-                    // Validaciones
-                    if (!monto || monto <= 0 || !tc || tc <= 0) {
-                    formData.total = '';
-                    return;
-                }
+                    // Validaciones mejoradas
+                    if (!monto || monto <= 0 || isNaN(monto) || !isFinite(monto)) {
+                        formData.total = '';
+                        return;
+                    }
+                    if (!tc || tc <= 0 || isNaN(tc) || !isFinite(tc)) {
+                        formData.total = '';
+                        return;
+                    }
                 
                     // Validar que la moneda esté seleccionada
                     if (!moneda) {
@@ -3672,15 +3708,41 @@
                 const lapso = safeParseFloat(formData.lapso);
                 
                 // Validar que los valores sean válidos
-                if (!monto || monto <= 0 || !interes || interes < 0 || !lapso || lapso <= 0) {
+                if (!monto || monto <= 0 || isNaN(monto) || !isFinite(monto)) {
                     formData.total = '';
+                    formData.interesCalculado = '';
+                    return;
+                }
+                if (!interes || interes < 0 || isNaN(interes) || !isFinite(interes)) {
+                    formData.total = '';
+                    formData.interesCalculado = '';
+                    return;
+                }
+                if (!lapso || lapso <= 0 || isNaN(lapso) || !isFinite(lapso)) {
+                    formData.total = '';
+                    formData.interesCalculado = '';
                     return;
                 }
                 
                 // Calcular interés: (monto * interés anual * días) / (365 * 100)
                 // El interés se calcula pero NO se suma al monto inicial todavía
                 // El total es el monto que prestamos (salida), el interés se pagará cuando se devuelva
-                const interesTotal = (monto * interes * lapso) / (365 * 100);
+                let interesTotal = 0;
+                try {
+                    interesTotal = (monto * interes * lapso) / (365 * 100);
+                    // Validar resultado
+                    if (!isFinite(interesTotal) || isNaN(interesTotal)) {
+                        console.error('Error en cálculo de interés: resultado inválido', { monto, interes, lapso });
+                        formData.total = '';
+                        formData.interesCalculado = '';
+                        return;
+                    }
+                } catch (error) {
+                    console.error('Error al calcular interés:', error);
+                    formData.total = '';
+                    formData.interesCalculado = '';
+                    return;
+                }
                 
                 // El total a mostrar es el monto prestado (el interés se pagará después)
                 // Pero mostramos también el interés calculado para referencia
