@@ -46,6 +46,15 @@
             padding-top: 60px;
             padding-bottom: 50px;
             transition: background-color 0.3s ease, color 0.3s ease;
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100vw;
+        }
+        @media (max-width: 480px) {
+            body {
+                padding-top: 56px;
+                padding-bottom: 45px;
+            }
         }
         /* Header */
         header {
@@ -62,6 +71,12 @@
             padding: 0 20px;
             z-index: 1000;
             transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        @media (max-width: 480px) {
+            header {
+                padding: 0 12px;
+                height: 56px;
+            }
         }
         .menu-btn {
             background: none;
@@ -114,6 +129,13 @@
             padding: 6px 20px;
             z-index: 1000;
             transition: background-color 0.3s ease, border-color 0.3s ease;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        @media (max-width: 480px) {
+            footer {
+                padding: 6px 12px;
+            }
         }
         .cotizaciones {
             display: flex;
@@ -170,10 +192,18 @@
             padding: 20px;
             min-height: calc(100vh - 120px);
             overflow-x: hidden;
+            width: 100%;
+            max-width: 100vw;
+            box-sizing: border-box;
         }
         @media (max-width: 600px) {
             main {
                 padding: 15px;
+            }
+        }
+        @media (max-width: 480px) {
+            main {
+                padding: 12px;
             }
         }
         @media (max-width: 400px) {
@@ -195,6 +225,12 @@
             transition: transform 0.3s ease, background-color 0.3s ease;
             z-index: 2000;
             overflow-y: auto;
+        }
+        @media (max-width: 480px) {
+            .sidebar {
+                width: 100%;
+                max-width: 320px;
+            }
         }
         .dark-theme .sidebar {
             box-shadow: 4px 0 12px rgba(0, 0, 0, 0.3);
@@ -267,6 +303,7 @@
             margin: 0 auto;
             padding: 0 15px;
             width: 100%;
+            box-sizing: border-box;
         }
         @media (max-width: 750px) {
             .operations-container {
@@ -274,9 +311,14 @@
                 padding: 0 10px;
             }
         }
-        @media (max-width: 500px) {
+        @media (max-width: 480px) {
             .operations-container {
                 padding: 0 8px;
+            }
+        }
+        @media (max-width: 400px) {
+            .operations-container {
+                padding: 0 6px;
             }
         }
         .form-card {
@@ -287,6 +329,8 @@
             transition: all 0.3s ease;
             overflow: hidden;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+            width: 100%;
+            box-sizing: border-box;
         }
         .dark-theme .form-card {
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -295,12 +339,21 @@
             .form-card {
                 padding: 16px;
                 margin-bottom: 16px;
+                border-radius: 12px;
+            }
+        }
+        @media (max-width: 480px) {
+            .form-card {
+                padding: 14px;
+                margin-bottom: 14px;
+                border-radius: 10px;
             }
         }
         @media (max-width: 400px) {
             .form-card {
                 padding: 12px;
                 margin-bottom: 12px;
+                border-radius: 8px;
             }
         }
         .form-header {
@@ -310,6 +363,28 @@
             margin-bottom: 24px;
             padding-bottom: 16px;
             border-bottom: 1px solid var(--border-color);
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        @media (max-width: 600px) {
+            .form-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+            .form-header .btn-back {
+                align-self: flex-start;
+            }
+            .form-header .form-title {
+                text-align: center;
+                width: 100%;
+            }
+        }
+        @media (max-width: 480px) {
+            .form-header {
+                margin-bottom: 20px;
+                padding-bottom: 12px;
+            }
         }
         .btn-back {
             background: var(--bg-secondary);
@@ -405,6 +480,8 @@
             font-size: 16px;
             transition: all 0.3s ease;
             width: 100%;
+            box-sizing: border-box;
+            max-width: 100%;
         }
         @media (max-width: 480px) {
             .form-input, .form-select, .form-textarea {
@@ -433,6 +510,8 @@
             gap: 10px;
             margin-bottom: 24px;
             overflow: hidden;
+            width: 100%;
+            box-sizing: border-box;
         }
         .button-grid > * {
             min-width: 0;
@@ -443,11 +522,70 @@
                 gap: 8px;
             }
         }
+        @media (max-width: 480px) {
+            .button-grid {
+                gap: 6px;
+            }
+        }
         @media (max-width: 400px) {
             .button-grid {
                 grid-template-columns: 1fr;
                 gap: 6px;
             }
+        }
+        /* Tabs container para clientes */
+        .tabs-container {
+            display: flex;
+            gap: 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            box-sizing: border-box;
+        }
+        .tabs-container::-webkit-scrollbar {
+            display: none;
+        }
+        .tabs-container .btn-option {
+            flex: 1;
+            min-width: 120px;
+        }
+        @media (max-width: 600px) {
+            .tabs-container {
+                margin-bottom: 16px;
+            }
+            .tabs-container .btn-option {
+                min-width: 100px;
+            }
+        }
+        @media (max-width: 480px) {
+            .tabs-container {
+                margin-bottom: 12px;
+            }
+            .tabs-container .btn-option {
+                min-width: 90px;
+                padding: 8px 10px;
+            }
+        }
+        /* Cliente card/list item */
+        .cliente-card, .cliente-row {
+            width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        /* Wallet card/list item */
+        .wallet-card, .wallet-row {
+            width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        /* Saldos card */
+        .saldos-card {
+            width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
         }
         
         /* Estilos para pantalla de inicio - Responsive */
@@ -455,6 +593,8 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 20px;
+            width: 100%;
+            box-sizing: border-box;
         }
         
         .home-calendar-grid {
@@ -834,9 +974,17 @@
             display: flex;
             gap: 10px;
             align-items: stretch;
+            width: 100%;
+            box-sizing: border-box;
         }
         .input-with-button .form-input {
             flex: 1;
+            min-width: 0;
+        }
+        @media (max-width: 480px) {
+            .input-with-button {
+                gap: 8px;
+            }
         }
         .btn-add {
             background-color: var(--button-bg);
@@ -1182,6 +1330,9 @@
             align-items: start;
             border: 1px solid var(--border-color);
             transition: all 0.2s ease;
+            width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
         }
         .movimiento-row:hover {
             background: var(--bg-primary);
@@ -1211,12 +1362,18 @@
             }
             .movimiento-row > div {
                 padding: 4px 0;
+                width: 100%;
+            }
+            .movimiento-row > button {
+                width: 100%;
+                justify-self: stretch;
             }
         }
         @media (max-width: 480px) {
             .movimiento-row {
                 padding: 10px;
                 gap: 6px;
+                border-radius: 6px;
             }
         }
 
@@ -1227,6 +1384,9 @@
             background: var(--bg-primary);
             border: 2px solid var(--border-color);
             border-radius: 12px;
+            width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
         }
         .pendiente-cliente-card > div:first-child {
             display: grid;
@@ -1239,13 +1399,26 @@
         }
         .pendiente-operacion-row {
             display: grid;
-            grid-template-columns: auto 2fr 1fr 1fr auto;
+            grid-template-columns: auto 2fr 1fr 1fr auto auto;
             gap: 12px;
             padding: 10px;
             margin-bottom: 8px;
             background: var(--bg-secondary);
             border-radius: 8px;
             align-items: center;
+            width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        @media (max-width: 900px) {
+            .pendiente-cliente-card > div:first-child {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+            .pendiente-operacion-row {
+                grid-template-columns: auto 2fr 1fr auto;
+                gap: 10px;
+            }
         }
         @media (max-width: 600px) {
             .pendiente-cliente-card > div:first-child {
@@ -1258,15 +1431,22 @@
             }
             .pendiente-operacion-row > * {
                 padding: 4px 0;
+                width: 100%;
+            }
+            .pendiente-operacion-row > button {
+                width: 100%;
+                justify-self: stretch;
             }
         }
         @media (max-width: 480px) {
             .pendiente-cliente-card {
                 padding: 12px;
+                border-radius: 10px;
             }
             .pendiente-operacion-row {
                 padding: 8px;
                 gap: 6px;
+                border-radius: 6px;
             }
         }
 
@@ -3757,7 +3937,7 @@
                             </div>
                             
                             <!-- Tabs para Crear / Listar -->
-                            <div style="display: flex; gap: 10px; margin-bottom: 24px; border-bottom: 1px solid var(--border-color);">
+                            <div class="tabs-container">
                                 <button type="button" class="btn-option active" id="tabCrearCliente" style="border-bottom: 2px solid var(--active-bg); border-radius: 0; margin-bottom: -1px;">Crear Cliente</button>
                                 <button type="button" class="btn-option" id="tabListarClientes" style="border-bottom: 2px solid transparent; border-radius: 0; margin-bottom: -1px;">Listar Clientes</button>
                             </div>
