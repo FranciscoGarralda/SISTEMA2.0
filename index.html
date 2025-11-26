@@ -2696,15 +2696,16 @@
 
                 // Segunda ecuación: Monto Base × Cotización Real = Costo Real
                 const montoBaseFinal = safeParseFloat(formData.montoBase);
+                const costoRealParsed = safeParseFloat(formData.costoReal);
                 if (lastEditedField === 'montoBase' || lastEditedField === 'cotizacionReal') {
                     if (montoBaseFinal > 0 && cotizacionReal > 0) {
-                        formData.costoReal = (montoBaseFinal * cotizacionReal).toFixed(2);
+                        formData.costoReal = roundToTwo(montoBaseFinal * cotizacionReal).toFixed(2);
                     }
                 } else if (lastEditedField === 'costoReal') {
-                    if (montoBaseFinal > 0) {
-                        formData.cotizacionReal = (costoReal / montoBaseFinal).toFixed(2);
-                    } else if (cotizacionReal > 0) {
-                        formData.montoBase = (costoReal / cotizacionReal).toFixed(2);
+                    if (montoBaseFinal > 0 && montoBaseFinal !== 0) {
+                        formData.cotizacionReal = roundToTwo(costoRealParsed / montoBaseFinal).toFixed(2);
+                    } else if (cotizacionReal > 0 && cotizacionReal !== 0) {
+                        formData.montoBase = roundToTwo(costoRealParsed / cotizacionReal).toFixed(2);
                     }
                 }
 
@@ -2733,18 +2734,40 @@
 
             function calculateComisionAndTotal() {
                 const monto = safeParseFloat(formData.monto);
+                const comisionValor = safeParseFloat(formData.comisionValor);
                 let montoComision = 0;
 
+                // Validar que los valores sean válidos
+                if (!monto || monto <= 0) {
+                    formData.montoComision = '';
+                    if (formData.operacion === 'CUENTAS_CORRIENTES' && ['INGRESO', 'EGRESO'].includes(formData.subOperacion)) {
+                        formData.total = '';
+                    }
+                    return;
+                }
+
                 if (formData.comisionTipo === 'porcentaje') {
-                    montoComision = (monto * safeParseFloat(formData.comisionValor)) / 100;
+                    // Validar que el porcentaje esté entre 0 y 100
+                    if (comisionValor < 0 || comisionValor > 100) {
+                        showToast('El porcentaje de comisión debe estar entre 0 y 100', 'error');
+                        formData.montoComision = '';
+                        return;
+                    }
+                    montoComision = (monto * comisionValor) / 100;
                     formData.monedaComision = formData.moneda;
                 } else {
-                    montoComision = safeParseFloat(formData.comisionValor);
+                    // Validar que la comisión fija sea positiva
+                    if (comisionValor < 0) {
+                        showToast('La comisión fija no puede ser negativa', 'error');
+                        formData.montoComision = '';
+                        return;
+                    }
+                    montoComision = comisionValor;
                 }
-                formData.montoComision = montoComision.toFixed(2);
+                formData.montoComision = roundToTwo(montoComision).toFixed(2);
                 
                 if (formData.operacion === 'CUENTAS_CORRIENTES' && ['INGRESO', 'EGRESO'].includes(formData.subOperacion)) {
-                     formData.total = (monto + montoComision).toFixed(2);
+                     formData.total = roundToTwo(monto + montoComision).toFixed(2);
                 }
             }
 
@@ -5483,6 +5506,13 @@
                     saldos[wallet.id] = {};
                 });
 
+                // Función helper para obtener el ID de wallet sin el tipo
+                const getWalletIdOnly = (walletValue) => {
+                    if (!walletValue || walletValue === 'pago_mixto') return null;
+                    const parsed = parseWalletId(walletValue);
+                    return parsed.wallet === 'pago_mixto' ? null : parsed.wallet;
+                };
+
                 // Procesar cada movimiento
                 movimientos.forEach(mov => {
                     const operacion = mov.operacion;
@@ -5494,16 +5524,22 @@
 
                     // WALLET - INGRESO: suma a walletCompra
                     if (operacion === 'WALLET' && subOperacion === 'INGRESO' && mov.walletCompra) {
-                        if (!saldos[mov.walletCompra]) saldos[mov.walletCompra] = {};
-                        if (!saldos[mov.walletCompra][moneda]) saldos[mov.walletCompra][moneda] = 0;
-                        saldos[mov.walletCompra][moneda] += monto;
+                        const walletId = getWalletIdOnly(mov.walletCompra);
+                        if (walletId) {
+                            if (!saldos[walletId]) saldos[walletId] = {};
+                            if (!saldos[walletId][moneda]) saldos[walletId][moneda] = 0;
+                            saldos[walletId][moneda] += monto;
+                        }
                     }
 
                     // WALLET - SALIDA: resta de walletCompra
                     if (operacion === 'WALLET' && subOperacion === 'SALIDA' && mov.walletCompra) {
-                        if (!saldos[mov.walletCompra]) saldos[mov.walletCompra] = {};
-                        if (!saldos[mov.walletCompra][moneda]) saldos[mov.walletCompra][moneda] = 0;
-                        saldos[mov.walletCompra][moneda] -= monto;
+                        const walletId = getWalletIdOnly(mov.walletCompra);
+                        if (walletId) {
+                            if (!saldos[walletId]) saldos[walletId] = {};
+                            if (!saldos[walletId][moneda]) saldos[walletId][moneda] = 0;
+                            saldos[walletId][moneda] -= monto;
+                        }
                     }
 
                     // TRANSACCIONES - COMPRA: resta de walletCompra (moneda de pago), suma a walletTC (moneda comprada)
@@ -5512,15 +5548,17 @@
                         let monedaComprada = mov.monedaTC || 'USD';
                         monedaPago = normalizeMoneda(monedaPago);
                         monedaComprada = normalizeMoneda(monedaComprada);
-                        if (mov.walletCompra) {
-                            if (!saldos[mov.walletCompra]) saldos[mov.walletCompra] = {};
-                            if (!saldos[mov.walletCompra][monedaPago]) saldos[mov.walletCompra][monedaPago] = 0;
-                            saldos[mov.walletCompra][monedaPago] -= total;
+                        const walletCompraId = getWalletIdOnly(mov.walletCompra);
+                        const walletTCId = getWalletIdOnly(mov.walletTC);
+                        if (walletCompraId) {
+                            if (!saldos[walletCompraId]) saldos[walletCompraId] = {};
+                            if (!saldos[walletCompraId][monedaPago]) saldos[walletCompraId][monedaPago] = 0;
+                            saldos[walletCompraId][monedaPago] -= total;
                         }
-                        if (mov.walletTC) {
-                            if (!saldos[mov.walletTC]) saldos[mov.walletTC] = {};
-                            if (!saldos[mov.walletTC][monedaComprada]) saldos[mov.walletTC][monedaComprada] = 0;
-                            saldos[mov.walletTC][monedaComprada] += monto;
+                        if (walletTCId) {
+                            if (!saldos[walletTCId]) saldos[walletTCId] = {};
+                            if (!saldos[walletTCId][monedaComprada]) saldos[walletTCId][monedaComprada] = 0;
+                            saldos[walletTCId][monedaComprada] += monto;
                         }
                     }
 
@@ -5530,15 +5568,17 @@
                         let monedaVendida = mov.monedaTC || 'USD';
                         monedaRecibida = normalizeMoneda(monedaRecibida);
                         monedaVendida = normalizeMoneda(monedaVendida);
-                        if (mov.walletCompra) {
-                            if (!saldos[mov.walletCompra]) saldos[mov.walletCompra] = {};
-                            if (!saldos[mov.walletCompra][monedaRecibida]) saldos[mov.walletCompra][monedaRecibida] = 0;
-                            saldos[mov.walletCompra][monedaRecibida] += total;
+                        const walletCompraId = getWalletIdOnly(mov.walletCompra);
+                        const walletTCId = getWalletIdOnly(mov.walletTC);
+                        if (walletCompraId) {
+                            if (!saldos[walletCompraId]) saldos[walletCompraId] = {};
+                            if (!saldos[walletCompraId][monedaRecibida]) saldos[walletCompraId][monedaRecibida] = 0;
+                            saldos[walletCompraId][monedaRecibida] += total;
                         }
-                        if (mov.walletTC) {
-                            if (!saldos[mov.walletTC]) saldos[mov.walletTC] = {};
-                            if (!saldos[mov.walletTC][monedaVendida]) saldos[mov.walletTC][monedaVendida] = 0;
-                            saldos[mov.walletTC][monedaVendida] -= monto;
+                        if (walletTCId) {
+                            if (!saldos[walletTCId]) saldos[walletTCId] = {};
+                            if (!saldos[walletTCId][monedaVendida]) saldos[walletTCId][monedaVendida] = 0;
+                            saldos[walletTCId][monedaVendida] -= monto;
                         }
                     }
 
@@ -5548,30 +5588,38 @@
                         let monedaProfit = mov.monedaProfit || 'USD';
                         monedaBase = normalizeMoneda(monedaBase);
                         monedaProfit = normalizeMoneda(monedaProfit);
-                        if (mov.walletBase) {
-                            if (!saldos[mov.walletBase]) saldos[mov.walletBase] = {};
-                            if (!saldos[mov.walletBase][monedaBase]) saldos[mov.walletBase][monedaBase] = 0;
-                            saldos[mov.walletBase][monedaBase] -= safeParseFloat(mov.costoReal || total);
+                        const walletBaseId = getWalletIdOnly(mov.walletBase);
+                        const walletProfitId = getWalletIdOnly(mov.walletProfit);
+                        if (walletBaseId) {
+                            if (!saldos[walletBaseId]) saldos[walletBaseId] = {};
+                            if (!saldos[walletBaseId][monedaBase]) saldos[walletBaseId][monedaBase] = 0;
+                            saldos[walletBaseId][monedaBase] -= safeParseFloat(mov.costoReal || total);
                         }
-                        if (mov.walletProfit) {
-                            if (!saldos[mov.walletProfit]) saldos[mov.walletProfit] = {};
-                            if (!saldos[mov.walletProfit][monedaProfit]) saldos[mov.walletProfit][monedaProfit] = 0;
-                            saldos[mov.walletProfit][monedaProfit] += safeParseFloat(mov.profit || 0);
+                        if (walletProfitId) {
+                            if (!saldos[walletProfitId]) saldos[walletProfitId] = {};
+                            if (!saldos[walletProfitId][monedaProfit]) saldos[walletProfitId][monedaProfit] = 0;
+                            saldos[walletProfitId][monedaProfit] += safeParseFloat(mov.profit || 0);
                         }
                     }
 
                     // CUENTAS_CORRIENTES - INGRESO: suma a walletCompra
                     if (operacion === 'CUENTAS_CORRIENTES' && subOperacion === 'INGRESO' && mov.walletCompra) {
-                        if (!saldos[mov.walletCompra]) saldos[mov.walletCompra] = {};
-                        if (!saldos[mov.walletCompra][moneda]) saldos[mov.walletCompra][moneda] = 0;
-                        saldos[mov.walletCompra][moneda] += monto;
+                        const walletId = getWalletIdOnly(mov.walletCompra);
+                        if (walletId) {
+                            if (!saldos[walletId]) saldos[walletId] = {};
+                            if (!saldos[walletId][moneda]) saldos[walletId][moneda] = 0;
+                            saldos[walletId][moneda] += monto;
+                        }
                     }
 
                     // CUENTAS_CORRIENTES - EGRESO: resta de walletCompra
                     if (operacion === 'CUENTAS_CORRIENTES' && subOperacion === 'EGRESO' && mov.walletCompra) {
-                        if (!saldos[mov.walletCompra]) saldos[mov.walletCompra] = {};
-                        if (!saldos[mov.walletCompra][moneda]) saldos[mov.walletCompra][moneda] = 0;
-                        saldos[mov.walletCompra][moneda] -= monto;
+                        const walletId = getWalletIdOnly(mov.walletCompra);
+                        if (walletId) {
+                            if (!saldos[walletId]) saldos[walletId] = {};
+                            if (!saldos[walletId][moneda]) saldos[walletId][moneda] = 0;
+                            saldos[walletId][moneda] -= monto;
+                        }
                     }
 
                     // CUENTAS_CORRIENTES - COMPRA/VENTA: similar a TRANSACCIONES
@@ -5580,87 +5628,109 @@
                         let monedaOperacion = mov.monedaTC || 'USD';
                         monedaPago = normalizeMoneda(monedaPago);
                         monedaOperacion = normalizeMoneda(monedaOperacion);
+                        const walletCompraId = getWalletIdOnly(mov.walletCompra);
+                        const walletTCId = getWalletIdOnly(mov.walletTC);
                         if (subOperacion === 'COMPRA') {
-                            if (mov.walletCompra) {
-                                if (!saldos[mov.walletCompra]) saldos[mov.walletCompra] = {};
-                                if (!saldos[mov.walletCompra][monedaPago]) saldos[mov.walletCompra][monedaPago] = 0;
-                                saldos[mov.walletCompra][monedaPago] -= total;
+                            if (walletCompraId) {
+                                if (!saldos[walletCompraId]) saldos[walletCompraId] = {};
+                                if (!saldos[walletCompraId][monedaPago]) saldos[walletCompraId][monedaPago] = 0;
+                                saldos[walletCompraId][monedaPago] -= total;
                             }
-                            if (mov.walletTC) {
-                                if (!saldos[mov.walletTC]) saldos[mov.walletTC] = {};
-                                if (!saldos[mov.walletTC][monedaOperacion]) saldos[mov.walletTC][monedaOperacion] = 0;
-                                saldos[mov.walletTC][monedaOperacion] += monto;
+                            if (walletTCId) {
+                                if (!saldos[walletTCId]) saldos[walletTCId] = {};
+                                if (!saldos[walletTCId][monedaOperacion]) saldos[walletTCId][monedaOperacion] = 0;
+                                saldos[walletTCId][monedaOperacion] += monto;
                             }
                         } else { // VENTA
-                            if (mov.walletCompra) {
-                                if (!saldos[mov.walletCompra]) saldos[mov.walletCompra] = {};
-                                if (!saldos[mov.walletCompra][monedaPago]) saldos[mov.walletCompra][monedaPago] = 0;
-                                saldos[mov.walletCompra][monedaPago] += total;
+                            if (walletCompraId) {
+                                if (!saldos[walletCompraId]) saldos[walletCompraId] = {};
+                                if (!saldos[walletCompraId][monedaPago]) saldos[walletCompraId][monedaPago] = 0;
+                                saldos[walletCompraId][monedaPago] += total;
                             }
-                            if (mov.walletTC) {
-                                if (!saldos[mov.walletTC]) saldos[mov.walletTC] = {};
-                                if (!saldos[mov.walletTC][monedaOperacion]) saldos[mov.walletTC][monedaOperacion] = 0;
-                                saldos[mov.walletTC][monedaOperacion] -= monto;
+                            if (walletTCId) {
+                                if (!saldos[walletTCId]) saldos[walletTCId] = {};
+                                if (!saldos[walletTCId][monedaOperacion]) saldos[walletTCId][monedaOperacion] = 0;
+                                saldos[walletTCId][monedaOperacion] -= monto;
                             }
                         }
                     }
 
                     // ADMINISTRATIVAS - AJUSTE: puede sumar o restar según el signo
                     if (operacion === 'ADMINISTRATIVAS' && subOperacion === 'AJUSTE' && mov.walletCompra) {
-                        if (!saldos[mov.walletCompra]) saldos[mov.walletCompra] = {};
-                        if (!saldos[mov.walletCompra][moneda]) saldos[mov.walletCompra][moneda] = 0;
-                        // El ajuste puede ser positivo o negativo según el monto
-                        saldos[mov.walletCompra][moneda] += monto;
+                        const walletId = getWalletIdOnly(mov.walletCompra);
+                        if (walletId) {
+                            if (!saldos[walletId]) saldos[walletId] = {};
+                            if (!saldos[walletId][moneda]) saldos[walletId][moneda] = 0;
+                            // El ajuste puede ser positivo o negativo según el monto
+                            saldos[walletId][moneda] += monto;
+                        }
                     }
 
                     // ADMINISTRATIVAS - GASTO: resta de walletCompra
                     if (operacion === 'ADMINISTRATIVAS' && subOperacion === 'GASTO' && mov.walletCompra) {
-                        if (!saldos[mov.walletCompra]) saldos[mov.walletCompra] = {};
-                        if (!saldos[mov.walletCompra][moneda]) saldos[mov.walletCompra][moneda] = 0;
-                        saldos[mov.walletCompra][moneda] -= monto;
+                        const walletId = getWalletIdOnly(mov.walletCompra);
+                        if (walletId) {
+                            if (!saldos[walletId]) saldos[walletId] = {};
+                            if (!saldos[walletId][moneda]) saldos[walletId][moneda] = 0;
+                            saldos[walletId][moneda] -= monto;
+                        }
                     }
 
                     // WALLET - PRESTAMO: resta de walletCompra (prestamos dinero)
                     if (operacion === 'WALLET' && subOperacion === 'PRESTAMO' && mov.walletCompra) {
-                        if (!saldos[mov.walletCompra]) saldos[mov.walletCompra] = {};
-                        if (!saldos[mov.walletCompra][moneda]) saldos[mov.walletCompra][moneda] = 0;
-                        saldos[mov.walletCompra][moneda] -= monto;
+                        const walletId = getWalletIdOnly(mov.walletCompra);
+                        if (walletId) {
+                            if (!saldos[walletId]) saldos[walletId] = {};
+                            if (!saldos[walletId][moneda]) saldos[walletId][moneda] = 0;
+                            saldos[walletId][moneda] -= monto;
+                        }
                     }
 
                     // WALLET - DEVOLUCION: suma a walletCompra (nos devuelven dinero)
                     if (operacion === 'WALLET' && subOperacion === 'DEVOLUCION' && mov.walletCompra) {
-                        if (!saldos[mov.walletCompra]) saldos[mov.walletCompra] = {};
-                        if (!saldos[mov.walletCompra][moneda]) saldos[mov.walletCompra][moneda] = 0;
-                        saldos[mov.walletCompra][moneda] += monto;
+                        const walletId = getWalletIdOnly(mov.walletCompra);
+                        if (walletId) {
+                            if (!saldos[walletId]) saldos[walletId] = {};
+                            if (!saldos[walletId][moneda]) saldos[walletId][moneda] = 0;
+                            saldos[walletId][moneda] += monto;
+                        }
                     }
 
                     // PRESTAMISTAS - PRESTAMO: resta de walletCompra
                     if (operacion === 'PRESTAMISTAS' && subOperacion === 'PRESTAMO' && mov.walletCompra) {
-                        if (!saldos[mov.walletCompra]) saldos[mov.walletCompra] = {};
-                        if (!saldos[mov.walletCompra][moneda]) saldos[mov.walletCompra][moneda] = 0;
-                        saldos[mov.walletCompra][moneda] -= total;
+                        const walletId = getWalletIdOnly(mov.walletCompra);
+                        if (walletId) {
+                            if (!saldos[walletId]) saldos[walletId] = {};
+                            if (!saldos[walletId][moneda]) saldos[walletId][moneda] = 0;
+                            saldos[walletId][moneda] -= total;
+                        }
                     }
 
                     // PRESTAMISTAS - RETIRO: resta de walletCompra
                     if (operacion === 'PRESTAMISTAS' && subOperacion === 'RETIRO' && mov.walletCompra) {
-                        if (!saldos[mov.walletCompra]) saldos[mov.walletCompra] = {};
-                        if (!saldos[mov.walletCompra][moneda]) saldos[mov.walletCompra][moneda] = 0;
-                        saldos[mov.walletCompra][moneda] -= monto;
+                        const walletId = getWalletIdOnly(mov.walletCompra);
+                        if (walletId) {
+                            if (!saldos[walletId]) saldos[walletId] = {};
+                            if (!saldos[walletId][moneda]) saldos[walletId][moneda] = 0;
+                            saldos[walletId][moneda] -= monto;
+                        }
                     }
 
                     // WALLET - MOV ENTRE CUENTAS: resta de cuentaSalida, suma a cuentaIngreso
                     if (operacion === 'WALLET' && subOperacion === 'MOV ENTRE CUENTAS') {
                         const walletSalida = mov.cuentaSalida || mov.walletBase;
                         const walletIngreso = mov.cuentaIngreso || mov.walletProfit;
-                        if (walletSalida) {
-                            if (!saldos[walletSalida]) saldos[walletSalida] = {};
-                            if (!saldos[walletSalida][moneda]) saldos[walletSalida][moneda] = 0;
-                            saldos[walletSalida][moneda] -= monto;
+                        const walletSalidaId = getWalletIdOnly(walletSalida);
+                        const walletIngresoId = getWalletIdOnly(walletIngreso);
+                        if (walletSalidaId) {
+                            if (!saldos[walletSalidaId]) saldos[walletSalidaId] = {};
+                            if (!saldos[walletSalidaId][moneda]) saldos[walletSalidaId][moneda] = 0;
+                            saldos[walletSalidaId][moneda] -= monto;
                         }
-                        if (walletIngreso) {
-                            if (!saldos[walletIngreso]) saldos[walletIngreso] = {};
-                            if (!saldos[walletIngreso][moneda]) saldos[walletIngreso][moneda] = 0;
-                            saldos[walletIngreso][moneda] += monto;
+                        if (walletIngresoId) {
+                            if (!saldos[walletIngresoId]) saldos[walletIngresoId] = {};
+                            if (!saldos[walletIngresoId][moneda]) saldos[walletIngresoId][moneda] = 0;
+                            saldos[walletIngresoId][moneda] += monto;
                         }
                     }
                 });
