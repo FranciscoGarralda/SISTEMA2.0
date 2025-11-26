@@ -2346,6 +2346,8 @@
                         showToast(`Se mantienen solo los últimos ${MAX_CLIENTES} clientes`, 'info');
                     }
                 }
+                // Invalidar cache de balances al guardar clientes
+                invalidateBalancesCache();
                 const success = safeLocalStorageOperation('set', 'clientes', clientesLimitados);
                 if (!success) {
                     console.error('No se pudo guardar clientes');
@@ -2410,8 +2412,9 @@
                     }
                     return;
                 }
-                // Invalidar cache al guardar
+                // Invalidar caches al guardar
                 invalidateMovimientosCache();
+                invalidateSaldosCache();
                 const success = safeLocalStorageOperation('set', 'movimientos', movimientos);
                 if (!success) {
                     console.error('No se pudo guardar movimientos');
@@ -2842,12 +2845,20 @@
                 // Permitir mostrar el valor 0
                 // Validar que sea realmente un número
                 if (typeof num !== 'number' || !isFinite(num)) return '';
+                
+                // Para números muy grandes o muy pequeños, usar notación científica
+                const absNum = Math.abs(num);
+                if (absNum > 0 && (absNum >= 1e15 || absNum < 1e-6)) {
+                    // Usar notación científica para números extremos
+                    return num.toExponential(2);
+                }
+                
                 // Formatear con separadores de miles (punto) y coma decimal
                 // Usar siempre 2 decimales para números con decimales, 0 para enteros
                 const hasDecimals = (Math.abs(num) % 1) !== 0;
                 const isNegative = num < 0;
-                const absNum = Math.abs(num);
                 try {
+                    // Usar toLocaleString con opciones específicas para mantener precisión
                     const formatted = absNum.toLocaleString('es-ES', { 
                         minimumFractionDigits: hasDecimals ? 2 : 0, 
                         maximumFractionDigits: 2,
@@ -2856,7 +2867,11 @@
                     return isNegative ? '-' + formatted : formatted;
                 } catch (error) {
                     console.error('Error al formatear número:', error);
-                    return String(num);
+                    // Fallback: formateo manual para mantener precisión
+                    const fixed = hasDecimals ? absNum.toFixed(2) : Math.round(absNum).toString();
+                    const parts = fixed.split('.');
+                    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                    return isNegative ? '-' + parts.join(',') : parts.join(',');
                 }
             }
             
@@ -5954,9 +5969,25 @@
                 `;
             }
 
+            // Cache para saldos de wallets
+            let saldosCache = null;
+            let saldosCacheTimestamp = null;
+            const SALDOS_CACHE_DURATION = 2000; // 2 segundos de cache
+
+            function invalidateSaldosCache() {
+                saldosCache = null;
+                saldosCacheTimestamp = null;
+            }
+
             function calcularSaldosWallets() {
+                // Verificar cache
+                const now = Date.now();
+                if (saldosCache && saldosCacheTimestamp && (now - saldosCacheTimestamp) < SALDOS_CACHE_DURATION) {
+                    return saldosCache;
+                }
+                
                 const wallets = getWallets();
-                const movimientos = getMovimientos().filter(m => !m.anulado);
+                const movimientos = getMovimientosCached().filter(m => !m.anulado);
                 const saldos = {};
 
                 // Inicializar saldos para todas las wallets
@@ -6193,6 +6224,10 @@
                     }
                 });
 
+                // Guardar en cache
+                saldosCache = saldos;
+                saldosCacheTimestamp = Date.now();
+                
                 return saldos;
             }
 
@@ -6297,9 +6332,25 @@
                 `;
             }
 
+            // Cache para balances de cuentas corrientes
+            let balancesCache = null;
+            let balancesCacheTimestamp = null;
+            const BALANCES_CACHE_DURATION = 2000; // 2 segundos de cache
+
+            function invalidateBalancesCache() {
+                balancesCache = null;
+                balancesCacheTimestamp = null;
+            }
+
             function calcularBalancesCuentasCorrientes() {
+                // Verificar cache
+                const now = Date.now();
+                if (balancesCache && balancesCacheTimestamp && (now - balancesCacheTimestamp) < BALANCES_CACHE_DURATION) {
+                    return balancesCache;
+                }
+                
                 const clientes = getClientes().filter(c => c.tipo === 'cuenta_corriente');
-                const movimientos = getMovimientos().filter(m => !m.anulado && m.operacion === 'CUENTAS_CORRIENTES');
+                const movimientos = getMovimientosCached().filter(m => !m.anulado && m.operacion === 'CUENTAS_CORRIENTES');
                 const balances = {};
 
                 // Inicializar balances para todos los clientes con cuenta corriente
@@ -6353,6 +6404,10 @@
                     // ARBITRAJE: depende de la lógica específica, por ahora no afecta directamente
                 });
 
+                // Guardar en cache
+                balancesCache = balances;
+                balancesCacheTimestamp = Date.now();
+                
                 return balances;
             }
 
