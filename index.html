@@ -2726,23 +2726,6 @@
                 
                 // Normalizar todas las monedas en el movimiento completo
                 normalizeAllMonedas(movimiento);
-                // Validar que el movimiento tenga la estructura básica
-                if (!movimiento || typeof movimiento !== 'object') {
-                    console.error('Intento de agregar movimiento inválido');
-                    if (typeof showToast === 'function') {
-                        showToast('Error: Datos del movimiento inválidos', 'error');
-                    }
-                    return null;
-                }
-                
-                // Validar campos requeridos básicos
-                if (!movimiento.operacion || !movimiento.subOperacion) {
-                    console.error('Movimiento sin operación o subOperación');
-                    if (typeof showToast === 'function') {
-                        showToast('Error: El movimiento debe tener operación y tipo', 'error');
-                    }
-                    return null;
-                }
                 
                 // Invalidar cache antes de obtener movimientos
                 invalidateMovimientosCache();
