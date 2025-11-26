@@ -2265,7 +2265,34 @@
             }
 
             function addWallet(wallet) {
+                // Validar estructura de wallet
+                if (!wallet || typeof wallet !== 'object') {
+                    console.error('Intento de agregar wallet inválida');
+                    if (typeof showToast === 'function') {
+                        showToast('Error: Datos de wallet inválidos', 'error');
+                    }
+                    return;
+                }
+                
+                // Validar campos requeridos
+                if (!wallet.id || !wallet.nombre) {
+                    console.error('Wallet sin ID o nombre');
+                    if (typeof showToast === 'function') {
+                        showToast('Error: La wallet debe tener ID y nombre', 'error');
+                    }
+                    return;
+                }
+                
+                // Validar que no exista ya
                 const wallets = getWallets();
+                if (wallets.some(w => w.id === wallet.id)) {
+                    console.error('Wallet con ID duplicado:', wallet.id);
+                    if (typeof showToast === 'function') {
+                        showToast('Error: Ya existe una wallet con ese ID', 'error');
+                    }
+                    return;
+                }
+                
                 wallets.push(wallet);
                 saveWallets(wallets);
             }
@@ -4134,8 +4161,44 @@
                             }
                         } else {
                             // Crear nueva wallet
-                            if (getWallets().some(w => w.id === id)) return showToast('Ya existe una wallet con ese ID.', 'error');
-                            addWallet({ id, nombre, tipos, monedas });
+                            // Validar ID de wallet
+                            if (!id || id.trim() === '') {
+                                showToast('El ID de la wallet no puede estar vacío.', 'error');
+                                return;
+                            }
+                            
+                            // Validar formato del ID (solo letras, números y guiones bajos)
+                            const idRegex = /^[a-zA-Z0-9_]+$/;
+                            if (!idRegex.test(id.trim())) {
+                                showToast('El ID de la wallet solo puede contener letras, números y guiones bajos.', 'error');
+                                return;
+                            }
+                            
+                            // Validar que no exista ya una wallet con ese ID
+                            if (getWallets().some(w => w.id === id.trim())) {
+                                showToast('Ya existe una wallet con ese ID.', 'error');
+                                return;
+                            }
+                            
+                            // Validar nombre
+                            if (!nombre || nombre.trim() === '') {
+                                showToast('El nombre de la wallet no puede estar vacío.', 'error');
+                                return;
+                            }
+                            
+                            // Validar tipos
+                            if (!tipos || !Array.isArray(tipos) || tipos.length === 0) {
+                                showToast('Debes seleccionar al menos un tipo de wallet.', 'error');
+                                return;
+                            }
+                            
+                            // Validar monedas
+                            if (!monedas || !Array.isArray(monedas) || monedas.length === 0) {
+                                showToast('Debes seleccionar al menos una moneda.', 'error');
+                                return;
+                            }
+                            
+                            addWallet({ id: id.trim(), nombre: nombre.trim(), tipos, monedas });
                             showToast(`Wallet "${nombre}" creada con éxito.`, 'success');
                             handleSubOperationChange('CREAR WALLET');
                         }
