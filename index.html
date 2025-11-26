@@ -185,12 +185,14 @@
         .sidebar {
             position: fixed;
             top: 0;
-            left: -280px;
+            left: 0;
             width: 280px;
             height: 100vh;
             background-color: var(--bg-secondary);
             box-shadow: 4px 0 12px rgba(0, 0, 0, 0.15);
-            transition: left 0.3s ease, background-color 0.3s ease;
+            /* CORRECCIÓN: Usar transform en lugar de left fijo para mejor rendimiento y evitar números mágicos */
+            transform: translateX(-100%);
+            transition: transform 0.3s ease, background-color 0.3s ease;
             z-index: 2000;
             overflow-y: auto;
         }
@@ -198,7 +200,8 @@
             box-shadow: 4px 0 12px rgba(0, 0, 0, 0.3);
         }
         .sidebar.open {
-            left: 0;
+            /* CORRECCIÓN: Usar transform en lugar de left para mejor rendimiento */
+            transform: translateX(0);
         }
         .sidebar-header {
             padding: 20px;
@@ -557,6 +560,30 @@
         }
         .slider:hover {
             opacity: 0.9;
+        }
+        .calc-btn {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .calc-btn:hover {
+            background-color: var(--bg-primary);
+            transform: scale(1.05);
+        }
+        .calc-btn:active {
+            transform: scale(0.95);
+        }
+        @media (max-width: 480px) {
+            .calc-btn {
+                padding: 12px;
+                font-size: 16px;
+            }
         }
         .btn-submit {
             background-color: var(--button-bg);
@@ -975,6 +1002,29 @@
         .fecha-dia-group .form-group {
             flex: 1;
         }
+        .fecha-dia-group > input {
+            flex: 1;
+            min-width: 0;
+        }
+        .fecha-dia-group > input[type="date"] {
+            flex: 1.5;
+            min-width: 160px;
+            font-size: 18px;
+            font-weight: 500;
+        }
+        .fecha-dia-group > input[type="text"][name="nombreDia"] {
+            flex: 1;
+            min-width: 120px;
+            font-size: 18px;
+            font-weight: 500;
+        }
+        @media (max-width: 600px) {
+            .fecha-dia-group > input[type="date"],
+            .fecha-dia-group > input[type="text"][name="nombreDia"] {
+                min-width: 100%;
+                font-size: 16px;
+            }
+        }
         /* Movimientos en formato lista */
         .movimiento-row {
             display: grid;
@@ -1133,6 +1183,9 @@
         </div>
         <ul class="menu-list">
             <li class="menu-item">
+                <a href="#inicio" class="menu-link">🏠 Inicio</a>
+            </li>
+            <li class="menu-item">
                 <a href="#pendientes" class="menu-link">Pendientes</a>
             </li>
             <li class="menu-item">
@@ -1208,6 +1261,13 @@
             let editingMovimientoId = null; // ID del movimiento que se está editando
             let lastEditedField = null; // Campo editado más recientemente para arbitraje bidireccional
             let navigationHistory = []; // Historial de navegación para el botón Volver
+            
+            // Variables globales para módulos específicos
+            let tipoClienteSeleccionado = 'diario';
+            let clienteEditandoId = null;
+            let tipoButtons = {};
+            let viewingPendienteDetail = null;
+            let cuentaCorrienteSeleccionada = null; // Para rastrear si estamos viendo un detalle en pendientes
 
             /**
              * =================================================================
@@ -1215,36 +1275,51 @@
              * =================================================================
              */
             function loadModule(module, addToHistory = true) {
-                const mainContent = document.getElementById('mainContent');
+                const mainContent = safeGetElementById('mainContent');
                 if (!mainContent) return;
                 
-                // Obtener el módulo actual antes de cambiar
-                const currentModule = localStorage.getItem('activeModule') || '';
+                // Limpiar todos los timeouts e intervals del módulo anterior
+                clearAllTimeouts();
+                clearAllIntervals();
                 
-                // Agregar al historial solo si es una navegación normal (no un "volver")
-                // No agregar módulos vacíos ('') al historial
-                if (addToHistory && currentModule && currentModule !== module && currentModule !== '') {
-                    navigationHistory.push(currentModule);
-                    // Limitar el historial a 10 elementos para no ocupar mucha memoria
-                    if (navigationHistory.length > 10) {
-                        navigationHistory.shift();
+                // Obtener el módulo actual antes de cambiar
+                const currentModule = safeLocalStorageOperation('get', 'activeModule') || '';
+                
+                // Agregar al historial solo si:
+                // 1. Es una navegación normal (addToHistory = true)
+                // 2. Hay un módulo actual válido (no vacío)
+                // 3. El módulo actual es diferente al nuevo módulo
+                // 4. El módulo actual no es la pantalla de inicio (no agregamos inicio al historial)
+                if (addToHistory && currentModule && currentModule !== module && currentModule !== '' && currentModule !== 'inicio') {
+                    // Solo agregar si el último elemento del historial no es el mismo módulo actual
+                    // (evitar duplicados consecutivos)
+                    if (navigationHistory.length === 0 || navigationHistory[navigationHistory.length - 1] !== currentModule) {
+                        navigationHistory.push(currentModule);
+                        // Limitar el historial a 20 elementos
+                        if (navigationHistory.length > 20) {
+                            navigationHistory.shift();
+                        }
                     }
                 }
                 
-                localStorage.setItem('activeModule', module);
+                safeLocalStorageOperation('set', 'activeModule', module);
                 
                 // Resetear estado de edición al cambiar de módulo
                 if (module === 'operaciones') {
                     // Resetear solo si no estamos editando (para no perder datos al cambiar de pestaña y volver)
                     if (editingMovimientoId === null) {
-                        formData = getInitialFormState();
-                        clearFormState();
+                        clearFormState(); // clearFormState() ya llama a getInitialFormState() internamente
                     }
                 } else {
                     // Si cambiamos a otro módulo, resetear todo
                     editingMovimientoId = null;
                 }
                 switch(module) {
+                    case 'inicio':
+                    case 'home':
+                        mainContent.innerHTML = renderHomeScreen();
+                        initHomeScreen();
+                        break;
                     case 'pendientes':
                         mainContent.innerHTML = renderPendientesModule();
                         initPendientesModule();
@@ -1294,18 +1369,274 @@
                         initConfiguracion();
                         break;
                     default:
-                        mainContent.innerHTML = '<div class="operations-container"><h2 class="form-title">Bienvenido</h2><p style="color: var(--text-secondary);">Selecciona una opción del menú</p></div>';
+                        mainContent.innerHTML = renderHomeScreen();
+                        initHomeScreen();
+                }
+            }
+
+            /**
+             * =================================================================
+             * PANTALLA DE INICIO
+             * =================================================================
+             */
+            function renderHomeScreen() {
+                const hoy = new Date();
+                const mes = hoy.getMonth();
+                const año = hoy.getFullYear();
+                const primerDia = new Date(año, mes, 1).getDay();
+                const diasEnMes = new Date(año, mes + 1, 0).getDate();
+                const nombresMeses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+                const nombresDias = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+                
+                let calendarioHTML = '<div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 10px;">';
+                // Días de la semana
+                nombresDias.forEach(dia => {
+                    calendarioHTML += `<div style="text-align: center; font-weight: 600; font-size: 12px; color: var(--text-secondary); padding: 8px;">${dia}</div>`;
+                });
+                // Espacios vacíos antes del primer día
+                for (let i = 0; i < primerDia; i++) {
+                    calendarioHTML += '<div></div>';
+                }
+                // Días del mes
+                for (let dia = 1; dia <= diasEnMes; dia++) {
+                    const esHoy = dia === hoy.getDate();
+                    calendarioHTML += `
+                        <div style="text-align: center; padding: 8px; border-radius: 8px; ${esHoy ? 'background: var(--button-bg); color: white; font-weight: 600;' : 'background: var(--bg-secondary);'}">
+                            ${dia}
+                        </div>
+                    `;
+                }
+                calendarioHTML += '</div>';
+
+                return `
+                    <div class="operations-container" style="max-width: 100%; padding: 20px;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                            <!-- Cotizaciones -->
+                            <div class="form-card" style="padding: 20px;">
+                                <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 15px;">💱 Cotizaciones</h3>
+                                <div style="display: grid; gap: 15px;">
+                                    <div style="padding: 15px; background: var(--bg-primary); border-radius: 8px; border: 1px solid var(--border-color);">
+                                        <div style="font-weight: 600; margin-bottom: 10px; font-size: 16px;">Dólar Blue</div>
+                                        <div style="display: flex; justify-content: space-between;">
+                                            <div>
+                                                <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">Compra</div>
+                                                <div style="font-size: 18px; font-weight: 600; color: var(--success-color);" id="blueCompra">1,050</div>
+                                            </div>
+                                            <div>
+                                                <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">Venta</div>
+                                                <div style="font-size: 18px; font-weight: 600; color: var(--error-color);" id="blueVenta">1,080</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div style="padding: 15px; background: var(--bg-primary); border-radius: 8px; border: 1px solid var(--border-color);">
+                                        <div style="font-weight: 600; margin-bottom: 10px; font-size: 16px;">USDT</div>
+                                        <div style="display: flex; justify-content: space-between;">
+                                            <div>
+                                                <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">Compra</div>
+                                                <div style="font-size: 18px; font-weight: 600; color: var(--success-color);" id="usdtCompra">1,045</div>
+                                            </div>
+                                            <div>
+                                                <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">Venta</div>
+                                                <div style="font-size: 18px; font-weight: 600; color: var(--error-color);" id="usdtVenta">1,075</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Calculadora -->
+                            <div class="form-card" style="padding: 20px;">
+                                <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 15px;">🔢 Calculadora</h3>
+                                <div style="background: var(--bg-primary); border-radius: 8px; padding: 15px; border: 1px solid var(--border-color);">
+                                    <input type="text" id="calcDisplay" readonly style="width: 100%; padding: 15px; font-size: 24px; text-align: right; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); margin-bottom: 15px; font-weight: 600;" value="0">
+                                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+                                        <button type="button" class="calc-btn" data-action="clear" style="grid-column: span 2;">C</button>
+                                        <button type="button" class="calc-btn" data-action="backspace">⌫</button>
+                                        <button type="button" class="calc-btn" data-action="divide">÷</button>
+                                        <button type="button" class="calc-btn" data-value="7">7</button>
+                                        <button type="button" class="calc-btn" data-value="8">8</button>
+                                        <button type="button" class="calc-btn" data-value="9">9</button>
+                                        <button type="button" class="calc-btn" data-action="multiply">×</button>
+                                        <button type="button" class="calc-btn" data-value="4">4</button>
+                                        <button type="button" class="calc-btn" data-value="5">5</button>
+                                        <button type="button" class="calc-btn" data-value="6">6</button>
+                                        <button type="button" class="calc-btn" data-action="subtract">−</button>
+                                        <button type="button" class="calc-btn" data-value="1">1</button>
+                                        <button type="button" class="calc-btn" data-value="2">2</button>
+                                        <button type="button" class="calc-btn" data-value="3">3</button>
+                                        <button type="button" class="calc-btn" data-action="add">+</button>
+                                        <button type="button" class="calc-btn" data-value="0" style="grid-column: span 2;">0</button>
+                                        <button type="button" class="calc-btn" data-action="decimal">.</button>
+                                        <button type="button" class="calc-btn" data-action="equals" style="background: var(--button-bg); color: white;">=</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Calendario y Hora -->
+                            <div class="form-card" style="padding: 20px;">
+                                <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 15px;">📅 Calendario</h3>
+                                <div style="background: var(--bg-primary); border-radius: 8px; padding: 15px; border: 1px solid var(--border-color);">
+                                    <div style="text-align: center; margin-bottom: 15px;">
+                                        <div style="font-size: 20px; font-weight: 600; margin-bottom: 5px;">${nombresMeses[mes]} ${año}</div>
+                                        <div style="font-size: 32px; font-weight: 600; color: var(--button-bg); margin: 10px 0;" id="horaDisplay">00:00:00</div>
+                                        <div style="font-size: 14px; color: var(--text-secondary);" id="fechaDisplay">${hoy.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
+                                    </div>
+                                    ${calendarioHTML}
+                                </div>
+                            </div>
+
+                            <!-- Block de Notas -->
+                            <div class="form-card" style="padding: 20px; grid-column: 1 / -1;">
+                                <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 15px;">📝 Block de Notas</h3>
+                                <textarea id="homeNotes" style="width: 100%; min-height: 200px; padding: 15px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-size: 14px; font-family: inherit; resize: vertical;" placeholder="Escribe tus notas aquí..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function initHomeScreen() {
+                // Inicializar calculadora
+                let calcValue = '0';
+                let calcPreviousValue = null;
+                let calcOperation = null;
+                const calcDisplay = document.getElementById('calcDisplay');
+                const calcButtons = document.querySelectorAll('.calc-btn');
+
+                if (calcDisplay && calcButtons.length > 0) {
+                    calcButtons.forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            const action = btn.dataset.action;
+                            const value = btn.dataset.value;
+
+                            if (value) {
+                                if (calcValue === '0') {
+                                    calcValue = value;
+                                } else {
+                                    calcValue += value;
+                                }
+                                calcDisplay.value = calcValue;
+                            } else if (action === 'clear') {
+                                calcValue = '0';
+                                calcPreviousValue = null;
+                                calcOperation = null;
+                                calcDisplay.value = calcValue;
+                            } else if (action === 'backspace') {
+                                calcValue = calcValue.slice(0, -1) || '0';
+                                calcDisplay.value = calcValue;
+                            } else if (action === 'decimal') {
+                                if (!calcValue.includes('.')) {
+                                    calcValue += '.';
+                                    calcDisplay.value = calcValue;
+                                }
+                            } else if (['add', 'subtract', 'multiply', 'divide'].includes(action)) {
+                                if (calcPreviousValue !== null && calcOperation) {
+                                    calcValue = String(calculate(calcPreviousValue, calcValue, calcOperation));
+                                    calcDisplay.value = calcValue;
+                                }
+                                calcPreviousValue = calcValue;
+                                calcValue = '0';
+                                calcOperation = action;
+                            } else if (action === 'equals') {
+                                if (calcPreviousValue !== null && calcOperation) {
+                                    calcValue = String(calculate(calcPreviousValue, calcValue, calcOperation));
+                                    calcDisplay.value = calcValue;
+                                    calcPreviousValue = null;
+                                    calcOperation = null;
+                                }
+                            }
+                        });
+                    });
+
+                    function calculate(a, b, op) {
+                        const numA = parseFloat(a);
+                        const numB = parseFloat(b);
+                        switch(op) {
+                            case 'add': return numA + numB;
+                            case 'subtract': return numA - numB;
+                            case 'multiply': return numA * numB;
+                            case 'divide': return numB !== 0 ? numA / numB : 0;
+                            default: return numB;
+                        }
+                    }
+                }
+
+                // Actualizar hora cada segundo
+                const horaDisplay = safeGetElementById('horaDisplay');
+                const fechaDisplay = safeGetElementById('fechaDisplay');
+                if (horaDisplay) {
+                    const updateHora = () => {
+                        try {
+                            const ahora = new Date();
+                            const horas = String(ahora.getHours()).padStart(2, '0');
+                            const minutos = String(ahora.getMinutes()).padStart(2, '0');
+                            const segundos = String(ahora.getSeconds()).padStart(2, '0');
+                            if (horaDisplay) {
+                                horaDisplay.textContent = `${horas}:${minutos}:${segundos}`;
+                            }
+                            if (fechaDisplay) {
+                                fechaDisplay.textContent = ahora.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+                            }
+                        } catch (error) {
+                            console.error('Error al actualizar hora:', error);
+                        }
+                    };
+                    updateHora();
+                    safeSetInterval(updateHora, 1000);
+                }
+
+                // Cargar y guardar notas
+                const homeNotes = document.getElementById('homeNotes');
+                if (homeNotes) {
+                    const savedNotes = safeLocalStorageOperation('get', 'homeNotes');
+                    if (savedNotes) {
+                        homeNotes.value = savedNotes;
+                    }
+                    homeNotes.addEventListener('input', () => {
+                        safeLocalStorageOperation('set', 'homeNotes', homeNotes.value);
+                    });
                 }
             }
             
             // Función para volver atrás usando el historial
             function goBack() {
+                // Función auxiliar para abrir el menú de forma robusta
+                const openMenu = () => {
+                    // Usar requestAnimationFrame para asegurar que el DOM esté listo
+                    requestAnimationFrame(() => {
+                        setTimeout(() => {
+                            const sidebar = document.getElementById('sidebar');
+                            const overlay = document.getElementById('overlay');
+                            if (sidebar && overlay) {
+                                sidebar.classList.add('open');
+                                overlay.classList.add('active');
+                                // CORRECCIÓN: Usar transform en lugar de left
+                                overlay.style.display = 'block';
+                            }
+                        }, 300);
+                    });
+                };
+                
+                // Si hay historial, ir al módulo anterior
                 if (navigationHistory.length > 0) {
                     const previousModule = navigationHistory.pop();
-                    loadModule(previousModule, false); // false = no agregar al historial
+                    loadModule(previousModule, false); // false = no agregar al historial al volver
+                    // Si el módulo anterior es la pantalla principal, abrir el menú
+                    if (previousModule === '' || previousModule === 'inicio') {
+                        openMenu();
+                    }
                 } else {
-                    // Si no hay historial, no hacer nada (no navegar a ningún lado)
-                    showToast('No hay lugar al que volver', 'info');
+                    // Si no hay historial, siempre volver a inicio y abrir menú
+                    const currentModule = safeLocalStorageOperation('get', 'activeModule') || '';
+                    // Si no estamos ya en inicio, cargar inicio
+                    if (currentModule !== 'inicio' && currentModule !== '') {
+                        loadModule('inicio', false);
+                        // Abrir el menú después de cargar inicio
+                        openMenu();
+                    } else {
+                        // Si ya estamos en inicio, solo abrir el menú
+                        openMenu();
+                    }
                 }
             }
 
@@ -1336,8 +1667,11 @@
             ];
 
             function getInitialFormState() {
+                const hoy = new Date();
+                const fechaHoy = hoy.toISOString().split('T')[0];
+                const nombreDiaHoy = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'][hoy.getDay()];
                 return {
-                    fecha: new Date().toISOString().split('T')[0], nombreDia: '', cliente: '', operacion: '',
+                    fecha: fechaHoy, nombreDia: nombreDiaHoy, cliente: '', operacion: '',
                     subOperacion: '', detalle: '', monto: '', moneda: '', tc: '', total: '', estado: 'pendiente_retiro',
                     por: '', nombreOtro: '', walletCompra: '', walletTC: '', monedaTC: '', proveedorCC: '',
                     comisionTipo: 'porcentaje', comisionValor: '', montoComision: '', monedaComision: '', cuentaComision: '',
@@ -1348,19 +1682,88 @@
                 };
             }
 
-            function saveFormState() {
+            // Operación segura de localStorage con manejo de errores mejorado
+            function safeLocalStorageOperation(operation, key, value = null) {
                 try {
-                    localStorage.setItem('formState', JSON.stringify(formData));
+                    if (operation === 'get') {
+                        return localStorage.getItem(key);
+                    } else if (operation === 'set') {
+                        // Verificar tamaño aproximado de los datos
+                        const dataString = typeof value === 'string' ? value : JSON.stringify(value);
+                        const size = new Blob([dataString]).size;
+                        // Límite aproximado de 4.5MB (localStorage tiene límite de ~5-10MB dependiendo del navegador)
+                        if (size > 4500000) {
+                            throw new Error('Datos muy grandes para almacenar');
+                        }
+                        localStorage.setItem(key, dataString);
+                        return true;
+                    } else if (operation === 'remove') {
+                        localStorage.removeItem(key);
+                        return true;
+                    }
                 } catch (error) {
-                    console.error('Error al guardar estado del formulario:', error);
+                    console.error(`Error en localStorage.${operation}:`, error);
+                    if (error.name === 'QuotaExceededError') {
+                        // Intentar limpiar datos antiguos
+                        try {
+                            // Limpiar datos antiguos de movimientos (mantener solo los últimos 500)
+                            const movimientos = getMovimientos();
+                            if (movimientos.length > 500) {
+                                const movimientosLimitados = movimientos.slice(0, 500);
+                                // Usar directamente localStorage aquí porque estamos en el catch de QuotaExceededError
+                                // y necesitamos limpiar espacio antes de reintentar
+                                try {
+                                    localStorage.setItem('movimientos', JSON.stringify(movimientosLimitados));
+                                } catch (cleanError) {
+                                    console.error('No se pudo limpiar movimientos:', cleanError);
+                                }
+                            }
+                            // Reintentar la operación original
+                            if (operation === 'set') {
+                                // Usar directamente localStorage para el reintento ya que estamos en el catch
+                                try {
+                                    localStorage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value));
+                                    return true;
+                                } catch (retryError) {
+                                    console.error('Error al reintentar operación después de limpiar:', retryError);
+                                    return false;
+                                }
+                            }
+                        } catch (e) {
+                            console.error('No se pudo limpiar datos antiguos:', e);
+                            if (typeof showToast === 'function') {
+                                showToast('Error: Espacio de almacenamiento lleno. Limpia datos antiguos.', 'error');
+                            }
+                        }
+                        return false;
+                    }
+                    return false;
+                }
+                return false;
+            }
+            
+            function saveFormState() {
+                const success = safeLocalStorageOperation('set', 'formState', formData);
+                if (!success) {
+                    console.error('No se pudo guardar el estado del formulario');
                 }
             }
 
             function loadFormState() {
                 try {
-                    const savedState = localStorage.getItem('formState');
+                    const savedState = safeLocalStorageOperation('get', 'formState');
                     if (savedState) {
                         formData = JSON.parse(savedState);
+                        // Normalizar monedas al cargar
+                        formData = normalizeAllMonedas(formData);
+                        // Asegurar que mixedPayments siempre sea un array
+                        if (!Array.isArray(formData.mixedPayments)) {
+                            formData.mixedPayments = [];
+                        }
+                        // Asegurar que isMixedPaymentActive sea booleano
+                        if (typeof formData.isMixedPaymentActive !== 'boolean') {
+                            formData.isMixedPaymentActive = false;
+                        }
                         return true;
                     }
                     formData = getInitialFormState();
@@ -1373,7 +1776,7 @@
             }
 
             function clearFormState() {
-                localStorage.removeItem('formState');
+                safeLocalStorageOperation('remove', 'formState');
                 formData = getInitialFormState();
                 editingMovimientoId = null;
             }
@@ -1399,11 +1802,26 @@
              * =================================================================
              */
             function getWallets() {
-                return JSON.parse(localStorage.getItem('wallets') || '[]');
+                try {
+                    const data = safeLocalStorageOperation('get', 'wallets');
+                    return data ? JSON.parse(data) : [];
+                } catch (error) {
+                    console.error('Error al obtener wallets:', error);
+                    return [];
+                }
             }
 
             function saveWallets(wallets) {
-                localStorage.setItem('wallets', JSON.stringify(wallets));
+                // Limitar a últimos 100 wallets para evitar acumulación excesiva
+                const MAX_WALLETS = 100;
+                let walletsLimitados = wallets;
+                if (wallets.length > MAX_WALLETS) {
+                    walletsLimitados = wallets.slice(0, MAX_WALLETS);
+                }
+                const success = safeLocalStorageOperation('set', 'wallets', walletsLimitados);
+                if (!success) {
+                    console.error('No se pudo guardar wallets');
+                }
             }
 
             function addWallet(wallet) {
@@ -1424,11 +1842,26 @@
              * =================================================================
              */
             function getClientes() {
-                return JSON.parse(localStorage.getItem('clientes') || '[]');
+                try {
+                    const data = safeLocalStorageOperation('get', 'clientes');
+                    return data ? JSON.parse(data) : [];
+                } catch (error) {
+                    console.error('Error al obtener clientes:', error);
+                    return [];
+                }
             }
 
             function saveClientes(clientes) {
-                localStorage.setItem('clientes', JSON.stringify(clientes));
+                // Limitar a últimos 500 clientes para evitar acumulación excesiva
+                const MAX_CLIENTES = 500;
+                let clientesLimitados = clientes;
+                if (clientes.length > MAX_CLIENTES) {
+                    clientesLimitados = clientes.slice(0, MAX_CLIENTES);
+                }
+                const success = safeLocalStorageOperation('set', 'clientes', clientesLimitados);
+                if (!success) {
+                    console.error('No se pudo guardar clientes');
+                }
             }
 
             function addCliente(cliente) {
@@ -1458,18 +1891,43 @@
              * =================================================================
              */
             function getMovimientos() {
-                return JSON.parse(localStorage.getItem('movimientos') || '[]');
+                try {
+                    const data = safeLocalStorageOperation('get', 'movimientos');
+                    return data ? JSON.parse(data) : [];
+                } catch (error) {
+                    console.error('Error al obtener movimientos:', error);
+                    return [];
+                }
             }
 
             function saveMovimientos(movimientos) {
-                localStorage.setItem('movimientos', JSON.stringify(movimientos));
+                const success = safeLocalStorageOperation('set', 'movimientos', movimientos);
+                if (!success) {
+                    console.error('No se pudo guardar movimientos');
+                }
             }
 
             function addMovimiento(movimiento) {
-                const movimientos = getMovimientos();
+                let movimientos = getMovimientos();
+                
+                // Limitar a últimos 1000 movimientos para evitar acumulación excesiva
+                const MAX_MOVIMIENTOS = 1000;
+                if (movimientos.length >= MAX_MOVIMIENTOS) {
+                    // Mantener solo los últimos 999 movimientos (antes de agregar el nuevo)
+                    movimientos = movimientos.slice(0, MAX_MOVIMIENTOS - 1);
+                }
+                
+                // Normalizar monedas antes de guardar
+                const movimientoNormalizado = normalizeAllMonedas({ ...movimiento });
+                
                 // Generar ID único para el movimiento
-                const id = 'MOV_' + crypto.randomUUID();
-                movimientos.unshift({ ...movimiento, id, fechaCreacion: new Date().toISOString(), anulado: false });
+                const id = 'MOV_' + generateUUID();
+                movimientos.unshift({ 
+                    ...movimientoNormalizado, 
+                    id, 
+                    fechaCreacion: new Date().toISOString(), 
+                    anulado: false 
+                });
                 saveMovimientos(movimientos);
                 return id;
             }
@@ -1478,7 +1936,9 @@
                 let movimientos = getMovimientos();
                 const index = movimientos.findIndex(m => m.id === movimientoId);
                 if (index !== -1) {
-                    movimientos[index] = { ...movimientos[index], ...datosActualizados, fechaModificacion: new Date().toISOString() };
+                    // Normalizar monedas antes de actualizar
+                    const datosNormalizados = normalizeAllMonedas({ ...datosActualizados });
+                    movimientos[index] = { ...movimientos[index], ...datosNormalizados, fechaModificacion: new Date().toISOString() };
                     saveMovimientos(movimientos);
                 }
             }
@@ -1509,7 +1969,8 @@
             function getWalletNombre(walletId) {
                 if (!walletId || walletId === 'pago_mixto') return null;
                 const wallets = getWallets();
-                const wallet = wallets.find(w => w.id === walletId.split('_')[0]);
+                const parsed = parseWalletId(walletId);
+                const wallet = wallets.find(w => w.id === parsed.wallet);
                 return wallet ? wallet.nombre : null;
             }
 
@@ -1524,6 +1985,8 @@
                 const fechaUltima = new Date(fechaUltimaOperacion);
                 const fechaActual = new Date();
                 const diferencia = fechaActual - fechaUltima;
+                // CORRECCIÓN: Fórmula correcta: ms * s * m * h (sin el 60 extra)
+                // 1000ms * 60s * 60m * 24h = milisegundos en un día
                 const dias = Math.floor(diferencia / (1000 * 60 * 60 * 24));
                 return dias;
             }
@@ -1549,6 +2012,156 @@
                 }
             }
 
+            /**
+             * =================================================================
+             * UTILIDADES CENTRALIZADAS
+             * =================================================================
+             */
+            // Generar UUID con fallback para navegadores antiguos
+            function generateUUID() {
+                if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+                    return crypto.randomUUID();
+                }
+                // Fallback para navegadores antiguos
+                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                    const r = Math.random() * 16 | 0;
+                    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                    return v.toString(16);
+                });
+            }
+            
+            // Normalización centralizada de monedas
+            function normalizeMoneda(moneda) {
+                if (!moneda) return '';
+                return moneda === 'PESO' ? 'ARS' : moneda;
+            }
+            
+            // Normalizar todas las monedas en un objeto de datos
+            function normalizeAllMonedas(data) {
+                if (!data || typeof data !== 'object') return data;
+                const fields = ['moneda', 'monedaTC', 'monedaBase', 'monedaCobro', 'monedaProfit', 'monedaComision'];
+                fields.forEach(field => {
+                    if (data[field]) {
+                        data[field] = normalizeMoneda(data[field]);
+                    }
+                });
+                return data;
+            }
+            
+            // Validar entrada numérica
+            function validateNumericInput(value, min = 0, max = 999999999) {
+                const num = safeParseFloat(value);
+                if (isNaN(num) || num < min || num > max) {
+                    return false;
+                }
+                return true;
+            }
+            
+            // Validar fecha
+            function isValidDate(dateString) {
+                if (!dateString) return false;
+                const date = new Date(dateString);
+                return date instanceof Date && !isNaN(date.getTime());
+            }
+            
+            // Validación segura de elementos DOM
+            function safeGetElementById(id) {
+                try {
+                    return document.getElementById(id);
+                } catch (error) {
+                    console.error(`Error al obtener elemento con ID "${id}":`, error);
+                    return null;
+                }
+            }
+            
+            // Función de sanitización para prevenir XSS
+            function escapeHTML(str) {
+                if (!str && str !== 0) return '';
+                const div = document.createElement('div');
+                div.textContent = String(str);
+                return div.innerHTML;
+            }
+            
+            // Función para redondear a 2 decimales evitando problemas de floating point
+            function roundToTwo(num) {
+                if (isNaN(num) || !isFinite(num)) return 0;
+                return Number(Math.round(parseFloat(num) + 'e+2') + 'e-2');
+            }
+            
+            // Constante global para campos numéricos (evita duplicación)
+            const NUMERIC_FIELDS = ['monto', 'tc', 'total', 'montoBase', 'cotizacionCliente', 'cotizacionReal', 'montoCobrado', 'costoReal', 'profit', 'interes', 'lapso', 'comisionValor', 'montoComision'];
+            
+            // Función helper para formatear campos numéricos (consolida código duplicado)
+            function formatNumericFields(fields = NUMERIC_FIELDS, skipReadOnly = true) {
+                fields.forEach(fieldName => {
+                    const input = document.querySelector(`[name="${fieldName}"]`);
+                    if (input && (!skipReadOnly || !input.readOnly) && formData[fieldName]) {
+                        const formatted = formatNumberWithThousands(formData[fieldName]);
+                        if (formatted && input.value !== formatted) {
+                            input.value = formatted;
+                        }
+                    }
+                });
+            }
+            
+            // División segura de wallet ID (maneja IDs con múltiples _)
+            function parseWalletId(walletValue) {
+                if (!walletValue || walletValue === 'pago_mixto') {
+                    return { wallet: walletValue === 'pago_mixto' ? 'pago_mixto' : '', type: '' };
+                }
+                // Usar lastIndexOf para obtener el último _ (tipo siempre está al final)
+                const lastUnderscore = walletValue.lastIndexOf('_');
+                if (lastUnderscore === -1) {
+                    return { wallet: walletValue, type: '' };
+                }
+                return {
+                    wallet: walletValue.substring(0, lastUnderscore),
+                    type: walletValue.substring(lastUnderscore + 1)
+                };
+            }
+            
+            // Sistema de limpieza de timeouts e intervals
+            const activeTimeouts = new Set();
+            const activeIntervals = new Set();
+            
+            function safeSetTimeout(callback, delay) {
+                const timeoutId = setTimeout(() => {
+                    activeTimeouts.delete(timeoutId);
+                    callback();
+                }, delay);
+                activeTimeouts.add(timeoutId);
+                return timeoutId;
+            }
+            
+            function safeSetInterval(callback, delay) {
+                const intervalId = setInterval(callback, delay);
+                activeIntervals.add(intervalId);
+                return intervalId;
+            }
+            
+            function clearAllTimeouts() {
+                activeTimeouts.forEach(id => clearTimeout(id));
+                activeTimeouts.clear();
+            }
+            
+            function clearAllIntervals() {
+                activeIntervals.forEach(id => clearInterval(id));
+                activeIntervals.clear();
+            }
+            
+            // Debounce para formateo numérico
+            const formatDebounceTimers = new Map();
+            function debounceFormat(fieldName, callback, delay = 300) {
+                if (formatDebounceTimers.has(fieldName)) {
+                    clearTimeout(formatDebounceTimers.get(fieldName));
+                }
+                const timer = safeSetTimeout(() => {
+                    formatDebounceTimers.delete(fieldName);
+                    callback();
+                }, delay);
+                formatDebounceTimers.set(fieldName, timer);
+            }
+            
             /**
              * =================================================================
              * LÓGICA DE CÁLCULOS (PRESERVADA COMPLETA DEL ORIGINAL)
@@ -1586,39 +2199,59 @@
             function formatNumberWithThousands(value) {
                 if (!value && value !== 0) return '';
                 const num = safeParseFloat(value);
-                if (isNaN(num) || num === 0) return '';
+                if (isNaN(num)) return '';
+                // Permitir mostrar el valor 0
+                // Validar que sea realmente un número
+                if (typeof num !== 'number' || !isFinite(num)) return '';
                 // Formatear con separadores de miles (punto) y coma decimal
                 // Usar siempre 2 decimales para números con decimales, 0 para enteros
                 const hasDecimals = num % 1 !== 0;
-                const formatted = num.toLocaleString('es-ES', { 
-                    minimumFractionDigits: hasDecimals ? 2 : 0, 
-                    maximumFractionDigits: 2,
-                    useGrouping: true
-                });
-                return formatted;
+                try {
+                    const formatted = num.toLocaleString('es-ES', { 
+                        minimumFractionDigits: hasDecimals ? 2 : 0, 
+                        maximumFractionDigits: 2,
+                        useGrouping: true
+                    });
+                    return formatted;
+                } catch (error) {
+                    console.error('Error al formatear número:', error);
+                    return String(num);
+                }
             }
             
             function calculateTotal() {
                 // Si es VENTA y la moneda vendida es ARS, dividir en lugar de multiplicar
                 // Si es COMPRA y la moneda comprada es ARS, también dividir
                 const subOp = String(formData.subOperacion || '').trim();
-                const moneda = String(formData.moneda || '').trim();
+                const monedaRaw = String(formData.moneda || '').trim();
+                const moneda = normalizeMoneda(monedaRaw); // Normalizar PESO -> ARS
+                
+                // Validar que los valores necesarios existan
+                const monto = safeParseFloat(formData.monto);
+                const tc = safeParseFloat(formData.tc);
+                
+                if (!monto || !tc || tc === 0) {
+                    formData.total = '';
+                    return;
+                }
                 
                 const esVentaConARS = subOp === 'VENTA' && moneda === 'ARS';
                 const esCompraConARS = subOp === 'COMPRA' && moneda === 'ARS';
                 
                 if (esVentaConARS || esCompraConARS) {
-                    formData.total = (safeParseFloat(formData.monto) / safeParseFloat(formData.tc)).toFixed(2);
+                    // CORRECCIÓN: Usar roundToTwo para evitar problemas de floating point
+                    formData.total = roundToTwo(monto / tc).toFixed(2);
                 } else {
                     // Para otras operaciones, multiplicar (lógica original)
-                    formData.total = (safeParseFloat(formData.monto) * safeParseFloat(formData.tc)).toFixed(2);
+                    formData.total = roundToTwo(monto * tc).toFixed(2);
                 }
             }
             
             function calculatePrestamo() {
                 const monto = safeParseFloat(formData.monto);
                 const interesTotal = (monto * safeParseFloat(formData.interes) * safeParseFloat(formData.lapso)) / (365 * 100);
-                formData.total = (monto + interesTotal).toFixed(2);
+                // CORRECCIÓN: Usar roundToTwo para evitar problemas de floating point
+                formData.total = roundToTwo(monto + interesTotal).toFixed(2);
             }
             
             function calculateArbitraje() {
@@ -1632,17 +2265,17 @@
                 // Primera ecuación: Monto Base × Cotización Cliente = Monto Cobrado
                 if (lastEditedField === 'montoBase') {
                     if (cotizacionCliente > 0) {
-                        formData.montoCobrado = (montoBase * cotizacionCliente).toFixed(2);
+                        formData.montoCobrado = roundToTwo(montoBase * cotizacionCliente).toFixed(2);
                     }
                 } else if (lastEditedField === 'cotizacionCliente') {
                     if (montoBase > 0) {
-                        formData.montoCobrado = (montoBase * cotizacionCliente).toFixed(2);
+                        formData.montoCobrado = roundToTwo(montoBase * cotizacionCliente).toFixed(2);
                     }
                 } else if (lastEditedField === 'montoCobrado') {
                     if (montoBase > 0 && montoBase !== 0) {
-                        formData.cotizacionCliente = (montoCobrado / montoBase).toFixed(2);
+                        formData.cotizacionCliente = roundToTwo(montoCobrado / montoBase).toFixed(2);
                     } else if (cotizacionCliente > 0 && cotizacionCliente !== 0) {
-                        formData.montoBase = (montoCobrado / cotizacionCliente).toFixed(2);
+                        formData.montoBase = roundToTwo(montoCobrado / cotizacionCliente).toFixed(2);
                     }
                 }
 
@@ -1828,6 +2461,18 @@
                             <div class="form-group"><label class="form-label">Moneda</label><div class="moneda-buttons-container" id="monedaButtons"></div></div>
                         </div>
                         <div class="form-group"><label class="form-label">Wallet Origen</label><div class="wallet-buttons-container" id="walletCompraButtons"></div></div>`,
+                    'WALLET_PRESTAMO': `
+                        <div class="form-grid">
+                            <div class="form-group"><label class="form-label">Monto del Préstamo</label><input type="text" inputmode="numeric" class="form-input" name="monto" value="${formData.monto || ''}" placeholder="0.00" step="0.01"></div>
+                            <div class="form-group"><label class="form-label">Moneda</label><div class="moneda-buttons-container" id="monedaButtons"></div></div>
+                        </div>
+                        <div class="form-group"><label class="form-label">Wallet de donde sale</label><div class="wallet-buttons-container" id="walletCompraButtons"></div></div>`,
+                    'WALLET_DEVOLUCION': `
+                        <div class="form-grid">
+                            <div class="form-group"><label class="form-label">Monto de Devolución</label><input type="text" inputmode="numeric" class="form-input" name="monto" value="${formData.monto || ''}" placeholder="0.00" step="0.01"></div>
+                            <div class="form-group"><label class="form-label">Moneda</label><div class="moneda-buttons-container" id="monedaButtons"></div></div>
+                        </div>
+                        <div class="form-group"><label class="form-label">Wallet donde ingresa</label><div class="wallet-buttons-container" id="walletCompraButtons"></div></div>`,
                     'WALLET_MOV ENTRE CUENTAS': `
                         <div class="form-grid">
                             <div class="form-group"><label class="form-label">Monto</label><input type="text" inputmode="numeric" class="form-input" name="monto" value="${formData.monto || ''}" placeholder="0.00" step="0.01"></div>
@@ -1893,7 +2538,7 @@
                                 <div class="form-group"><label class="form-label section-title">Paso 1: Seleccionar Operación</label><div class="button-grid" id="operationButtons"></div></div>
                                 <div class="form-group ${!formData.operacion ? 'hidden' : ''}" id="subOperationContainer"><label class="form-label section-title">Paso 2: Seleccionar Tipo</label><div class="button-grid" id="subOperationButtons"></div></div>
                                 <div class="form-group hidden" id="clienteContainer" style="margin-bottom: 20px;"><label class="form-label" for="cliente">Cliente</label><div class="input-with-button"><select class="form-select" id="cliente" name="cliente" required><option value="">Seleccionar cliente...</option>${getClientes().map(c => `<option value="${c.id}" ${formData.cliente === c.id ? 'selected' : ''}>${c.nombre}${c.documento ? ' - ' + c.documento : ''}</option>`).join('')}</select><button type="button" class="btn-add" id="addClientBtn" title="Crear nuevo cliente">+</button></div></div>
-                                <div class="form-group hidden" id="detalleContainer" style="margin-bottom: 32px;"><label class="form-label" for="detalle">Detalle</label><textarea class="form-textarea" id="detalle" name="detalle" placeholder="Descripción de la operación">${formData.detalle || ''}</textarea></div>
+                                <div class="form-group hidden" id="detalleContainer" style="margin-bottom: 32px;"><label class="form-label" for="detalle">Detalle</label><textarea class="form-textarea" id="detalle" name="detalle" placeholder="Descripción de la operación">${escapeHTML(formData.detalle || '')}</textarea></div>
                                 <div class="dynamic-fields-container" id="dynamicFieldsContainer"></div>
                                 <div id="mixedPaymentsContainer" class="${formData.isMixedPaymentActive ? '' : 'hidden'}"></div>
                                 <div class="form-grid ${['WALLET', 'ADMINISTRATIVAS'].includes(formData.operacion) ? 'hidden' : ''}" id="estadoPorContainer">
@@ -2134,16 +2779,7 @@
                 });
                 
                 // Formatear todos los campos numéricos con separadores de miles
-                const numericFields = ['monto', 'tc', 'total', 'montoBase', 'cotizacionCliente', 'cotizacionReal', 'montoCobrado', 'costoReal', 'profit', 'interes', 'lapso', 'comisionValor', 'montoComision'];
-                numericFields.forEach(fieldName => {
-                    const input = document.querySelector(`[name="${fieldName}"]`);
-                    if (input && !input.readOnly && formData[fieldName]) {
-                        const formatted = formatNumberWithThousands(formData[fieldName]);
-                        if (formatted && input.value !== formatted) {
-                            input.value = formatted;
-                        }
-                    }
-                });
+                formatNumericFields();
                 
                 initWalletButtons('walletCompraButtons', 'walletCompra');
                 initWalletButtons('walletTCButtons', 'walletTC', true);
@@ -2188,10 +2824,11 @@
                 }
                 
                 if (calculated) {
-                    ['total', 'montoBase', 'costoReal', 'profit', 'montoComision'].forEach(fieldName => {
+                    // Formatear solo los campos calculados que no están siendo editados
+                    const calculatedFields = ['total', 'montoBase', 'costoReal', 'profit', 'montoComision'];
+                    calculatedFields.forEach(fieldName => {
                         const input = document.querySelector(`[name="${fieldName}"]`);
                         if (input && document.activeElement !== input) {
-                            // Formatear el valor con separadores de miles
                             const value = formData[fieldName] || '';
                             input.value = formatNumberWithThousands(value);
                         }
@@ -2206,31 +2843,63 @@
 
                 loadFormState();
                 
-                // Formatear todos los campos numéricos después de cargar el estado
-                setTimeout(() => {
-                    const numericFields = ['monto', 'tc', 'total', 'montoBase', 'cotizacionCliente', 'cotizacionReal', 'montoCobrado', 'costoReal', 'profit', 'interes', 'lapso', 'comisionValor', 'montoComision'];
-                    numericFields.forEach(fieldName => {
-                        const input = document.querySelector(`[name="${fieldName}"]`);
-                        if (input && !input.readOnly && formData[fieldName]) {
-                            const formatted = formatNumberWithThousands(formData[fieldName]);
-                            if (formatted) {
-                                input.value = formatted;
-                            }
-                        }
-                    });
-                }, 100);
-
+                // Inicializar fecha y nombreDia ANTES de formatear otros campos
                 const fechaInput = form.querySelector('[name="fecha"]');
                 const nombreDiaInput = form.querySelector('[name="nombreDia"]');
+                
                 const updateDayName = () => {
-                    if (fechaInput.value) {
-                        const fecha = new Date(fechaInput.value + 'T00:00:00');
-                        nombreDiaInput.value = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'][fecha.getDay()];
-                        formData.nombreDia = nombreDiaInput.value;
+                    if (fechaInput && nombreDiaInput) {
+                        let fechaValor = fechaInput.value;
+                        
+                        // Si no hay fecha en el input, usar la fecha actual
+                        if (!fechaValor) {
+                            const hoy = new Date();
+                            fechaValor = hoy.toISOString().split('T')[0];
+                            fechaInput.value = fechaValor;
+                            formData.fecha = fechaValor;
+                        }
+                        
+                        // Calcular y establecer el nombre del día
+                        if (fechaValor && isValidDate(fechaValor + 'T00:00:00')) {
+                            try {
+                                const fecha = new Date(fechaValor + 'T00:00:00');
+                                const nombreDia = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'][fecha.getDay()];
+                                if (nombreDiaInput) {
+                                    nombreDiaInput.value = nombreDia;
+                                }
+                                formData.nombreDia = nombreDia;
+                            } catch (error) {
+                                console.error('Error al calcular nombre del día:', error);
+                            }
+                        } else if (fechaValor) {
+                            console.error('Fecha inválida:', fechaValor);
+                        }
                     }
                 };
-                fechaInput.addEventListener('change', () => { updateDayName(); saveFormState(); });
-                if (!formData.nombreDia) updateDayName();
+                
+                // Configurar event listener para cambios de fecha
+                if (fechaInput && nombreDiaInput) {
+                    // Remover listener anterior si existe para evitar duplicados
+                    if (fechaInput._updateDayNameHandler) {
+                        fechaInput.removeEventListener('change', fechaInput._updateDayNameHandler);
+                    }
+                    // Crear handler nombrado para poder removerlo después
+                    fechaInput._updateDayNameHandler = () => { 
+                        updateDayName(); 
+                        saveFormState(); 
+                    };
+                    fechaInput.addEventListener('change', fechaInput._updateDayNameHandler);
+                    
+                    // Ejecutar inmediatamente para inicializar el campo
+                    // CORRECCIÓN: Eliminados timeouts innecesarios - el DOM es síncrono después de innerHTML
+                    updateDayName();
+                }
+                
+                // CORRECCIÓN: Formatear campos numéricos inmediatamente después de cargar el estado
+                // El DOM ya está disponible después de innerHTML, no necesitamos timeout
+                requestAnimationFrame(() => {
+                    formatNumericFields();
+                });
 
                 const operationItems = Object.entries(operaciones).map(([key, value]) => ({ key, ...value }));
                 renderButtonSet('operationButtons', 'operacion', operationItems);
@@ -2253,7 +2922,25 @@
                     }
                 }
                 
-                form.addEventListener('input', (e) => {
+                // Limpiar listeners anteriores si existen
+                if (form._inputHandler) {
+                    form.removeEventListener('input', form._inputHandler);
+                }
+                if (form._blurHandler) {
+                    form.removeEventListener('blur', form._blurHandler, true);
+                }
+                if (form._changeHandler) {
+                    form.removeEventListener('change', form._changeHandler);
+                }
+                if (form._submitHandler) {
+                    form.removeEventListener('submit', form._submitHandler);
+                }
+                
+                // Crear handlers nombrados para poder removerlos
+                form._inputHandler = (e) => {
+                    // Validar que el target tenga la propiedad name
+                    if (!e.target || !e.target.name) return;
+                    
                     // Actualizar lastEditedField para arbitraje bidireccional
                     const arbitrajeFields = ['montoBase', 'cotizacionCliente', 'montoCobrado', 'cotizacionReal', 'costoReal'];
                     if (arbitrajeFields.includes(e.target.name)) {
@@ -2272,30 +2959,39 @@
                         }
                         saveFormState();
                     }
-                });
+                };
+                form.addEventListener('input', form._inputHandler);
                 
                 // Formatear campos numéricos cuando pierden el foco
-                form.addEventListener('blur', (e) => {
+                form._blurHandler = (e) => {
+                    // Validar que el target tenga la propiedad name
+                    if (!e.target || !e.target.name) return;
+                    
                     const name = e.target.name;
                     const numericFields = ['monto', 'tc', 'montoBase', 'cotizacionCliente', 'cotizacionReal', 'montoCobrado', 'costoReal', 'interes', 'lapso', 'comisionValor', 'total', 'profit', 'montoComision'];
                     if (numericFields.includes(name) && !e.target.readOnly && e.target.value) {
                         const numValue = safeParseFloat(e.target.value);
                         if (!isNaN(numValue) && numValue > 0) {
                             const formatted = formatNumberWithThousands(numValue);
-                            if (formatted) {
+                            if (formatted && e.target.value !== formatted) {
                                 e.target.value = formatted;
                             }
                         }
                     }
-                }, true);
+                };
+                form.addEventListener('blur', form._blurHandler, true);
                 
-                form.addEventListener('change', (e) => {
+                form._changeHandler = (e) => {
+                    // Validar que el target tenga la propiedad name
+                    if (!e.target || !e.target.name) return;
+                    
                     const name = e.target.name;
                     if (name === 'cliente' && formData.hasOwnProperty(name)) {
                         formData[name] = e.target.value;
                         saveFormState();
                     }
-                });
+                };
+                form.addEventListener('change', form._changeHandler);
 
                 // Función para encontrar el elemento más cercano en una dirección
                 function findNearestElement(currentElement, direction, focusableElements) {
@@ -2383,11 +3079,14 @@
                     }
                 });
                 
-                form.addEventListener('submit', (e) => {
+                form._submitHandler = (e) => {
                     e.preventDefault();
                     
                     // Crear copia del formData para guardar
                     const movimientoData = JSON.parse(JSON.stringify(formData));
+                    
+                    // Normalizar todas las monedas en movimientoData
+                    normalizeAllMonedas(movimientoData);
                     
                     // Si estamos editando, actualizar el movimiento existente
                     if (editingMovimientoId) {
@@ -2408,7 +3107,8 @@
                     
                     clearFormState();
                     loadModule('operaciones');
-                });
+                };
+                form.addEventListener('submit', form._submitHandler);
                 
                 document.getElementById('cancelBtn')?.addEventListener('click', () => {
                     if (confirm('¿Deseas cancelar? Se perderán los datos.')) {
@@ -2431,13 +3131,24 @@
             }
             
             function initWalletButtons(containerId, fieldName, includesPagoMixto = false) {
-                const container = document.getElementById(containerId);
+                const container = safeGetElementById(containerId);
                 if (!container) return;
                 
+                // Limpiar listeners anteriores para evitar memory leaks
+                if (container._walletClickHandler) {
+                    container.removeEventListener('click', container._walletClickHandler);
+                    delete container._walletClickHandler;
+                }
+                
                 const currentValue = formData[fieldName] || '';
-                const [currentWallet, currentType] = currentValue.split('_');
+                const parsed = parseWalletId(currentValue);
+                const currentWallet = parsed.wallet;
+                const currentType = parsed.type;
                 const wallets = getWallets();
                 const tipoLabel = ['VENTA', 'INGRESO'].includes(formData.subOperacion) ? 'Cobro' : 'Pago';
+                
+                // Guardar referencia a wallets para uso en el handler
+                container._wallets = wallets;
 
                 let html = `
                     <div class="wallet-step-label">Paso 1: Seleccionar Wallet</div>
@@ -2459,7 +3170,8 @@
                     </div>`;
                 container.innerHTML = html;
 
-                container.addEventListener('click', (e) => {
+                // Crear handler nombrado y guardarlo para poder removerlo después
+                container._walletClickHandler = (e) => {
                     if (e.target.classList.contains('btn-wallet')) {
                         const walletsContainer = e.target.closest(`#${containerId}_wallets`);
                         const typesContainer = e.target.closest(`#${containerId}_types`);
@@ -2468,29 +3180,68 @@
 
                         if (walletId) {
                             formData[fieldName] = walletId === 'pago_mixto' ? 'pago_mixto' : walletId;
+                            const wasMixed = formData.isMixedPaymentActive;
                             formData.isMixedPaymentActive = walletId === 'pago_mixto';
+                            
+                            // Si se desactiva el pago mixto, limpiar mixedPayments
+                            if (wasMixed && !formData.isMixedPaymentActive) {
+                                formData.mixedPayments = [];
+                            }
                         } else if (type) {
-                            const [selectedWallet] = (formData[fieldName] || '').split('_');
+                            const parsed = parseWalletId(formData[fieldName] || '');
+                            const selectedWallet = parsed.wallet;
                             if(selectedWallet && selectedWallet !== 'pago_mixto') {
                                 formData[fieldName] = `${selectedWallet}_${type}`;
                             }
                         }
                         
                         saveFormState();
-                        initWalletButtons(containerId, fieldName, includesPagoMixto);
+                        // Optimización: actualizar solo el HTML necesario en lugar de re-renderizar todo
+                        const walletsContainerUpdate = document.getElementById(`${containerId}_wallets`);
+                        const typesContainerUpdate = document.getElementById(`${containerId}_types`);
+                        const walletsUpdate = container._wallets || getWallets();
+                        
+                        // Actualizar estado visual de botones sin re-renderizar completo
+                        if (walletsContainerUpdate) {
+                            walletsContainerUpdate.querySelectorAll('.btn-wallet').forEach(btn => {
+                                const isActive = btn.dataset.wallet === formData[fieldName] || 
+                                               (formData[fieldName] === 'pago_mixto' && btn.dataset.wallet === 'pago_mixto');
+                                btn.classList.toggle('active', isActive);
+                            });
+                        }
+                        
+                        if (typesContainerUpdate && formData[fieldName] && formData[fieldName] !== 'pago_mixto') {
+                            const parsed = parseWalletId(formData[fieldName]);
+                            typesContainerUpdate.querySelectorAll('.btn-wallet').forEach(btn => {
+                                btn.classList.toggle('active', btn.dataset.type === parsed.type);
+                                const selectedWallet = walletsUpdate.find(w => w.id === parsed.wallet);
+                                const canBeEfectivo = selectedWallet && selectedWallet.tipos && selectedWallet.tipos.includes('efectivo');
+                                const canBeDigital = selectedWallet && selectedWallet.tipos && selectedWallet.tipos.includes('digital');
+                                btn.disabled = (btn.dataset.type === 'efectivo' && !canBeEfectivo) || 
+                                             (btn.dataset.type === 'digital' && !canBeDigital);
+                            });
+                        }
+                        
                         const mixedPaymentsContainer = document.getElementById('mixedPaymentsContainer');
                         if (mixedPaymentsContainer) {
                             mixedPaymentsContainer.classList.toggle('hidden', !formData.isMixedPaymentActive);
                             if (formData.isMixedPaymentActive) renderMixedPayments();
                         }
                     }
-                });
+                };
+                container.addEventListener('click', container._walletClickHandler);
             }
 
             function initWalletManagement() {
                 const saveBtn = document.getElementById('saveWalletBtn');
                 if (saveBtn) {
-                    saveBtn.addEventListener('click', () => {
+                    // Limpiar listener anterior si existe
+                    if (saveBtn._saveWalletHandler) {
+                        saveBtn.removeEventListener('click', saveBtn._saveWalletHandler);
+                    }
+                    
+                    // Crear handler nombrado
+                    saveBtn._saveWalletHandler = () => {
                         const id = document.getElementById('walletId')?.value.trim();
                         const nombre = document.getElementById('walletNombre')?.value.trim();
                         const tipos = [...document.querySelectorAll('#walletTipoEfectivo, #walletTipoDigital')].filter(cb => cb.checked).map(cb => cb.id.replace('walletTipo', '').toLowerCase());
@@ -2502,7 +3253,10 @@
                         addWallet({ id, nombre, tipos, monedas });
                         showToast(`Wallet "${nombre}" creada con éxito.`, 'success');
                         handleSubOperationChange('CREAR WALLET');
-                    });
+                    };
+                    
+                    // Agregar listener
+                    saveBtn.addEventListener('click', saveBtn._saveWalletHandler);
                 }
             }
         
@@ -2514,7 +3268,7 @@
                     wallets.map(w => `
                         <div class="form-card" style="padding: 15px; margin-bottom: 15px;">
                             <div style="display: flex; justify-content: space-between; align-items: start;">
-                                <div><h3 style="font-size: 16px;">${w.nombre}</h3><p style="color: var(--text-secondary); font-size: 13px;">ID: ${w.id}</p></div>
+                                <div><h3 style="font-size: 16px;">${escapeHTML(w.nombre)}</h3><p style="color: var(--text-secondary); font-size: 13px;">ID: ${escapeHTML(w.id)}</p></div>
                                 <button type="button" class="btn-remove" data-wallet-id="${w.id}">✕</button>
                             </div>
                             <div class="form-grid" style="font-size: 13px; margin-top: 15px; margin-bottom: 0;">
@@ -2550,22 +3304,38 @@
                 const fijoBtn = form.querySelector('#comisionFijoBtn');
                 const container = form.querySelector('#monedaComisionContainer');
 
-                porcentajeBtn?.addEventListener('click', () => {
-                    formData.comisionTipo = 'porcentaje';
-                    porcentajeBtn.classList.add('active');
-                    fijoBtn?.classList.remove('active');
-                    container?.classList.add('hidden');
-                    updateCalculatedFieldsAndUI();
-                    saveFormState();
-                });
-                fijoBtn?.addEventListener('click', () => {
-                    formData.comisionTipo = 'fijo';
-                    fijoBtn.classList.add('active');
-                    porcentajeBtn?.classList.remove('active');
-                    container?.classList.remove('hidden');
-                    updateCalculatedFieldsAndUI();
-                    saveFormState();
-                });
+                // Limpiar listeners anteriores para evitar duplicados
+                if (porcentajeBtn && porcentajeBtn._porcentajeClickHandler) {
+                    porcentajeBtn.removeEventListener('click', porcentajeBtn._porcentajeClickHandler);
+                }
+                if (fijoBtn && fijoBtn._fijoClickHandler) {
+                    fijoBtn.removeEventListener('click', fijoBtn._fijoClickHandler);
+                }
+
+                // Crear handlers nombrados
+                if (porcentajeBtn) {
+                    porcentajeBtn._porcentajeClickHandler = () => {
+                        formData.comisionTipo = 'porcentaje';
+                        porcentajeBtn.classList.add('active');
+                        fijoBtn?.classList.remove('active');
+                        container?.classList.add('hidden');
+                        updateCalculatedFieldsAndUI();
+                        saveFormState();
+                    };
+                    porcentajeBtn.addEventListener('click', porcentajeBtn._porcentajeClickHandler);
+                }
+                
+                if (fijoBtn) {
+                    fijoBtn._fijoClickHandler = () => {
+                        formData.comisionTipo = 'fijo';
+                        fijoBtn.classList.add('active');
+                        porcentajeBtn?.classList.remove('active');
+                        container?.classList.remove('hidden');
+                        updateCalculatedFieldsAndUI();
+                        saveFormState();
+                    };
+                    fijoBtn.addEventListener('click', fijoBtn._fijoClickHandler);
+                }
             }
             
             function renderMixedPayments() {
@@ -2582,7 +3352,38 @@
                     </div>`;
 
                 const listContainer = document.getElementById('mixedPaymentsList');
+                const addBtn = document.getElementById('addMixedPaymentBtn');
+                if (!listContainer) return;
+                
+                // Limpiar listeners anteriores para evitar memory leaks
+                if (listContainer._inputHandler) {
+                    listContainer.removeEventListener('input', listContainer._inputHandler);
+                }
+                if (listContainer._blurHandler) {
+                    listContainer.removeEventListener('blur', listContainer._blurHandler, true);
+                }
+                if (listContainer._clickHandler) {
+                    listContainer.removeEventListener('click', listContainer._clickHandler);
+                }
+                if (addBtn && addBtn._addClickHandler) {
+                    addBtn.removeEventListener('click', addBtn._addClickHandler);
+                }
+                
                 const wallets = getWallets();
+                // Asegurar que mixedPayments sea un array antes de usar map
+                if (!Array.isArray(formData.mixedPayments)) {
+                    formData.mixedPayments = [];
+                }
+                // Asegurar que cada payment sea un objeto válido
+                formData.mixedPayments = formData.mixedPayments.map(p => {
+                    if (!p || typeof p !== 'object') {
+                        return { wallet: '', monto: '' };
+                    }
+                    return {
+                        wallet: p.wallet || '',
+                        monto: p.monto || ''
+                    };
+                });
                 listContainer.innerHTML = formData.mixedPayments.map((payment, index) => `
                     <div class="mixed-payment-item">
                         <div class="form-group"><label class="form-label">Wallet</label><select class="form-select" data-index="${index}" data-field="wallet"><option value="">Seleccionar</option>${wallets.map(w => w.tipos.map(t => `<option value="${w.id}_${t}" ${payment.wallet === `${w.id}_${t}` ? 'selected' : ''}>${w.nombre} - ${t}</option>`).join('')).join('')}</select></div>
@@ -2590,25 +3391,32 @@
                         <button type="button" class="btn-remove" data-index="${index}">✕</button>
                     </div>`).join('');
 
-                listContainer.addEventListener('input', e => {
+                // Crear handlers nombrados
+                listContainer._inputHandler = (e) => {
                     if(e.target.dataset.index) {
                         const index = parseInt(e.target.dataset.index);
+                        // Validar que el índice sea válido y que el objeto exista
+                        if (isNaN(index) || index < 0 || index >= formData.mixedPayments.length) return;
+                        if (!formData.mixedPayments[index] || typeof formData.mixedPayments[index] !== 'object') {
+                            formData.mixedPayments[index] = { wallet: '', monto: '' };
+                        }
+                        
                         const field = e.target.dataset.field;
+                        if (!field) return;
                         
                         // No formatear mientras se escribe, solo guardar el valor numérico
-                        // Guardar el valor numérico, no el formateado
                         if (field === 'monto') {
-                            formData.mixedPayments[index][field] = safeParseFloat(e.target.value).toString();
+                            const numValue = safeParseFloat(e.target.value);
+                            formData.mixedPayments[index][field] = numValue > 0 ? numValue : 0;
                         } else {
                             formData.mixedPayments[index][field] = e.target.value;
                         }
                         updateMixedPaymentsTotal();
                         saveFormState();
                     }
-                });
+                };
                 
-                // Formatear campos de monto cuando pierden el foco
-                listContainer.addEventListener('blur', e => {
+                listContainer._blurHandler = (e) => {
                     if(e.target.dataset.index && e.target.dataset.field === 'monto' && !e.target.readOnly && e.target.value) {
                         const numValue = safeParseFloat(e.target.value);
                         if (!isNaN(numValue) && numValue > 0) {
@@ -2618,33 +3426,49 @@
                             }
                         }
                     }
-                }, true);
+                };
                 
-                 listContainer.addEventListener('click', e => {
+                listContainer._clickHandler = (e) => {
                     if (e.target.classList.contains('btn-remove')) {
                         const index = parseInt(e.target.dataset.index);
-                        formData.mixedPayments.splice(index, 1);
+                        // Validar que el índice sea válido
+                        if (!isNaN(index) && index >= 0 && index < formData.mixedPayments.length) {
+                            formData.mixedPayments.splice(index, 1);
+                            renderMixedPayments();
+                            saveFormState();
+                        }
+                    }
+                };
+                
+                // Agregar listeners
+                listContainer.addEventListener('input', listContainer._inputHandler);
+                listContainer.addEventListener('blur', listContainer._blurHandler, true);
+                listContainer.addEventListener('click', listContainer._clickHandler);
+                
+                // Handler para el botón agregar
+                if (addBtn) {
+                    addBtn._addClickHandler = () => {
+                        formData.mixedPayments.push({ wallet: '', monto: '' });
                         renderMixedPayments();
                         saveFormState();
-                    }
-                });
-                
-                document.getElementById('addMixedPaymentBtn').addEventListener('click', () => {
-                    formData.mixedPayments.push({ wallet: '', monto: '' });
-                    renderMixedPayments();
-                    saveFormState();
-                });
+                    };
+                    addBtn.addEventListener('click', addBtn._addClickHandler);
+                }
                 
                 updateMixedPaymentsTotal();
             }
 
             function updateMixedPaymentsTotal() {
-                const total = formData.mixedPayments.reduce((sum, p) => sum + safeParseFloat(p.monto), 0);
+                // Asegurar que mixedPayments sea un array antes de usar reduce
+                if (!Array.isArray(formData.mixedPayments)) {
+                    formData.mixedPayments = [];
+                }
+                const total = formData.mixedPayments.reduce((sum, p) => sum + safeParseFloat(p.monto || 0), 0);
                 const totalEl = document.getElementById('mixedPaymentsTotal');
                 const expectedEl = document.getElementById('expectedTotal');
                 if (totalEl && expectedEl) {
                     totalEl.textContent = formatNumberWithThousands(total);
-                    const expected = safeParseFloat(formData.total);
+                    const expected = safeParseFloat(formData.total || 0);
                     expectedEl.textContent = formatNumberWithThousands(expected);
                     totalEl.classList.toggle('total-match', Math.abs(total - expected) < 0.01);
                     totalEl.classList.toggle('total-mismatch', Math.abs(total - expected) >= 0.01);
@@ -2674,23 +3498,49 @@
                         overlay.classList.remove('active'); 
                     };
                     
-                    menuBtn.addEventListener('click', () => { 
+                    // Limpiar listeners anteriores para evitar duplicados
+                    if (menuBtn._menuClickHandler) {
+                        menuBtn.removeEventListener('click', menuBtn._menuClickHandler);
+                    }
+                    if (closeBtn._closeClickHandler) {
+                        closeBtn.removeEventListener('click', closeBtn._closeClickHandler);
+                    }
+                    if (overlay._overlayClickHandler) {
+                        overlay.removeEventListener('click', overlay._overlayClickHandler);
+                    }
+                    
+                    // Crear handlers nombrados
+                    menuBtn._menuClickHandler = () => { 
                         sidebar.classList.add('open'); 
                         overlay.classList.add('active'); 
-                    });
+                    };
+                    closeBtn._closeClickHandler = closeMenu;
+                    overlay._overlayClickHandler = closeMenu;
                     
-                    closeBtn.addEventListener('click', closeMenu);
-                    overlay.addEventListener('click', closeMenu);
+                    // Agregar listeners
+                    menuBtn.addEventListener('click', menuBtn._menuClickHandler);
+                    closeBtn.addEventListener('click', closeBtn._closeClickHandler);
+                    overlay.addEventListener('click', overlay._overlayClickHandler);
                     
+                    // Limpiar listeners anteriores de los links del menú
                     document.querySelectorAll('.menu-link').forEach(link => {
-                        link.addEventListener('click', e => {
+                        if (link._menuLinkHandler) {
+                            link.removeEventListener('click', link._menuLinkHandler);
+                        }
+                        
+                        // Crear handler nombrado
+                        link._menuLinkHandler = (e) => {
                             e.preventDefault();
+                            e.stopPropagation();
                             closeMenu();
-                            const href = e.target.getAttribute('href');
+                            // Obtener href del link, no del target (por si se hace click en el texto)
+                            const href = link.getAttribute('href') || e.target.closest('a')?.getAttribute('href');
                             if (href) {
                                 loadModule(href.substring(1));
                             }
-                        });
+                        };
+                        
+                        link.addEventListener('click', link._menuLinkHandler);
                     });
                 } catch (error) {
                     console.error('Error en setupMenu:', error);
@@ -2714,12 +3564,12 @@
 
             const applyTheme = (theme) => {
                 document.body.classList.toggle('light-theme', theme === 'light');
-                localStorage.setItem('theme', theme);
+                safeLocalStorageOperation('set', 'theme', theme);
             };
 
             const setupTheme = () => {
                 try {
-                    const savedTheme = localStorage.getItem('theme') || 'dark';
+                    const savedTheme = safeLocalStorageOperation('get', 'theme') || 'dark';
                     applyTheme(savedTheme);
                 } catch (error) {
                     console.error('Error en setupTheme:', error);
@@ -2735,7 +3585,7 @@
                     if(themeIcon) themeIcon.textContent = isDark ? '🌙' : '☀️';
                     if(themeText) themeText.textContent = isDark ? 'Tema Oscuro' : 'Tema Claro';
                 };
-                const currentTheme = localStorage.getItem('theme') || 'dark';
+                const currentTheme = safeLocalStorageOperation('get', 'theme') || 'dark';
                 setThemeUI(currentTheme === 'dark');
                 if(themeToggle) themeToggle.addEventListener('change', (e) => {
                     const newTheme = e.target.checked ? 'light' : 'dark';
@@ -2829,10 +3679,7 @@
                 `;
             }
 
-            // Variables globales para el módulo de clientes
-            let tipoClienteSeleccionado = 'diario';
-            let clienteEditandoId = null;
-            let tipoButtons = {};
+            // Variables globales para el módulo de clientes (ya declaradas arriba)
             
             // Función para actualizar el botón de volver según el contexto en el módulo de clientes
             function actualizarBotonVolverClientes() {
@@ -2843,19 +3690,29 @@
                 const isEnCrear = tabCrear?.classList.contains('active');
                 const isEditando = clienteEditandoId !== null;
                 
-                if (isEnCrear || isEditando) {
-                    // Si estás en "Crear Cliente" o editando, volver al listado
-                    btnVolver.onclick = () => {
+                // El botón "Volver" siempre usa goBack() para mantener consistencia
+                // Las sub-vistas (crear/editar) no se agregan al historial de módulos
+                btnVolver.onclick = () => {
+                    // Si estamos en una sub-vista (crear o editar), primero volver al listado
+                    if (isEnCrear || isEditando) {
                         const tabListar = document.getElementById('tabListarClientes');
                         if (tabListar) {
                             tabListar.click();
-                            actualizarBotonVolverClientes(); // Actualizar el botón después de cambiar
+                            // Resetear estado de edición
+                            if (isEditando) {
+                                resetearFormularioCliente();
+                            }
                         }
-                    };
+                    } else {
+                        // Si estamos en el listado, usar goBack() normal
+                        window.goBack();
+                    }
+                };
+                
+                // Actualizar el título del botón según el contexto
+                if (isEnCrear || isEditando) {
                     btnVolver.title = 'Volver al listado de clientes';
                 } else {
-                    // Si estás en "Listar Clientes", volver a la pantalla principal
-                    btnVolver.onclick = () => window.goBack();
                     btnVolver.title = 'Volver';
                 }
             }
@@ -2879,11 +3736,14 @@
                 
                 // Establecer tipo de cliente
                 tipoClienteSeleccionado = cliente.tipo || 'diario';
-                Object.values(tipoButtons).forEach(btn => {
-                    if (btn) btn.classList.remove('active');
-                });
-                if (tipoButtons[tipoClienteSeleccionado]) {
-                    tipoButtons[tipoClienteSeleccionado].classList.add('active');
+                // Verificar que tipoButtons esté inicializado
+                if (tipoButtons && typeof tipoButtons === 'object') {
+                    Object.values(tipoButtons).forEach(btn => {
+                        if (btn) btn.classList.remove('active');
+                    });
+                    if (tipoButtons[tipoClienteSeleccionado]) {
+                        tipoButtons[tipoClienteSeleccionado].classList.add('active');
+                    }
                 }
                 
                 // Cambiar texto del botón y mostrar botón cancelar y eliminar
@@ -2929,10 +3789,13 @@
                 
                 // Resetear tipo de cliente
                 tipoClienteSeleccionado = 'diario';
-                Object.values(tipoButtons).forEach(btn => {
-                    if (btn) btn.classList.remove('active');
-                });
-                if (tipoButtons.diario) tipoButtons.diario.classList.add('active');
+                // Verificar que tipoButtons esté inicializado
+                if (tipoButtons && typeof tipoButtons === 'object') {
+                    Object.values(tipoButtons).forEach(btn => {
+                        if (btn) btn.classList.remove('active');
+                    });
+                    if (tipoButtons.diario) tipoButtons.diario.classList.add('active');
+                }
                 
                 // Restaurar texto del botón y ocultar botón eliminar
                 const submitBtn = document.querySelector('#clienteForm button[type="submit"]');
@@ -2988,7 +3851,9 @@
                     button?.addEventListener('click', () => {
                         tipoClienteSeleccionado = tipo;
                         // Desactivar todos
-                        Object.values(tipoButtons).forEach(btn => btn?.classList.remove('active'));
+                        if (tipoButtons && typeof tipoButtons === 'object') {
+                            Object.values(tipoButtons).forEach(btn => btn?.classList.remove('active'));
+                        }
                         // Activar el seleccionado
                         button.classList.add('active');
                     });
@@ -3040,7 +3905,7 @@
                         }
                         
                         // Generar ID aleatorio único
-                        const id = 'CLI_' + crypto.randomUUID();
+                        const id = 'CLI_' + generateUUID();
                         
                         const nuevoCliente = {
                             id,
@@ -3077,7 +3942,7 @@
                     const cliente = getClienteCompleto(clienteEditandoId);
                     if (!cliente) return;
                     
-                    if (confirm(`¿Estás seguro de que deseas eliminar el cliente "${cliente.nombre}"? Esta acción no se puede deshacer.`)) {
+                    if (confirm(`¿Estás seguro de que deseas eliminar el cliente "${escapeHTML(cliente.nombre)}"? Esta acción no se puede deshacer.`)) {
                         deleteCliente(clienteEditandoId);
                         showToast('Cliente eliminado', 'success');
                         resetearFormularioCliente();
@@ -3173,7 +4038,7 @@
                     let montoInfo = '';
                     if (mov.monto && mov.moneda) {
                         let moneda = mov.moneda;
-                        if (moneda === 'PESO') moneda = 'ARS';
+                        moneda = normalizeMoneda(moneda);
                         const monedaLabel = monedas.find(m => m.value === moneda)?.label || moneda;
                         montoInfo = `${monedaLabel} ${formatNumberWithThousands(mov.monto)}`;
                     }
@@ -3182,7 +4047,7 @@
                     let totalInfo = '';
                     if (mov.total) {
                         let monedaTotal = mov.monedaTC || mov.moneda || 'ARS';
-                        if (monedaTotal === 'PESO') monedaTotal = 'ARS';
+                        monedaTotal = normalizeMoneda(monedaTotal);
                         const monedaTotalLabel = monedas.find(m => m.value === monedaTotal)?.label || monedaTotal;
                         totalInfo = `${monedaTotalLabel} ${formatNumberWithThousands(mov.total)}`;
                     }
@@ -3401,8 +4266,6 @@
              * MÓDULO DE PENDIENTES
              * =================================================================
              */
-            let viewingPendienteDetail = null; // Para rastrear si estamos viendo un detalle
-            
             function renderPendientesModule() {
                 viewingPendienteDetail = null; // Reset al cargar el módulo
                 return `
@@ -3426,17 +4289,23 @@
                 const btnVolver = document.getElementById('btnVolverPendientes');
                 if (!btnVolver) return;
                 
-                if (viewingPendienteDetail) {
-                    // Si estamos viendo un detalle, volver al listado de pendientes
-                    btnVolver.onclick = () => {
+                // El botón "Volver" siempre mantiene la lógica de goBack()
+                // Las sub-vistas (detalle) no se agregan al historial de módulos
+                btnVolver.onclick = () => {
+                    // Si estamos viendo un detalle, primero volver al listado
+                    if (viewingPendienteDetail) {
                         viewingPendienteDetail = null;
                         renderPendientesList();
-                        actualizarBotonVolverPendientes(); // Actualizar el botón después de cambiar
-                    };
+                    } else {
+                        // Si estamos en el listado, usar goBack() normal
+                        window.goBack();
+                    }
+                };
+                
+                // Actualizar el título del botón según el contexto
+                if (viewingPendienteDetail) {
                     btnVolver.title = 'Volver al listado de pendientes';
                 } else {
-                    // Si estamos en el listado, volver a la pantalla principal
-                    btnVolver.onclick = () => window.goBack();
                     btnVolver.title = 'Volver';
                 }
             }
@@ -3490,7 +4359,7 @@
                 pendientes.forEach(mov => {
                     const monto = safeParseFloat(mov.monto || mov.total || 0);
                     let moneda = mov.moneda || mov.monedaTC || 'ARS';
-                    if (moneda === 'PESO') moneda = 'ARS';
+                    moneda = normalizeMoneda(moneda);
                     
                     if (mov.estado === 'pendiente_retiro') {
                         if (!totalRetiroGeneral[moneda]) totalRetiroGeneral[moneda] = 0;
@@ -3509,8 +4378,7 @@
                     if (Object.keys(totalRetiroGeneral).length > 0) {
                         const retiroStr = Object.entries(totalRetiroGeneral)
                             .map(([moneda, total]) => {
-                                let monedaNorm = moneda;
-                                if (monedaNorm === 'PESO') monedaNorm = 'ARS';
+                                let monedaNorm = normalizeMoneda(moneda);
                                 const monedaLabel = monedas.find(m => m.value === monedaNorm)?.label || monedaNorm;
                                 return `<strong>${monedaLabel}</strong> ${formatNumberWithThousands(total)}`;
                             })
@@ -3521,8 +4389,7 @@
                     if (Object.keys(totalEntregaGeneral).length > 0) {
                         const entregaStr = Object.entries(totalEntregaGeneral)
                             .map(([moneda, total]) => {
-                                let monedaNorm = moneda;
-                                if (monedaNorm === 'PESO') monedaNorm = 'ARS';
+                                let monedaNorm = normalizeMoneda(moneda);
                                 const monedaLabel = monedas.find(m => m.value === monedaNorm)?.label || monedaNorm;
                                 return `<strong>${monedaLabel}</strong> ${formatNumberWithThousands(total)}`;
                             })
@@ -3539,6 +4406,8 @@
                 pendientes.forEach(mov => {
                     if (!mov || !mov.id) return; // Validar que el movimiento sea válido
                     const clienteId = mov.cliente || 'sin_cliente';
+                    
+                    // Inicializar el objeto del cliente si no existe
                     if (!pendientesPorCliente[clienteId]) {
                         const clienteCompleto = getClienteCompleto(clienteId);
                         pendientesPorCliente[clienteId] = {
@@ -3560,7 +4429,7 @@
                     // Calcular totales por tipo
                     const monto = safeParseFloat(mov.monto || mov.total || 0);
                     let moneda = mov.moneda || mov.monedaTC || 'ARS';
-                    if (moneda === 'PESO') moneda = 'ARS';
+                    moneda = normalizeMoneda(moneda);
                     
                     const estado = mov.estado || '';
                     if (estado === 'pendiente_retiro') {
@@ -3595,8 +4464,7 @@
                     if (grupo.totalRetiro > 0) {
                         const monedasRetiroStr = Object.entries(grupo.monedasRetiro)
                             .map(([moneda, total]) => {
-                                let monedaNorm = moneda;
-                                if (monedaNorm === 'PESO') monedaNorm = 'ARS';
+                                let monedaNorm = normalizeMoneda(moneda);
                                 const monedaLabel = monedas.find(m => m.value === monedaNorm)?.label || monedaNorm;
                                 return `${monedaLabel} ${formatNumberWithThousands(total)}`;
                             })
@@ -3606,8 +4474,7 @@
                     if (grupo.totalEntrega > 0) {
                         const monedasEntregaStr = Object.entries(grupo.monedasEntrega)
                             .map(([moneda, total]) => {
-                                let monedaNorm = moneda;
-                                if (monedaNorm === 'PESO') monedaNorm = 'ARS';
+                                let monedaNorm = normalizeMoneda(moneda);
                                 const monedaLabel = monedas.find(m => m.value === monedaNorm)?.label || monedaNorm;
                                 return `${monedaLabel} ${formatNumberWithThousands(total)}`;
                             })
@@ -3646,14 +4513,12 @@
                                 </div>
                                 <div style="text-align: right; flex-shrink: 0;">
                                     ${grupo.totalRetiro > 0 ? `<div style="color: var(--error-color); font-size: 13px; font-weight: 600; margin-bottom: 2px; white-space: nowrap;">🔴 ${Object.entries(grupo.monedasRetiro).map(([m, t]) => {
-                                        let monedaNorm = m;
-                                        if (monedaNorm === 'PESO') monedaNorm = 'ARS';
+                                        const monedaNorm = normalizeMoneda(m);
                                         const monedaLabel = monedas.find(mon => mon.value === monedaNorm)?.label || monedaNorm;
                                         return `${monedaLabel} ${formatNumberWithThousands(t)}`;
                                     }).join(', ')}</div>` : ''}
                                     ${grupo.totalEntrega > 0 ? `<div style="color: var(--success-color); font-size: 13px; font-weight: 600; white-space: nowrap;">🟢 ${Object.entries(grupo.monedasEntrega).map(([m, t]) => {
-                                        let monedaNorm = m;
-                                        if (monedaNorm === 'PESO') monedaNorm = 'ARS';
+                                        const monedaNorm = normalizeMoneda(m);
                                         const monedaLabel = monedas.find(mon => mon.value === monedaNorm)?.label || monedaNorm;
                                         return `${monedaLabel} ${formatNumberWithThousands(t)}`;
                                     }).join(', ')}</div>` : ''}
@@ -3668,9 +4533,9 @@
                                     const operacionLabel = mov.operacion ? mov.operacion.replace('_', ' ') : '';
                                     const subOperacionLabel = mov.subOperacion || '';
                                     const montoMov = safeParseFloat(mov.monto || mov.total || 0);
-                                    // Normalizar PESO a ARS para compatibilidad con datos antiguos
+                                    // Normalizar moneda
                                     let monedaMov = mov.moneda || mov.monedaTC || 'ARS';
-                                    if (monedaMov === 'PESO') monedaMov = 'ARS';
+                                    monedaMov = normalizeMoneda(monedaMov);
                                     const monedaLabel = monedas.find(m => m.value === monedaMov)?.label || monedaMov;
                                     const tipoPendiente = mov.estado === 'pendiente_retiro' ? 'P. RETIRO' : 'P. ENTREGA';
                                     const colorTipo = mov.estado === 'pendiente_retiro' ? 'var(--error-color)' : 'var(--success-color)';
@@ -3697,7 +4562,7 @@
                                             <div style="min-width: 0; overflow: hidden;">
                                                 <div style="font-size: 13px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${operacionLabel} ${subOperacionLabel ? '> ' + subOperacionLabel : ''}</div>
                                                 ${walletNombre ? `<div style="font-size: 11px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">💳 ${walletNombre}</div>` : ''}
-                                                ${mov.detalle ? `<div style="font-size: 11px; color: var(--text-secondary); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${mov.detalle.substring(0, 40)}${mov.detalle.length > 40 ? '...' : ''}</div>` : ''}
+                                                ${mov.detalle ? `<div style="font-size: 11px; color: var(--text-secondary); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHTML(mov.detalle.substring(0, 40))}${mov.detalle.length > 40 ? '...' : ''}</div>` : ''}
                                             </div>
                                             <div style="font-size: 12px; color: var(--text-secondary); min-width: 0; white-space: nowrap;">${fechaMovFormateada}<br>${horaMov}</div>
                                             <div style="font-size: 13px; color: var(--text-primary); font-weight: 600; white-space: nowrap; flex-shrink: 0;">${monedaLabel} ${formatNumberWithThousands(montoMov)}</div>
@@ -3879,7 +4744,7 @@
                         <div style="display: grid; grid-template-columns: 1fr auto; gap: 16px; margin-bottom: 16px; align-items: start;">
                             <div style="min-width: 0; overflow: hidden;">
                                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap;">
-                                    <h3 style="font-size: 18px; font-weight: 600; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${cliente.nombre}</h3>
+                                    <h3 style="font-size: 18px; font-weight: 600; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHTML(cliente.nombre)}</h3>
                                     <span style="font-size: 11px; padding: 2px 8px; border-radius: 12px; background: ${cliente.tipo === 'prestamista' ? 'rgba(119, 171, 255, 0.2)' : cliente.tipo === 'cuenta_corriente' ? 'rgba(48, 209, 88, 0.1)' : 'var(--bg-secondary)'}; color: ${cliente.tipo === 'prestamista' ? 'var(--button-bg)' : cliente.tipo === 'cuenta_corriente' ? 'var(--success-color)' : 'var(--text-secondary)'};">
                                         ${cliente.tipo === 'prestamista' ? 'Prestamista' : cliente.tipo === 'cuenta_corriente' ? 'Cuenta Corriente' : 'Diario'}
                                     </span>
@@ -3888,9 +4753,9 @@
                                     ${cliente.documento ? `<div><p style="color: var(--text-secondary); font-size: 13px; margin: 0;">🆔 DNI: ${cliente.documento}</p></div>` : ''}
                                     ${cliente.telefono ? `<div><p style="color: var(--text-secondary); font-size: 13px; margin: 0;">📞 ${cliente.telefono}</p></div>` : ''}
                                     ${cliente.telefonoRespaldo ? `<div><p style="color: var(--text-secondary); font-size: 13px; margin: 0;">📱 Respaldo: ${cliente.telefonoRespaldo}</p></div>` : ''}
-                                    ${cliente.email ? `<div><p style="color: var(--text-secondary); font-size: 13px; margin: 0;">✉️ ${cliente.email}</p></div>` : ''}
-                                    ${cliente.direccion ? `<div style="grid-column: 1 / -1;"><p style="color: var(--text-secondary); font-size: 13px; margin: 0;">📍 ${cliente.direccion}</p></div>` : ''}
-                                    ${cliente.recomendado ? `<div><p style="color: var(--text-secondary); font-size: 13px; margin: 0;">👤 Recomendado de: ${cliente.recomendado}</p></div>` : ''}
+                                    ${cliente.email ? `<div><p style="color: var(--text-secondary); font-size: 13px; margin: 0;">✉️ ${escapeHTML(cliente.email)}</p></div>` : ''}
+                                    ${cliente.direccion ? `<div style="grid-column: 1 / -1;"><p style="color: var(--text-secondary); font-size: 13px; margin: 0;">📍 ${escapeHTML(cliente.direccion)}</p></div>` : ''}
+                                    ${cliente.recomendado ? `<div><p style="color: var(--text-secondary); font-size: 13px; margin: 0;">👤 Recomendado de: ${escapeHTML(cliente.recomendado)}</p></div>` : ''}
                                 </div>
                                 <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color); display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
                                     <div>
@@ -3910,7 +4775,7 @@
                                         </div>
                                     ` : '<div><p style="color: var(--text-secondary); font-size: 13px; margin: 0;">Sin operaciones registradas</p></div>'}
                                 </div>
-                                ${cliente.notas ? `<div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color);"><p style="color: var(--text-secondary); font-size: 13px; margin: 0;">${cliente.notas}</p></div>` : ''}
+                                ${cliente.notas ? `<div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color);"><p style="color: var(--text-secondary); font-size: 13px; margin: 0;">${escapeHTML(cliente.notas)}</p></div>` : ''}
                             </div>
                             <div style="display: flex; gap: 8px; flex-shrink: 0;">
                                 <button type="button" class="btn-edit" data-cliente-id="${cliente.id}" style="padding: 8px 12px; font-size: 13px;" title="Editar cliente">✏️</button>
@@ -3990,7 +4855,8 @@
                 movimientos.forEach(mov => {
                     const operacion = mov.operacion;
                     const subOperacion = mov.subOperacion;
-                    const moneda = mov.moneda || mov.monedaTC || 'ARS';
+                    let moneda = mov.moneda || mov.monedaTC || 'ARS';
+                    moneda = normalizeMoneda(moneda);
                     const monto = safeParseFloat(mov.monto || 0);
                     const total = safeParseFloat(mov.total || monto);
 
@@ -4010,8 +4876,10 @@
 
                     // TRANSACCIONES - COMPRA: resta de walletCompra (moneda de pago), suma a walletTC (moneda comprada)
                     if (operacion === 'TRANSACCIONES' && subOperacion === 'COMPRA') {
-                        const monedaPago = mov.moneda || 'ARS';
-                        const monedaComprada = mov.monedaTC || 'USD';
+                        let monedaPago = mov.moneda || 'ARS';
+                        let monedaComprada = mov.monedaTC || 'USD';
+                        monedaPago = normalizeMoneda(monedaPago);
+                        monedaComprada = normalizeMoneda(monedaComprada);
                         if (mov.walletCompra) {
                             if (!saldos[mov.walletCompra]) saldos[mov.walletCompra] = {};
                             if (!saldos[mov.walletCompra][monedaPago]) saldos[mov.walletCompra][monedaPago] = 0;
@@ -4026,8 +4894,10 @@
 
                     // TRANSACCIONES - VENTA: suma a walletCompra (moneda recibida), resta de walletTC (moneda vendida)
                     if (operacion === 'TRANSACCIONES' && subOperacion === 'VENTA') {
-                        const monedaRecibida = mov.moneda || 'ARS';
-                        const monedaVendida = mov.monedaTC || 'USD';
+                        let monedaRecibida = mov.moneda || 'ARS';
+                        let monedaVendida = mov.monedaTC || 'USD';
+                        monedaRecibida = normalizeMoneda(monedaRecibida);
+                        monedaVendida = normalizeMoneda(monedaVendida);
                         if (mov.walletCompra) {
                             if (!saldos[mov.walletCompra]) saldos[mov.walletCompra] = {};
                             if (!saldos[mov.walletCompra][monedaRecibida]) saldos[mov.walletCompra][monedaRecibida] = 0;
@@ -4042,8 +4912,10 @@
 
                     // TRANSACCIONES - ARBITRAJE: walletBase resta, walletProfit suma
                     if (operacion === 'TRANSACCIONES' && subOperacion === 'ARBITRAJE') {
-                        const monedaBase = mov.moneda || 'ARS';
-                        const monedaProfit = mov.monedaProfit || 'USD';
+                        let monedaBase = mov.moneda || 'ARS';
+                        let monedaProfit = mov.monedaProfit || 'USD';
+                        monedaBase = normalizeMoneda(monedaBase);
+                        monedaProfit = normalizeMoneda(monedaProfit);
                         if (mov.walletBase) {
                             if (!saldos[mov.walletBase]) saldos[mov.walletBase] = {};
                             if (!saldos[mov.walletBase][monedaBase]) saldos[mov.walletBase][monedaBase] = 0;
@@ -4072,8 +4944,10 @@
 
                     // CUENTAS_CORRIENTES - COMPRA/VENTA: similar a TRANSACCIONES
                     if (operacion === 'CUENTAS_CORRIENTES' && (subOperacion === 'COMPRA' || subOperacion === 'VENTA')) {
-                        const monedaPago = mov.moneda || 'ARS';
-                        const monedaOperacion = mov.monedaTC || 'USD';
+                        let monedaPago = mov.moneda || 'ARS';
+                        let monedaOperacion = mov.monedaTC || 'USD';
+                        monedaPago = normalizeMoneda(monedaPago);
+                        monedaOperacion = normalizeMoneda(monedaOperacion);
                         if (subOperacion === 'COMPRA') {
                             if (mov.walletCompra) {
                                 if (!saldos[mov.walletCompra]) saldos[mov.walletCompra] = {};
@@ -4114,6 +4988,20 @@
                         saldos[mov.walletCompra][moneda] -= monto;
                     }
 
+                    // WALLET - PRESTAMO: resta de walletCompra (prestamos dinero)
+                    if (operacion === 'WALLET' && subOperacion === 'PRESTAMO' && mov.walletCompra) {
+                        if (!saldos[mov.walletCompra]) saldos[mov.walletCompra] = {};
+                        if (!saldos[mov.walletCompra][moneda]) saldos[mov.walletCompra][moneda] = 0;
+                        saldos[mov.walletCompra][moneda] -= monto;
+                    }
+
+                    // WALLET - DEVOLUCION: suma a walletCompra (nos devuelven dinero)
+                    if (operacion === 'WALLET' && subOperacion === 'DEVOLUCION' && mov.walletCompra) {
+                        if (!saldos[mov.walletCompra]) saldos[mov.walletCompra] = {};
+                        if (!saldos[mov.walletCompra][moneda]) saldos[mov.walletCompra][moneda] = 0;
+                        saldos[mov.walletCompra][moneda] += monto;
+                    }
+
                     // PRESTAMISTAS - PRESTAMO: resta de walletCompra
                     if (operacion === 'PRESTAMISTAS' && subOperacion === 'PRESTAMO' && mov.walletCompra) {
                         if (!saldos[mov.walletCompra]) saldos[mov.walletCompra] = {};
@@ -4128,17 +5016,19 @@
                         saldos[mov.walletCompra][moneda] -= monto;
                     }
 
-                    // WALLET - MOV ENTRE CUENTAS: resta de walletBase, suma a walletProfit
+                    // WALLET - MOV ENTRE CUENTAS: resta de cuentaSalida, suma a cuentaIngreso
                     if (operacion === 'WALLET' && subOperacion === 'MOV ENTRE CUENTAS') {
-                        if (mov.walletBase) {
-                            if (!saldos[mov.walletBase]) saldos[mov.walletBase] = {};
-                            if (!saldos[mov.walletBase][moneda]) saldos[mov.walletBase][moneda] = 0;
-                            saldos[mov.walletBase][moneda] -= monto;
+                        const walletSalida = mov.cuentaSalida || mov.walletBase;
+                        const walletIngreso = mov.cuentaIngreso || mov.walletProfit;
+                        if (walletSalida) {
+                            if (!saldos[walletSalida]) saldos[walletSalida] = {};
+                            if (!saldos[walletSalida][moneda]) saldos[walletSalida][moneda] = 0;
+                            saldos[walletSalida][moneda] -= monto;
                         }
-                        if (mov.walletProfit) {
-                            if (!saldos[mov.walletProfit]) saldos[mov.walletProfit] = {};
-                            if (!saldos[mov.walletProfit][moneda]) saldos[mov.walletProfit][moneda] = 0;
-                            saldos[mov.walletProfit][moneda] += monto;
+                        if (walletIngreso) {
+                            if (!saldos[walletIngreso]) saldos[walletIngreso] = {};
+                            if (!saldos[walletIngreso][moneda]) saldos[walletIngreso][moneda] = 0;
+                            saldos[walletIngreso][moneda] += monto;
                         }
                     }
                 });
@@ -4154,56 +5044,70 @@
                 const saldos = calcularSaldosWallets();
 
                 if (wallets.length === 0) {
-                    container.innerHTML = '<p style="color: var(--text-secondary); padding: 20px; text-align: center;">No hay wallets creadas.</p>';
+                    container.innerHTML = '<p style="color: var(--text-secondary); padding: 20px; text-align: center;">No hay wallets creadas. Ve a Operaciones > WALLET > CREAR WALLET para crear una.</p>';
                     return;
+                }
+
+                // Obtener todas las monedas únicas que tienen saldo en alguna wallet
+                const todasLasMonedas = new Set();
+                wallets.forEach(wallet => {
+                    const walletSaldos = saldos[wallet.id] || {};
+                    Object.keys(walletSaldos).forEach(moneda => {
+                        if (Math.abs(walletSaldos[moneda]) > 0.01) {
+                            todasLasMonedas.add(moneda);
+                        }
+                    });
+                });
+                
+                // Si no hay monedas con saldo, mostrar al menos las monedas principales
+                if (todasLasMonedas.size === 0) {
+                    ['ARS', 'USD', 'USDT'].forEach(m => todasLasMonedas.add(m));
                 }
 
                 let html = '';
                 wallets.forEach(wallet => {
                     const walletSaldos = saldos[wallet.id] || {};
-                    const monedasConSaldo = Object.keys(walletSaldos).filter(m => Math.abs(walletSaldos[m]) > 0.01);
+                    const monedasConSaldo = Array.from(todasLasMonedas).filter(moneda => {
+                        const saldo = walletSaldos[moneda] || 0;
+                        return Math.abs(saldo) > 0.01;
+                    });
 
-                    if (monedasConSaldo.length === 0) {
-                        html += `
-                            <div class="form-card" style="padding: 20px; margin-bottom: 15px; border: 1px solid var(--border-color);">
-                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
-                                    <div>
-                                        <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 5px;">${wallet.nombre}</h3>
-                                        <p style="color: var(--text-secondary); font-size: 13px;">ID: ${wallet.id}</p>
-                                    </div>
-                                </div>
-                                <div style="padding: 15px; background: var(--bg-primary); border-radius: 8px; text-align: center;">
-                                    <p style="color: var(--text-secondary);">Sin saldo</p>
+                    // Mostrar todas las wallets, incluso si no tienen saldo
+                    html += `
+                        <div class="form-card" style="padding: 20px; margin-bottom: 15px; border: 1px solid var(--border-color);">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                                <div>
+                                    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 5px;">💳 ${wallet.nombre}</h3>
+                                    <p style="color: var(--text-secondary); font-size: 12px;">ID: ${wallet.id}</p>
                                 </div>
                             </div>
-                        `;
-                    } else {
-                        html += `
-                            <div class="form-card" style="padding: 20px; margin-bottom: 15px; border: 1px solid var(--border-color);">
-                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
-                                    <div>
-                                        <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 5px;">${wallet.nombre}</h3>
-                                        <p style="color: var(--text-secondary); font-size: 13px;">ID: ${wallet.id}</p>
-                                    </div>
-                                </div>
-                                <div style="display: grid; gap: 12px;">
+                            ${monedasConSaldo.length > 0 ? `
+                                <div style="display: grid; gap: 10px;">
                                     ${monedasConSaldo.map(moneda => {
-                                        const saldo = walletSaldos[moneda];
+                                        const saldo = walletSaldos[moneda] || 0;
                                         const monedaLabel = monedas.find(m => m.value === moneda)?.label || moneda;
                                         const esNegativo = saldo < 0;
+                                        const esCero = Math.abs(saldo) < 0.01;
                                         return `
                                             <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--bg-primary); border-radius: 8px; border: 1px solid var(--border-color);">
-                                                <span style="font-weight: 600; font-size: 15px;">${monedaLabel}</span>
-                                                <span style="font-size: 16px; font-weight: 600; color: ${esNegativo ? 'var(--error-color)' : 'var(--success-color)'};">
+                                                <div style="display: flex; align-items: center; gap: 10px;">
+                                                    <span style="font-weight: 600; font-size: 15px;">${monedaLabel}</span>
+                                                    ${esNegativo ? '<span style="font-size: 11px; color: var(--error-color);">(Negativo)</span>' : ''}
+                                                </div>
+                                                <span style="font-size: 16px; font-weight: 600; color: ${esNegativo ? 'var(--error-color)' : esCero ? 'var(--text-secondary)' : 'var(--success-color)'};">
                                                     ${esNegativo ? '-' : ''}${formatNumberWithThousands(Math.abs(saldo))}
                                                 </span>
                                             </div>
                                         `;
                                     }).join('')}
                                 </div>
-                            </div>
-                        `;
-                    }
+                            ` : `
+                                <div style="padding: 15px; background: var(--bg-primary); border-radius: 8px; text-align: center;">
+                                    <p style="color: var(--text-secondary); font-size: 14px;">Sin saldo en ninguna moneda</p>
+                                </div>
+                            `}
+                        </div>
+                    `;
                 });
 
                 container.innerHTML = html;
@@ -4249,7 +5153,8 @@
                     if (!clienteId || !balances[clienteId]) return;
 
                     const subOperacion = mov.subOperacion;
-                    const moneda = mov.moneda || mov.monedaTC || 'ARS';
+                    let moneda = mov.moneda || mov.monedaTC || 'ARS';
+                    moneda = normalizeMoneda(moneda);
                     const monto = safeParseFloat(mov.monto || 0);
                     const total = safeParseFloat(mov.total || monto);
 
@@ -4265,13 +5170,25 @@
                     else if (subOperacion === 'EGRESO') {
                         balances[clienteId][moneda] -= monto;
                     }
-                    // COMPRA: el cliente compra, nos debe más (resta)
+                    // COMPRA: el cliente compra, suma a wallet, genera deuda (resta del balance)
+                    // El cliente me debe el total que pagué
                     else if (subOperacion === 'COMPRA') {
-                        balances[clienteId][moneda] -= total;
+                        // El balance se calcula en la moneda de pago (monedaTC)
+                        const monedaPago = normalizeMoneda(mov.monedaTC || mov.moneda || 'ARS');
+                        if (!balances[clienteId][monedaPago]) {
+                            balances[clienteId][monedaPago] = 0;
+                        }
+                        balances[clienteId][monedaPago] -= total; // Me debe (negativo)
                     }
-                    // VENTA: el cliente vende, nos debe menos o nos pagó (suma)
+                    // VENTA: el cliente vende, baja saldo de wallet, genera deuda (resta del balance)
+                    // El cliente me debe el total que me pagó
                     else if (subOperacion === 'VENTA') {
-                        balances[clienteId][moneda] += total;
+                        // El balance se calcula en la moneda de cobro (monedaTC)
+                        const monedaCobro = normalizeMoneda(mov.monedaTC || mov.moneda || 'ARS');
+                        if (!balances[clienteId][monedaCobro]) {
+                            balances[clienteId][monedaCobro] = 0;
+                        }
+                        balances[clienteId][monedaCobro] -= total; // Me debe (negativo)
                     }
                     // ARBITRAJE: depende de la lógica específica, por ahora no afecta directamente
                 });
@@ -4279,53 +5196,49 @@
                 return balances;
             }
 
-            function renderCuentasCorrientesList() {
+            function renderCuentasCorrientesList(clienteIdFiltro = null) {
                 const container = document.getElementById('cuentasCorrientesListContainer');
                 if (!container) return;
 
                 const clientes = getClientes().filter(c => c.tipo === 'cuenta_corriente');
                 const balances = calcularBalancesCuentasCorrientes();
 
-                if (clientes.length === 0) {
-                    container.innerHTML = '<p style="color: var(--text-secondary); padding: 20px; text-align: center;">No hay clientes con cuenta corriente.</p>';
-                    return;
-                }
+                // Si hay un filtro de cliente, mostrar solo ese cliente y sus operaciones
+                if (clienteIdFiltro) {
+                    const cliente = clientes.find(c => c.id === clienteIdFiltro);
+                    if (!cliente) {
+                        cuentaCorrienteSeleccionada = null;
+                        renderCuentasCorrientesList();
+                        return;
+                    }
 
-                let html = '';
-                clientes.forEach(cliente => {
                     const clienteBalances = balances[cliente.id] || {};
                     const monedasConBalance = Object.keys(clienteBalances).filter(m => Math.abs(clienteBalances[m]) > 0.01);
+                    
+                    // Obtener todas las operaciones de este cliente
+                    const movimientos = getMovimientos()
+                        .filter(m => !m.anulado && m.operacion === 'CUENTAS_CORRIENTES' && m.cliente === clienteIdFiltro)
+                        .sort((a, b) => new Date(b.fechaCreacion || b.fecha) - new Date(a.fechaCreacion || a.fecha));
 
-                    if (monedasConBalance.length === 0) {
-                        html += `
-                            <div class="form-card" style="padding: 20px; margin-bottom: 15px; border: 1px solid var(--border-color);">
-                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
-                                    <div>
-                                        <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 5px;">${cliente.nombre}</h3>
-                                        ${cliente.documento ? `<p style="color: var(--text-secondary); font-size: 13px;">DNI: ${cliente.documento}</p>` : ''}
-                                    </div>
-                                    <span style="font-size: 11px; padding: 4px 8px; border-radius: 12px; background: rgba(48, 209, 88, 0.1); color: var(--success-color); font-weight: 600;">Cuenta Corriente</span>
+                    let html = `
+                        <div style="margin-bottom: 20px;">
+                            <button type="button" class="btn-back" onclick="cuentaCorrienteSeleccionada = null; renderCuentasCorrientesList();" style="margin-bottom: 15px;">← Volver al listado</button>
+                        </div>
+                        <div class="form-card" style="padding: 20px; margin-bottom: 15px; border: 1px solid var(--border-color);">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                                <div>
+                                    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 5px;">${escapeHTML(cliente.nombre)}</h3>
+                                    ${cliente.documento ? `<p style="color: var(--text-secondary); font-size: 13px;">DNI: ${cliente.documento}</p>` : ''}
+                                    ${cliente.telefono ? `<p style="color: var(--text-secondary); font-size: 13px;">Tel: ${cliente.telefono}</p>` : ''}
                                 </div>
-                                <div style="padding: 15px; background: var(--bg-primary); border-radius: 8px; text-align: center;">
-                                    <p style="color: var(--text-secondary);">Balance en cero</p>
-                                </div>
+                                <span style="font-size: 11px; padding: 4px 8px; border-radius: 12px; background: rgba(48, 209, 88, 0.1); color: var(--success-color); font-weight: 600;">Cuenta Corriente</span>
                             </div>
-                        `;
-                    } else {
-                        html += `
-                            <div class="form-card" style="padding: 20px; margin-bottom: 15px; border: 1px solid var(--border-color);">
-                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
-                                    <div>
-                                        <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 5px;">${cliente.nombre}</h3>
-                                        ${cliente.documento ? `<p style="color: var(--text-secondary); font-size: 13px;">DNI: ${cliente.documento}</p>` : ''}
-                                    </div>
-                                    <span style="font-size: 11px; padding: 4px 8px; border-radius: 12px; background: rgba(48, 209, 88, 0.1); color: var(--success-color); font-weight: 600;">Cuenta Corriente</span>
-                                </div>
-                                <div style="display: grid; gap: 12px;">
+                            ${monedasConBalance.length > 0 ? `
+                                <div style="display: grid; gap: 12px; margin-bottom: 20px;">
                                     ${monedasConBalance.map(moneda => {
                                         const balance = clienteBalances[moneda];
                                         const monedaLabel = monedas.find(m => m.value === moneda)?.label || moneda;
-                                        const esDeudor = balance < 0; // Si es negativo, el cliente nos debe
+                                        const esDeudor = balance < 0;
                                         return `
                                             <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--bg-primary); border-radius: 8px; border: 1px solid var(--border-color);">
                                                 <div>
@@ -4341,6 +5254,96 @@
                                         `;
                                     }).join('')}
                                 </div>
+                            ` : '<p style="color: var(--text-secondary); padding: 15px; text-align: center; background: var(--bg-primary); border-radius: 8px;">Balance en cero</p>'}
+                            <div style="margin-top: 20px;">
+                                <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 15px;">Operaciones</h4>
+                                ${movimientos.length > 0 ? `
+                                    <div style="display: grid; gap: 10px;">
+                                        ${movimientos.map(mov => {
+                                            const fecha = new Date(mov.fechaCreacion || mov.fecha);
+                                            const fechaFormateada = fecha.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                                            const horaFormateada = fecha.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                                            const monedaLabel = monedas.find(m => m.value === normalizeMoneda(mov.moneda || mov.monedaTC || 'ARS'))?.label || normalizeMoneda(mov.moneda || mov.monedaTC || 'ARS');
+                                            return `
+                                                <div style="padding: 12px; background: var(--bg-primary); border-radius: 8px; border: 1px solid var(--border-color);">
+                                                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                                                        <div>
+                                                            <span style="font-weight: 600; font-size: 14px;">${mov.subOperacion}</span>
+                                                            <span style="font-size: 12px; color: var(--text-secondary); margin-left: 8px;">${fechaFormateada} ${horaFormateada}</span>
+                                                        </div>
+                                                        <span style="font-size: 14px; font-weight: 600;">${formatNumberWithThousands(safeParseFloat(mov.total || mov.monto || 0))} ${monedaLabel}</span>
+                                                    </div>
+                                                    ${mov.detalle ? `<p style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">${mov.detalle}</p>` : ''}
+                                                </div>
+                                            `;
+                                        }).join('')}
+                                    </div>
+                                ` : '<p style="color: var(--text-secondary); padding: 15px; text-align: center; background: var(--bg-primary); border-radius: 8px;">No hay operaciones registradas</p>'}
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML = html;
+                    return;
+                }
+
+                // Vista de listado de todas las cuentas corrientes
+                if (clientes.length === 0) {
+                    container.innerHTML = '<p style="color: var(--text-secondary); padding: 20px; text-align: center;">No hay clientes con cuenta corriente.</p>';
+                    return;
+                }
+
+                let html = '';
+                clientes.forEach(cliente => {
+                    const clienteBalances = balances[cliente.id] || {};
+                    const monedasConBalance = Object.keys(clienteBalances).filter(m => Math.abs(clienteBalances[m]) > 0.01);
+
+                    if (monedasConBalance.length === 0) {
+                        html += `
+                            <div class="form-card" style="padding: 20px; margin-bottom: 15px; border: 1px solid var(--border-color); cursor: pointer;" onclick="cuentaCorrienteSeleccionada = '${cliente.id}'; renderCuentasCorrientesList('${cliente.id}');">
+                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                                    <div>
+                                        <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 5px;">${escapeHTML(cliente.nombre)}</h3>
+                                        ${cliente.documento ? `<p style="color: var(--text-secondary); font-size: 13px;">DNI: ${cliente.documento}</p>` : ''}
+                                    </div>
+                                    <span style="font-size: 11px; padding: 4px 8px; border-radius: 12px; background: rgba(48, 209, 88, 0.1); color: var(--success-color); font-weight: 600;">Cuenta Corriente</span>
+                                </div>
+                                <div style="padding: 15px; background: var(--bg-primary); border-radius: 8px; text-align: center;">
+                                    <p style="color: var(--text-secondary);">Balance en cero</p>
+                                    <p style="color: var(--text-secondary); font-size: 12px; margin-top: 8px;">Click para ver operaciones</p>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        html += `
+                            <div class="form-card" style="padding: 20px; margin-bottom: 15px; border: 1px solid var(--border-color); cursor: pointer;" onclick="cuentaCorrienteSeleccionada = '${cliente.id}'; renderCuentasCorrientesList('${cliente.id}');">
+                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                                    <div>
+                                        <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 5px;">${escapeHTML(cliente.nombre)}</h3>
+                                        ${cliente.documento ? `<p style="color: var(--text-secondary); font-size: 13px;">DNI: ${cliente.documento}</p>` : ''}
+                                    </div>
+                                    <span style="font-size: 11px; padding: 4px 8px; border-radius: 12px; background: rgba(48, 209, 88, 0.1); color: var(--success-color); font-weight: 600;">Cuenta Corriente</span>
+                                </div>
+                                <div style="display: grid; gap: 12px;">
+                                    ${monedasConBalance.map(moneda => {
+                                        const balance = clienteBalances[moneda];
+                                        const monedaLabel = monedas.find(m => m.value === moneda)?.label || moneda;
+                                        const esDeudor = balance < 0;
+                                        return `
+                                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--bg-primary); border-radius: 8px; border: 1px solid var(--border-color);">
+                                                <div>
+                                                    <span style="font-weight: 600; font-size: 15px;">${monedaLabel}</span>
+                                                    <span style="font-size: 12px; color: var(--text-secondary); margin-left: 8px;">
+                                                        ${esDeudor ? '(Nos debe)' : '(A nuestro favor)'}
+                                                    </span>
+                                                </div>
+                                                <span style="font-size: 16px; font-weight: 600; color: ${esDeudor ? 'var(--error-color)' : 'var(--success-color)'};">
+                                                    ${esDeudor ? '-' : ''}${formatNumberWithThousands(Math.abs(balance))}
+                                                </span>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                                <p style="color: var(--text-secondary); font-size: 12px; margin-top: 12px; text-align: center;">Click para ver operaciones</p>
                             </div>
                         `;
                     }
@@ -4350,16 +5353,25 @@
             }
 
             function initCuentasCorrientesModule() {
-                renderCuentasCorrientesList();
+                // Si hay una cuenta corriente seleccionada, mostrarla; sino, mostrar el listado
+                if (cuentaCorrienteSeleccionada) {
+                    renderCuentasCorrientesList(cuentaCorrienteSeleccionada);
+                } else {
+                    renderCuentasCorrientesList();
+                }
             }
+            
+            // Hacer la función accesible globalmente para los onclick
+            window.renderCuentasCorrientesList = renderCuentasCorrientesList;
 
             try {
                 setupMenu();
                 updateDateDisplay();
                 setupTheme();
-                const activeModule = localStorage.getItem('activeModule') || 'operaciones';
+                const activeModule = safeLocalStorageOperation('get', 'activeModule') || '';
                 // Cargar módulo inicial sin agregar al historial
-                loadModule(activeModule, false);
+                // Si no hay módulo guardado, mostrar pantalla principal
+                loadModule(activeModule || 'inicio', false);
             } catch (error) {
                 console.error('Error en inicialización:', error);
                 // Intentar cargar al menos el módulo de operaciones
