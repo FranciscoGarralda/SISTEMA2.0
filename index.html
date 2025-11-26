@@ -4667,7 +4667,7 @@
             }
         
             function renderWalletsList() {
-                const container = document.getElementById('walletsListContainer');
+                const container = safeGetElementById('walletsListContainer');
                 if (!container) return;
                 const wallets = getWallets();
                 container.innerHTML = wallets.length === 0 ? '<p style="color: var(--text-secondary);">No hay wallets creadas.</p>' :
@@ -5536,7 +5536,7 @@
             }
 
             function renderMovimientosList(page = 1, itemsPerPage = 50) {
-                const container = document.getElementById('movimientosListContainer');
+                const container = safeGetElementById('movimientosListContainer');
                 if (!container) return;
                 
                 const movimientos = getMovimientosCached();
@@ -6915,7 +6915,7 @@
             }
 
             function renderCuentasCorrientesList(clienteIdFiltro = null) {
-                const container = document.getElementById('cuentasCorrientesListContainer');
+                const container = safeGetElementById('cuentasCorrientesListContainer');
                 if (!container) return;
 
                 const clientes = getClientes().filter(c => c.tipo === 'cuenta_corriente');
