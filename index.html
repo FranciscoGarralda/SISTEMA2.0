@@ -3761,46 +3761,101 @@
                 const cotizacionReal = safeParseFloat(formData.cotizacionReal);
                 const costoReal = safeParseFloat(formData.costoReal);
 
+                // Validar valores antes de calcular
+                if (isNaN(montoBase) || !isFinite(montoBase)) montoBase = 0;
+                if (isNaN(cotizacionCliente) || !isFinite(cotizacionCliente)) cotizacionCliente = 0;
+                if (isNaN(montoCobrado) || !isFinite(montoCobrado)) montoCobrado = 0;
+                if (isNaN(cotizacionReal) || !isFinite(cotizacionReal)) cotizacionReal = 0;
+                if (isNaN(costoReal) || !isFinite(costoReal)) costoReal = 0;
+                
                 // LÓGICA BIDIRECCIONAL basada en lastEditedField
                 // Primera ecuación: Monto Base × Cotización Cliente = Monto Cobrado
-                if (lastEditedField === 'montoBase') {
-                    if (cotizacionCliente > 0) {
-                        formData.montoCobrado = roundToTwo(montoBase * cotizacionCliente).toFixed(2);
+                try {
+                    if (lastEditedField === 'montoBase') {
+                        if (cotizacionCliente > 0 && !isNaN(cotizacionCliente) && isFinite(cotizacionCliente)) {
+                            const resultado = montoBase * cotizacionCliente;
+                            if (isFinite(resultado) && !isNaN(resultado)) {
+                                formData.montoCobrado = roundToTwo(resultado).toFixed(2);
+                            }
+                        }
+                    } else if (lastEditedField === 'cotizacionCliente') {
+                        if (montoBase > 0 && !isNaN(montoBase) && isFinite(montoBase)) {
+                            const resultado = montoBase * cotizacionCliente;
+                            if (isFinite(resultado) && !isNaN(resultado)) {
+                                formData.montoCobrado = roundToTwo(resultado).toFixed(2);
+                            }
+                        }
+                    } else if (lastEditedField === 'montoCobrado') {
+                        if (montoBase > 0 && !isNaN(montoBase) && isFinite(montoBase) && montoBase !== 0) {
+                            const resultado = montoCobrado / montoBase;
+                            if (isFinite(resultado) && !isNaN(resultado)) {
+                                formData.cotizacionCliente = roundToTwo(resultado).toFixed(2);
+                            }
+                        } else if (cotizacionCliente > 0 && !isNaN(cotizacionCliente) && isFinite(cotizacionCliente) && cotizacionCliente !== 0) {
+                            const resultado = montoCobrado / cotizacionCliente;
+                            if (isFinite(resultado) && !isNaN(resultado)) {
+                                formData.montoBase = roundToTwo(resultado).toFixed(2);
+                            }
+                        }
                     }
-                } else if (lastEditedField === 'cotizacionCliente') {
-                    if (montoBase > 0) {
-                        formData.montoCobrado = roundToTwo(montoBase * cotizacionCliente).toFixed(2);
-                    }
-                } else if (lastEditedField === 'montoCobrado') {
-                    if (montoBase > 0) {
-                        formData.cotizacionCliente = roundToTwo(montoCobrado / montoBase).toFixed(2);
-                    } else if (cotizacionCliente > 0) {
-                        formData.montoBase = roundToTwo(montoCobrado / cotizacionCliente).toFixed(2);
-                    }
+                } catch (error) {
+                    console.error('Error en primera ecuación de arbitraje:', error);
                 }
 
                 // Segunda ecuación: Monto Base × Cotización Real = Costo Real
                 const montoBaseFinal = safeParseFloat(formData.montoBase);
                 const costoRealParsed = safeParseFloat(formData.costoReal);
-                if (lastEditedField === 'montoBase' || lastEditedField === 'cotizacionReal') {
-                    if (montoBaseFinal > 0 && cotizacionReal > 0) {
-                        formData.costoReal = roundToTwo(montoBaseFinal * cotizacionReal).toFixed(2);
+                
+                // Validar valores
+                const montoBaseValid = !isNaN(montoBaseFinal) && isFinite(montoBaseFinal) && montoBaseFinal > 0;
+                const cotizacionRealValid = !isNaN(cotizacionReal) && isFinite(cotizacionReal) && cotizacionReal > 0;
+                const costoRealValid = !isNaN(costoRealParsed) && isFinite(costoRealParsed) && costoRealParsed > 0;
+                
+                try {
+                    if (lastEditedField === 'montoBase' || lastEditedField === 'cotizacionReal') {
+                        if (montoBaseValid && cotizacionRealValid) {
+                            const resultado = montoBaseFinal * cotizacionReal;
+                            if (isFinite(resultado) && !isNaN(resultado)) {
+                                formData.costoReal = roundToTwo(resultado).toFixed(2);
+                            }
+                        }
+                    } else if (lastEditedField === 'costoReal') {
+                        if (montoBaseValid && montoBaseFinal !== 0) {
+                            const resultado = costoRealParsed / montoBaseFinal;
+                            if (isFinite(resultado) && !isNaN(resultado)) {
+                                formData.cotizacionReal = roundToTwo(resultado).toFixed(2);
+                            }
+                        } else if (cotizacionRealValid && cotizacionReal !== 0) {
+                            const resultado = costoRealParsed / cotizacionReal;
+                            if (isFinite(resultado) && !isNaN(resultado)) {
+                                formData.montoBase = roundToTwo(resultado).toFixed(2);
+                            }
+                        }
                     }
-                } else if (lastEditedField === 'costoReal') {
-                    if (montoBaseFinal > 0 && montoBaseFinal !== 0) {
-                        formData.cotizacionReal = roundToTwo(costoRealParsed / montoBaseFinal).toFixed(2);
-                    } else if (cotizacionReal > 0 && cotizacionReal !== 0) {
-                        formData.montoBase = roundToTwo(costoRealParsed / cotizacionReal).toFixed(2);
-                    }
+                } catch (error) {
+                    console.error('Error en segunda ecuación de arbitraje:', error);
                 }
 
                 // Calcular Profit si tengo montoCobrado y costoReal
                 const montoCobradoFinal = safeParseFloat(formData.montoCobrado);
                 const costoRealFinal = safeParseFloat(formData.costoReal);
-                // Validar que ambos valores sean positivos antes de calcular
-                if (montoCobradoFinal > 0 && costoRealFinal > 0 && !isNaN(montoCobradoFinal) && !isNaN(costoRealFinal)) {
-                    const profitCalculado = montoCobradoFinal - costoRealFinal;
-                    formData.profit = roundToTwo(profitCalculado).toFixed(2);
+                
+                // Validar que ambos valores sean positivos y válidos antes de calcular
+                const montoCobradoValid = montoCobradoFinal > 0 && !isNaN(montoCobradoFinal) && isFinite(montoCobradoFinal);
+                const costoRealValid = costoRealFinal > 0 && !isNaN(costoRealFinal) && isFinite(costoRealFinal);
+                
+                if (montoCobradoValid && costoRealValid) {
+                    try {
+                        const profitCalculado = montoCobradoFinal - costoRealFinal;
+                        if (isFinite(profitCalculado) && !isNaN(profitCalculado)) {
+                            formData.profit = roundToTwo(profitCalculado).toFixed(2);
+                        } else {
+                            formData.profit = '';
+                        }
+                    } catch (error) {
+                        console.error('Error al calcular profit:', error);
+                        formData.profit = '';
+                    }
                 } else {
                     // Si los valores no son válidos, limpiar profit
                     formData.profit = '';
@@ -3828,7 +3883,7 @@
                 let montoComision = 0;
 
                 // Validar que los valores sean válidos
-                if (!monto || monto <= 0) {
+                if (!monto || monto <= 0 || isNaN(monto) || !isFinite(monto)) {
                     formData.montoComision = '';
                     if (formData.operacion === 'CUENTAS_CORRIENTES' && ['INGRESO', 'EGRESO'].includes(formData.subOperacion)) {
                         formData.total = '';
@@ -3838,13 +3893,25 @@
 
                 if (formData.comisionTipo === 'porcentaje') {
                     // Validar que el porcentaje esté entre 0 y 100
-                    if (comisionValor < 0 || comisionValor > 100) {
-                        showToast('El porcentaje de comisión debe estar entre 0 y 100', 'error');
+                    if (isNaN(comisionValor) || !isFinite(comisionValor) || comisionValor < 0 || comisionValor > 100) {
+                        if (comisionValor < 0 || comisionValor > 100) {
+                            showToast('El porcentaje de comisión debe estar entre 0 y 100', 'error');
+                        }
                         formData.montoComision = '';
                         return;
                     }
-                    montoComision = (monto * comisionValor) / 100;
-                    formData.monedaComision = formData.moneda;
+                    try {
+                        montoComision = (monto * comisionValor) / 100;
+                        if (!isFinite(montoComision) || isNaN(montoComision)) {
+                            formData.montoComision = '';
+                            return;
+                        }
+                        formData.monedaComision = formData.moneda;
+                    } catch (error) {
+                        console.error('Error al calcular comisión porcentual:', error);
+                        formData.montoComision = '';
+                        return;
+                    }
                 } else {
                     // Validar que la comisión fija sea positiva
                     if (comisionValor < 0) {
