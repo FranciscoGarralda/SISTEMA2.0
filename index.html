@@ -4216,7 +4216,9 @@
                             nearestElement.focus();
                         }
                     }
-                });
+                };
+                
+                form.addEventListener('keydown', form._keydownHandler);
                 
                 form._submitHandler = (e) => {
                     e.preventDefault();
