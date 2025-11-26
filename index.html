@@ -2559,11 +2559,24 @@
                 }
                 
                 // Validar campos requeridos
-                if (!cliente.nombre || cliente.nombre.trim() === '') {
+                if (!cliente.nombre || typeof cliente.nombre !== 'string' || cliente.nombre.trim() === '') {
                     if (typeof showToast === 'function') {
                         showToast('Error: El nombre del cliente es obligatorio', 'error');
                     }
                     return;
+                }
+                
+                // Sanitizar nombre
+                cliente.nombre = cliente.nombre.trim();
+                
+                // Validar y sanitizar ID si existe
+                if (cliente.id && typeof cliente.id !== 'string') {
+                    cliente.id = String(cliente.id).trim();
+                }
+                
+                // Validar y sanitizar documento si existe
+                if (cliente.documento && typeof cliente.documento !== 'string') {
+                    cliente.documento = String(cliente.documento).trim();
                 }
                 
                 // Validar email si está presente
@@ -2887,24 +2900,47 @@
             }
 
             function getClienteNombre(clienteId) {
-                if (!clienteId) return 'Sin cliente';
-                const clientes = getClientes();
-                const cliente = clientes.find(c => c.id === clienteId);
-                return cliente ? cliente.nombre : 'Cliente no encontrado';
+                if (!clienteId || typeof clienteId !== 'string') return 'Sin cliente';
+                try {
+                    const clientes = getClientes();
+                    if (!Array.isArray(clientes)) return `Cliente ${clienteId}`;
+                    const cliente = clientes.find(c => c && c.id === clienteId);
+                    if (!cliente || !cliente.nombre) return `Cliente ${clienteId}`;
+                    return String(cliente.nombre);
+                } catch (error) {
+                    console.error('Error al obtener nombre de cliente:', error);
+                    return `Cliente ${clienteId}`;
+                }
             }
 
             function getClienteCompleto(clienteId) {
-                if (!clienteId) return null;
-                const clientes = getClientes();
-                return clientes.find(c => c.id === clienteId) || null;
+                if (!clienteId || typeof clienteId !== 'string') return null;
+                try {
+                    const clientes = getClientes();
+                    if (!Array.isArray(clientes)) return null;
+                    const cliente = clientes.find(c => c && c.id === clienteId);
+                    if (!cliente || typeof cliente !== 'object') return null;
+                    return cliente;
+                } catch (error) {
+                    console.error('Error al obtener cliente completo:', error);
+                    return null;
+                }
             }
 
             function getWalletNombre(walletId) {
-                if (!walletId || walletId === 'pago_mixto') return null;
-                const wallets = getWallets();
-                const parsed = parseWalletId(walletId);
-                const wallet = wallets.find(w => w.id === parsed.wallet);
-                return wallet ? wallet.nombre : null;
+                if (!walletId || typeof walletId !== 'string' || walletId === 'pago_mixto') return null;
+                try {
+                    const parsed = parseWalletId(walletId);
+                    if (!parsed || !parsed.wallet) return null;
+                    const wallets = getWallets();
+                    if (!Array.isArray(wallets)) return null;
+                    const wallet = wallets.find(w => w && w.id === parsed.wallet);
+                    if (!wallet || !wallet.nombre) return null;
+                    return String(wallet.nombre);
+                } catch (error) {
+                    console.error('Error al obtener nombre de wallet:', error);
+                    return null;
+                }
             }
 
             function actualizarUltimaOperacionCliente(clienteId) {
