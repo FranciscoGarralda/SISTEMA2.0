@@ -4484,9 +4484,13 @@
                 // Asegurar que los campos de moneda estén limpios antes de renderizar
                 ['moneda', 'monedaTC', 'monedaBase', 'monedaCobro', 'monedaProfit', 'monedaComision'].forEach(key => {
                     // Si el valor no es una de las monedas válidas, limpiarlo
-                    const validValues = monedas.map(m => m.value);
-                    if (formData[key] && !validValues.includes(formData[key])) {
-                        formData[key] = '';
+                    if (Array.isArray(monedas)) {
+                        const validValues = monedas
+                            .filter(m => m && m.value && typeof m.value === 'string')
+                            .map(m => m.value);
+                        if (formData[key] && !validValues.includes(formData[key])) {
+                            formData[key] = '';
+                        }
                     }
                 });
                 
