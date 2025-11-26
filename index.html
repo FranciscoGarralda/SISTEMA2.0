@@ -2655,7 +2655,18 @@
             function calcularDiasDesdeUltimaOperacion(fechaUltimaOperacion) {
                 if (!fechaUltimaOperacion) return null;
                 try {
-                    const fechaUltima = new Date(fechaUltimaOperacion);
+                    // Parsear la fecha asegurándonos de usar UTC para evitar problemas de zona horaria
+                    let fechaUltima;
+                    if (typeof fechaUltimaOperacion === 'string' && fechaUltimaOperacion.includes('T')) {
+                        // Si ya tiene formato ISO con hora, usar directamente
+                        fechaUltima = new Date(fechaUltimaOperacion);
+                    } else if (typeof fechaUltimaOperacion === 'string') {
+                        // Si es solo fecha, agregar hora UTC para evitar problemas de zona horaria
+                        fechaUltima = new Date(fechaUltimaOperacion + 'T00:00:00.000Z');
+                    } else {
+                        fechaUltima = new Date(fechaUltimaOperacion);
+                    }
+                    
                     const fechaActual = new Date();
                     
                     // Validar que las fechas sean válidas
@@ -2664,11 +2675,19 @@
                         return null;
                     }
                     
-                    // Normalizar a medianoche para comparar solo días (sin horas)
-                    const fechaUltimaNormalizada = new Date(fechaUltima.getFullYear(), fechaUltima.getMonth(), fechaUltima.getDate());
-                    const fechaActualNormalizada = new Date(fechaActual.getFullYear(), fechaActual.getMonth(), fechaActual.getDate());
+                    // Normalizar ambas fechas a UTC medianoche para comparar solo días (sin horas y sin zona horaria)
+                    const fechaUltimaUTC = new Date(Date.UTC(
+                        fechaUltima.getUTCFullYear(), 
+                        fechaUltima.getUTCMonth(), 
+                        fechaUltima.getUTCDate()
+                    ));
+                    const fechaActualUTC = new Date(Date.UTC(
+                        fechaActual.getUTCFullYear(), 
+                        fechaActual.getUTCMonth(), 
+                        fechaActual.getUTCDate()
+                    ));
                     
-                    const diferencia = fechaActualNormalizada - fechaUltimaNormalizada;
+                    const diferencia = fechaActualUTC - fechaUltimaUTC;
                     // Fórmula correcta: ms * s * m * h = milisegundos en un día
                     // 1000ms * 60s * 60m * 24h = 86400000 ms por día
                     const dias = Math.floor(diferencia / (1000 * 60 * 60 * 24));
@@ -6212,17 +6231,37 @@
                         let monedaComprada = mov.monedaTC || 'USD';
                         monedaPago = normalizeMoneda(monedaPago);
                         monedaComprada = normalizeMoneda(monedaComprada);
-                        const walletCompraId = getWalletIdOnly(mov.walletCompra);
-                        const walletTCId = getWalletIdOnly(mov.walletTC);
-                        if (walletCompraId) {
-                            if (!saldos[walletCompraId]) saldos[walletCompraId] = {};
-                            if (!saldos[walletCompraId][monedaPago]) saldos[walletCompraId][monedaPago] = 0;
-                            saldos[walletCompraId][monedaPago] -= total;
-                        }
-                        if (walletTCId) {
-                            if (!saldos[walletTCId]) saldos[walletTCId] = {};
-                            if (!saldos[walletTCId][monedaComprada]) saldos[walletTCId][monedaComprada] = 0;
-                            saldos[walletTCId][monedaComprada] += monto;
+                        
+                        // Manejar pagos mixtos
+                        if (mov.mixedPayments && Array.isArray(mov.mixedPayments) && mov.mixedPayments.length > 0) {
+                            // Procesar cada pago mixto individualmente
+                            mov.mixedPayments.forEach(payment => {
+                                if (payment && payment.wallet && payment.monto) {
+                                    const paymentWalletId = getWalletIdOnly(payment.wallet);
+                                    const paymentMoneda = normalizeMoneda(payment.moneda || monedaPago);
+                                    const paymentMonto = safeParseFloat(payment.monto);
+                                    
+                                    if (paymentWalletId && paymentMonto > 0) {
+                                        if (!saldos[paymentWalletId]) saldos[paymentWalletId] = {};
+                                        if (!saldos[paymentWalletId][paymentMoneda]) saldos[paymentWalletId][paymentMoneda] = 0;
+                                        saldos[paymentWalletId][paymentMoneda] -= paymentMonto;
+                                    }
+                                }
+                            });
+                        } else {
+                            // Pago normal (no mixto)
+                            const walletCompraId = getWalletIdOnly(mov.walletCompra);
+                            const walletTCId = getWalletIdOnly(mov.walletTC);
+                            if (walletCompraId) {
+                                if (!saldos[walletCompraId]) saldos[walletCompraId] = {};
+                                if (!saldos[walletCompraId][monedaPago]) saldos[walletCompraId][monedaPago] = 0;
+                                saldos[walletCompraId][monedaPago] -= total;
+                            }
+                            if (walletTCId) {
+                                if (!saldos[walletTCId]) saldos[walletTCId] = {};
+                                if (!saldos[walletTCId][monedaComprada]) saldos[walletTCId][monedaComprada] = 0;
+                                saldos[walletTCId][monedaComprada] += monto;
+                            }
                         }
                     }
 
@@ -6232,17 +6271,37 @@
                         let monedaVendida = mov.monedaTC || 'USD';
                         monedaRecibida = normalizeMoneda(monedaRecibida);
                         monedaVendida = normalizeMoneda(monedaVendida);
-                        const walletCompraId = getWalletIdOnly(mov.walletCompra);
-                        const walletTCId = getWalletIdOnly(mov.walletTC);
-                        if (walletCompraId) {
-                            if (!saldos[walletCompraId]) saldos[walletCompraId] = {};
-                            if (!saldos[walletCompraId][monedaRecibida]) saldos[walletCompraId][monedaRecibida] = 0;
-                            saldos[walletCompraId][monedaRecibida] += total;
-                        }
-                        if (walletTCId) {
-                            if (!saldos[walletTCId]) saldos[walletTCId] = {};
-                            if (!saldos[walletTCId][monedaVendida]) saldos[walletTCId][monedaVendida] = 0;
-                            saldos[walletTCId][monedaVendida] -= monto;
+                        
+                        // Manejar pagos mixtos
+                        if (mov.mixedPayments && Array.isArray(mov.mixedPayments) && mov.mixedPayments.length > 0) {
+                            // Procesar cada pago mixto individualmente
+                            mov.mixedPayments.forEach(payment => {
+                                if (payment && payment.wallet && payment.monto) {
+                                    const paymentWalletId = getWalletIdOnly(payment.wallet);
+                                    const paymentMoneda = normalizeMoneda(payment.moneda || monedaRecibida);
+                                    const paymentMonto = safeParseFloat(payment.monto);
+                                    
+                                    if (paymentWalletId && paymentMonto > 0) {
+                                        if (!saldos[paymentWalletId]) saldos[paymentWalletId] = {};
+                                        if (!saldos[paymentWalletId][paymentMoneda]) saldos[paymentWalletId][paymentMoneda] = 0;
+                                        saldos[paymentWalletId][paymentMoneda] += paymentMonto;
+                                    }
+                                }
+                            });
+                        } else {
+                            // Pago normal (no mixto)
+                            const walletCompraId = getWalletIdOnly(mov.walletCompra);
+                            const walletTCId = getWalletIdOnly(mov.walletTC);
+                            if (walletCompraId) {
+                                if (!saldos[walletCompraId]) saldos[walletCompraId] = {};
+                                if (!saldos[walletCompraId][monedaRecibida]) saldos[walletCompraId][monedaRecibida] = 0;
+                                saldos[walletCompraId][monedaRecibida] += total;
+                            }
+                            if (walletTCId) {
+                                if (!saldos[walletTCId]) saldos[walletTCId] = {};
+                                if (!saldos[walletTCId][monedaVendida]) saldos[walletTCId][monedaVendida] = 0;
+                                saldos[walletTCId][monedaVendida] -= monto;
+                            }
                         }
                     }
 
