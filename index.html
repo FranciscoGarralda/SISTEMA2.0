@@ -2255,18 +2255,48 @@
             }
             
             function showToast(message, type = 'info') {
-                const container = document.getElementById('toastContainer');
-                if (!container) return;
-                const toast = document.createElement('div');
-                toast.className = `toast ${type}`;
-                const icon = type === 'success' ? '✅' : (type === 'error' ? '❌' : 'ℹ️');
-                toast.innerHTML = `<span>${icon}</span> ${escapeHTML(message)}`;
-                container.appendChild(toast);
-                setTimeout(() => { toast.classList.add('show'); }, 10);
-                setTimeout(() => {
-                    toast.classList.remove('show');
-                    toast.addEventListener('transitionend', () => toast.remove());
-                }, 3000);
+                // Validar parámetros
+                if (!message || typeof message !== 'string') {
+                    console.warn('showToast: mensaje inválido');
+                    return;
+                }
+                
+                if (!['success', 'error', 'info', 'warning'].includes(type)) {
+                    type = 'info';
+                }
+                
+                const container = safeGetElementById('toastContainer');
+                if (!container) {
+                    console.warn('showToast: contenedor no encontrado');
+                    return;
+                }
+                
+                try {
+                    const toast = document.createElement('div');
+                    toast.className = `toast ${type}`;
+                    const icon = type === 'success' ? '✅' : (type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️');
+                    toast.innerHTML = `<span>${icon}</span> ${escapeHTML(message)}`;
+                    container.appendChild(toast);
+                    
+                    // Forzar reflow para que la animación funcione
+                    toast.offsetHeight;
+                    
+                    setTimeout(() => { toast.classList.add('show'); }, 10);
+                    
+                    // Duración según tipo (errores más tiempo)
+                    const duration = type === 'error' ? 5000 : 3000;
+                    
+                    setTimeout(() => {
+                        toast.classList.remove('show');
+                        toast.addEventListener('transitionend', () => {
+                            if (toast.parentNode) {
+                                toast.remove();
+                            }
+                        }, { once: true });
+                    }, duration);
+                } catch (error) {
+                    console.error('Error al mostrar toast:', error);
+                }
             }
 
             /**
