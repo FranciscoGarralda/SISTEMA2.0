@@ -3379,41 +3379,129 @@
             const activeIntervals = new Set();
             
             function safeSetTimeout(callback, delay) {
-                const timeoutId = setTimeout(() => {
-                    activeTimeouts.delete(timeoutId);
-                    callback();
-                }, delay);
-                activeTimeouts.add(timeoutId);
-                return timeoutId;
+                // Validar parámetros
+                if (typeof callback !== 'function') {
+                    console.error('safeSetTimeout: callback debe ser una función');
+                    return null;
+                }
+                if (typeof delay !== 'number' || delay < 0 || !isFinite(delay)) {
+                    console.error('safeSetTimeout: delay debe ser un número positivo');
+                    return null;
+                }
+                
+                try {
+                    const timeoutId = setTimeout(() => {
+                        activeTimeouts.delete(timeoutId);
+                        try {
+                            callback();
+                        } catch (error) {
+                            console.error('Error en callback de setTimeout:', error);
+                        }
+                    }, delay);
+                    activeTimeouts.add(timeoutId);
+                    return timeoutId;
+                } catch (error) {
+                    console.error('Error al crear setTimeout:', error);
+                    return null;
+                }
             }
             
             function safeSetInterval(callback, delay) {
-                const intervalId = setInterval(callback, delay);
-                activeIntervals.add(intervalId);
-                return intervalId;
+                // Validar parámetros
+                if (typeof callback !== 'function') {
+                    console.error('safeSetInterval: callback debe ser una función');
+                    return null;
+                }
+                if (typeof delay !== 'number' || delay < 0 || !isFinite(delay)) {
+                    console.error('safeSetInterval: delay debe ser un número positivo');
+                    return null;
+                }
+                
+                try {
+                    const intervalId = setInterval(() => {
+                        try {
+                            callback();
+                        } catch (error) {
+                            console.error('Error en callback de setInterval:', error);
+                        }
+                    }, delay);
+                    activeIntervals.add(intervalId);
+                    return intervalId;
+                } catch (error) {
+                    console.error('Error al crear setInterval:', error);
+                    return null;
+                }
             }
             
             function clearAllTimeouts() {
-                activeTimeouts.forEach(id => clearTimeout(id));
-                activeTimeouts.clear();
+                try {
+                    activeTimeouts.forEach(id => {
+                        if (id !== null && id !== undefined) {
+                            clearTimeout(id);
+                        }
+                    });
+                    activeTimeouts.clear();
+                } catch (error) {
+                    console.error('Error al limpiar timeouts:', error);
+                    activeTimeouts.clear();
+                }
             }
             
             function clearAllIntervals() {
-                activeIntervals.forEach(id => clearInterval(id));
-                activeIntervals.clear();
+                try {
+                    activeIntervals.forEach(id => {
+                        if (id !== null && id !== undefined) {
+                            clearInterval(id);
+                        }
+                    });
+                    activeIntervals.clear();
+                } catch (error) {
+                    console.error('Error al limpiar intervals:', error);
+                    activeIntervals.clear();
+                }
             }
             
             // Debounce para formateo numérico
             const formatDebounceTimers = new Map();
             function debounceFormat(fieldName, callback, delay = 300) {
-                if (formatDebounceTimers.has(fieldName)) {
-                    clearTimeout(formatDebounceTimers.get(fieldName));
+                // Validar parámetros
+                if (!fieldName || typeof fieldName !== 'string') {
+                    console.error('debounceFormat: fieldName debe ser un string');
+                    return;
                 }
-                const timer = safeSetTimeout(() => {
-                    formatDebounceTimers.delete(fieldName);
-                    callback();
-                }, delay);
-                formatDebounceTimers.set(fieldName, timer);
+                if (typeof callback !== 'function') {
+                    console.error('debounceFormat: callback debe ser una función');
+                    return;
+                }
+                if (typeof delay !== 'number' || delay < 0) {
+                    delay = 300;
+                }
+                
+                try {
+                    // Limpiar timer anterior si existe
+                    if (formatDebounceTimers.has(fieldName)) {
+                        const oldTimer = formatDebounceTimers.get(fieldName);
+                        if (oldTimer !== null && oldTimer !== undefined) {
+                            clearTimeout(oldTimer);
+                        }
+                    }
+                    
+                    // Crear nuevo timer
+                    const timer = safeSetTimeout(() => {
+                        formatDebounceTimers.delete(fieldName);
+                        try {
+                            callback();
+                        } catch (error) {
+                            console.error('Error en callback de debounceFormat:', error);
+                        }
+                    }, delay);
+                    
+                    if (timer !== null) {
+                        formatDebounceTimers.set(fieldName, timer);
+                    }
+                } catch (error) {
+                    console.error('Error en debounceFormat:', error);
+                }
             }
             
             /**
