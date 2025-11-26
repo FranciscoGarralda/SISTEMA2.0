@@ -4258,11 +4258,11 @@
                             </div>
                             <form id="operationsForm">
                                 <div class="form-grid">
-                                    <div class="form-group" style="grid-column: 1 / -1;"><label class="form-label" for="fecha">Fecha y Día</label><div class="fecha-dia-group"><input type="date" class="form-input" id="fecha" name="fecha" value="${formData.fecha}" required><input type="text" class="form-input" id="nombreDia" name="nombreDia" value="${formData.nombreDia || ''}" readonly></div></div>
+                                    <div class="form-group" style="grid-column: 1 / -1;"><label class="form-label" for="fecha">Fecha y Día <span style="color: var(--accent-color);">*</span></label><div class="fecha-dia-group"><input type="date" class="form-input" id="fecha" name="fecha" value="${formData.fecha}" required><input type="text" class="form-input" id="nombreDia" name="nombreDia" value="${formData.nombreDia || ''}" readonly></div></div>
                                 </div>
                                 <div class="form-group"><label class="form-label section-title">Paso 1: Seleccionar Operación</label><div class="button-grid" id="operationButtons"></div></div>
                                 <div class="form-group ${!formData.operacion ? 'hidden' : ''}" id="subOperationContainer"><label class="form-label section-title">Paso 2: Seleccionar Tipo</label><div class="button-grid" id="subOperationButtons"></div></div>
-                                <div class="form-group hidden" id="clienteContainer" style="margin-bottom: 20px;"><label class="form-label" for="cliente">Cliente</label><div class="input-with-button"><select class="form-select" id="cliente" name="cliente" required><option value="">Seleccionar cliente...</option>${(() => { try { const clientes = getClientes(); return Array.isArray(clientes) ? clientes.filter(c => c && c.id && c.nombre).map(c => `<option value="${escapeHTML(c.id)}" ${formData.cliente === c.id ? 'selected' : ''}>${escapeHTML(c.nombre)}${c.documento ? ' - ' + escapeHTML(c.documento) : ''}</option>`).join('') : ''; } catch(e) { console.error('Error al renderizar clientes:', e); return ''; } })()}</select><button type="button" class="btn-add" id="addClientBtn" title="Crear nuevo cliente">+</button></div></div>
+                                <div class="form-group hidden" id="clienteContainer" style="margin-bottom: 20px;"><label class="form-label" for="cliente">Cliente <span style="color: var(--accent-color);">*</span></label><div class="input-with-button"><select class="form-select" id="cliente" name="cliente" required><option value="">Seleccionar cliente...</option>${(() => { try { const clientes = getClientes(); return Array.isArray(clientes) ? clientes.filter(c => c && c.id && c.nombre).map(c => `<option value="${escapeHTML(c.id)}" ${formData.cliente === c.id ? 'selected' : ''}>${escapeHTML(c.nombre)}${c.documento ? ' - ' + escapeHTML(c.documento) : ''}</option>`).join('') : ''; } catch(e) { console.error('Error al renderizar clientes:', e); return ''; } })()}</select><button type="button" class="btn-add" id="addClientBtn" title="Crear nuevo cliente">+</button></div></div>
                                 <div class="form-group hidden" id="detalleContainer" style="margin-bottom: 32px;"><label class="form-label" for="detalle">Detalle</label><textarea class="form-textarea" id="detalle" name="detalle" placeholder="Descripción de la operación">${escapeHTML(formData.detalle || '')}</textarea></div>
                                 <div class="dynamic-fields-container" id="dynamicFieldsContainer"></div>
                                 <div id="mixedPaymentsContainer" class="${formData.isMixedPaymentActive ? '' : 'hidden'}"></div>
@@ -4899,7 +4899,7 @@
                     if (operacion === 'WALLET') {
                         if (subOperacion === 'INGRESO' || subOperacion === 'SALIDA' || subOperacion === 'PRESTAMO' || subOperacion === 'DEVOLUCION') {
                             if (!formData.walletCompra || formData.walletCompra === 'pago_mixto') {
-                                showToast('Debes seleccionar una wallet válida', 'error');
+                                showToast('Por favor selecciona una wallet válida para continuar', 'error');
                                 return;
                             }
                             // Validar que la wallet exista
@@ -4907,13 +4907,13 @@
                             if (walletId && walletId !== 'pago_mixto') {
                                 const wallets = getWallets();
                                 if (!wallets.some(w => w.id === walletId)) {
-                                    showToast('La wallet seleccionada no existe', 'error');
+                                    showToast('La wallet seleccionada no existe. Por favor selecciona otra', 'error');
                                     return;
                                 }
                             }
                         } else if (subOperacion === 'MOV ENTRE CUENTAS') {
                             if (!formData.cuentaSalida || !formData.cuentaIngreso) {
-                                showToast('Debes seleccionar wallet de salida e ingreso', 'error');
+                                showToast('Por favor selecciona las wallets de salida e ingreso', 'error');
                                 return;
                             }
                             const walletSalidaId = parseWalletId(formData.cuentaSalida).wallet;
@@ -7144,7 +7144,6 @@
             // Cache para saldos de wallets
             let saldosCache = null;
             let saldosCacheTimestamp = null;
-            const SALDOS_CACHE_DURATION = 2000; // 2 segundos de cache
 
             function invalidateSaldosCache() {
                 saldosCache = null;
@@ -7154,7 +7153,7 @@
             function calcularSaldosWallets() {
                 // Verificar cache
                 const now = Date.now();
-                if (saldosCache && saldosCacheTimestamp && (now - saldosCacheTimestamp) < SALDOS_CACHE_DURATION) {
+                if (saldosCache && saldosCacheTimestamp && (now - saldosCacheTimestamp) < CACHE_DURATION_SALDOS_MS) {
                     return saldosCache;
                 }
                 
