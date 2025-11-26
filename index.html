@@ -5241,16 +5241,7 @@
                     
                     // Si click en el contenido (no en botones), mostrar detalles
                     if (e.target.classList.contains('movimiento-item') || e.target.closest('.movimiento-item')) {
-                        mostrarDetallesMovimiento(movimiento);
-                    }
-                    
-                    // Si click en anular
-                    if (e.target.dataset.action === 'anular') {
-                        if (confirm('¿Estás seguro de anular este movimiento? Se marcará como anulado pero permanecerá visible.')) {
-                            anularMovimiento(movimientoId);
-                            showToast('Movimiento anulado', 'success');
-                            renderMovimientosList();
-                        }
+                        mostrarDetallesMovimiento(movimientoId);
                     }
                 };
                 
