@@ -2830,7 +2830,18 @@
                 }
                 
                 // Generar ID único para el movimiento
-                const id = 'MOV_' + generateUUID();
+                let id;
+                try {
+                    const uuid = generateUUID();
+                    if (!uuid || typeof uuid !== 'string') {
+                        throw new Error('UUID inválido');
+                    }
+                    id = 'MOV_' + uuid;
+                } catch (error) {
+                    console.error('Error al generar ID de movimiento:', error);
+                    // Fallback: timestamp + random
+                    id = 'MOV_' + Date.now().toString(36) + Math.random().toString(36).substring(2);
+                }
                 const nuevoMovimiento = { 
                     ...movimientoNormalizado, 
                     id, 
@@ -3172,15 +3183,32 @@
              */
             // Generar UUID con fallback para navegadores antiguos
             function generateUUID() {
-                if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-                    return crypto.randomUUID();
+                try {
+                    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+                        const uuid = crypto.randomUUID();
+                        if (uuid && typeof uuid === 'string' && uuid.length > 0) {
+                            return uuid;
+                        }
+                    }
+                    
+                    // Fallback para navegadores antiguos
+                    const fallbackUUID = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                        const r = Math.random() * 16 | 0;
+                        const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                        return v.toString(16);
+                    });
+                    
+                    if (fallbackUUID && typeof fallbackUUID === 'string' && fallbackUUID.length > 0) {
+                        return fallbackUUID;
+                    }
+                    
+                    // Último fallback: timestamp + random
+                    return Date.now().toString(36) + Math.random().toString(36).substring(2);
+                } catch (error) {
+                    console.error('Error al generar UUID:', error);
+                    // Fallback de emergencia: timestamp + random
+                    return Date.now().toString(36) + Math.random().toString(36).substring(2);
                 }
-                // Fallback para navegadores antiguos
-                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-                    const r = Math.random() * 16 | 0;
-                    const v = c === 'x' ? r : (r & 0x3 | 0x8);
-                    return v.toString(16);
-                });
             }
             
             // Normalización centralizada de monedas
@@ -6033,7 +6061,18 @@
                         }
                         
                         // Generar ID aleatorio único
-                        const id = 'CLI_' + generateUUID();
+                        let id;
+                        try {
+                            const uuid = generateUUID();
+                            if (!uuid || typeof uuid !== 'string') {
+                                throw new Error('UUID inválido');
+                            }
+                            id = 'CLI_' + uuid;
+                        } catch (error) {
+                            console.error('Error al generar ID de cliente:', error);
+                            // Fallback: timestamp + random
+                            id = 'CLI_' + Date.now().toString(36) + Math.random().toString(36).substring(2);
+                        }
                         
                         const nuevoCliente = {
                             id,
