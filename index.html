@@ -2383,6 +2383,8 @@
                     }
                     return;
                 }
+                // Invalidar cache al guardar
+                invalidateMovimientosCache();
                 const success = safeLocalStorageOperation('set', 'movimientos', movimientos);
                 if (!success) {
                     console.error('No se pudo guardar movimientos');
@@ -2411,6 +2413,8 @@
                     return null;
                 }
                 
+                // Invalidar cache antes de obtener movimientos
+                invalidateMovimientosCache();
                 let movimientos = getMovimientos();
                 
                 // Limitar a últimos 1000 movimientos para evitar acumulación excesiva
@@ -2456,6 +2460,8 @@
                     return;
                 }
                 
+                // Invalidar cache antes de obtener movimientos
+                invalidateMovimientosCache();
                 let movimientos = getMovimientos();
                 const index = movimientos.findIndex(m => m.id === movimientoId);
                 if (index !== -1) {
@@ -2482,12 +2488,18 @@
             }
 
             function anularMovimiento(movimientoId) {
+                // Invalidar cache antes de obtener movimientos
+                invalidateMovimientosCache();
                 let movimientos = getMovimientos();
                 const index = movimientos.findIndex(m => m.id === movimientoId);
                 if (index !== -1) {
                     movimientos[index].anulado = true;
                     movimientos[index].fechaAnulacion = new Date().toISOString();
                     saveMovimientos(movimientos);
+                    // Refrescar lista si estamos en el módulo de movimientos
+                    if (document.getElementById('movimientosListContainer')) {
+                        renderMovimientosList(window.currentMovimientosPage || 1);
+                    }
                 }
             }
 
@@ -4962,22 +4974,59 @@
                 `;
             }
 
-            function initMovimientosModule() {
-                renderMovimientosList();
+            // Cache para movimientos (se invalida cuando se modifica)
+            let movimientosCache = null;
+            let movimientosCacheTimestamp = null;
+            const CACHE_DURATION = 1000; // 1 segundo de cache
+
+            function getMovimientosCached() {
+                const now = Date.now();
+                if (movimientosCache && movimientosCacheTimestamp && (now - movimientosCacheTimestamp) < CACHE_DURATION) {
+                    return movimientosCache;
+                }
+                movimientosCache = getMovimientos();
+                movimientosCacheTimestamp = now;
+                return movimientosCache;
             }
 
-            function renderMovimientosList() {
+            function invalidateMovimientosCache() {
+                movimientosCache = null;
+                movimientosCacheTimestamp = null;
+            }
+
+            // Variable global para la página actual de movimientos
+            window.currentMovimientosPage = 1;
+            
+            window.renderMovimientosListPage = function(page) {
+                window.currentMovimientosPage = page;
+                renderMovimientosList(page);
+            };
+
+            function initMovimientosModule() {
+                window.currentMovimientosPage = 1;
+                renderMovimientosList(1);
+            }
+
+            function renderMovimientosList(page = 1, itemsPerPage = 50) {
                 const container = document.getElementById('movimientosListContainer');
                 if (!container) return;
                 
-                const movimientos = getMovimientos();
+                const movimientos = getMovimientosCached();
+                const totalMovimientos = movimientos.length;
                 
-                if (movimientos.length === 0) {
+                if (totalMovimientos === 0) {
                     container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 40px;">No hay movimientos registrados.</p>';
                     return;
                 }
                 
-                container.innerHTML = movimientos.map(mov => {
+                // Calcular paginación
+                const totalPages = Math.ceil(totalMovimientos / itemsPerPage);
+                const startIndex = (page - 1) * itemsPerPage;
+                const endIndex = Math.min(startIndex + itemsPerPage, totalMovimientos);
+                const movimientosPaginados = movimientos.slice(startIndex, endIndex);
+                
+                // Renderizar movimientos
+                const movimientosHTML = movimientosPaginados.map(mov => {
                     const fecha = new Date(mov.fechaCreacion);
                     const fechaFormateada = fecha.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
                     const horaFormateada = fecha.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
@@ -5068,6 +5117,31 @@
                     `;
                 }).join('');
                 
+                // Controles de paginación
+                let paginationHTML = '';
+                if (totalPages > 1) {
+                    paginationHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding: 16px; background: var(--bg-secondary); border-radius: 8px; border: 1px solid var(--border-color);">
+                            <div style="color: var(--text-secondary); font-size: 13px;">
+                                Mostrando ${startIndex + 1}-${endIndex} de ${totalMovimientos} movimientos
+                            </div>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <button type="button" class="btn-option" ${page === 1 ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : 'style="padding: 8px 16px;"'} data-page="${page - 1}" onclick="window.renderMovimientosListPage(${page - 1})">
+                                    ← Anterior
+                                </button>
+                                <span style="color: var(--text-primary); font-size: 13px; padding: 0 12px;">
+                                    Página ${page} de ${totalPages}
+                                </span>
+                                <button type="button" class="btn-option" ${page === totalPages ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : 'style="padding: 8px 16px;"'} data-page="${page + 1}" onclick="window.renderMovimientosListPage(${page + 1})">
+                                    Siguiente →
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                container.innerHTML = movimientosHTML + paginationHTML;
+                
                 // Remover event listeners anteriores usando una función nombrada
                 if (container._movimientosClickHandler) {
                     container.removeEventListener('click', container._movimientosClickHandler);
@@ -5075,11 +5149,29 @@
                 
                 // Crear nuevo handler
                 container._movimientosClickHandler = (e) => {
+                    // Manejar clicks en botones de paginación
+                    if (e.target.dataset.page) {
+                        const page = parseInt(e.target.dataset.page);
+                        if (page > 0) {
+                            window.renderMovimientosListPage(page);
+                        }
+                        return;
+                    }
+                    
+                    // Manejar clicks en botones de acción
+                    if (e.target.dataset.action === 'anular') {
+                        const movimientoId = e.target.dataset.movId;
+                        if (confirm('¿Estás seguro de que deseas anular este movimiento?')) {
+                            anularMovimiento(movimientoId);
+                        }
+                        return;
+                    }
+                    
                     const movimientoCard = e.target.closest('[data-movimiento-id]');
                     if (!movimientoCard) return;
                     
                     const movimientoId = movimientoCard.dataset.movimientoId;
-                    const movimientos = getMovimientos();
+                    const movimientos = getMovimientosCached();
                     const movimiento = movimientos.find(m => m.id === movimientoId);
                     
                     if (!movimiento) return;
