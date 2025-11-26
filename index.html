@@ -2152,11 +2152,28 @@
                 try {
                     const savedState = safeLocalStorageOperation('get', 'formState');
                     if (savedState) {
+                        // Validar que el string JSON sea válido antes de parsear
+                        if (typeof savedState !== 'string' || savedState.trim() === '') {
+                            console.warn('Estado del formulario vacío o inválido');
+                            formData = getInitialFormState();
+                            return false;
+                        }
+                        
+                        // Validar formato JSON básico
+                        if (!savedState.startsWith('{') && !savedState.startsWith('[')) {
+                            console.error('Estado del formulario no tiene formato JSON válido');
+                            if (typeof showToast === 'function') {
+                                showToast('Error: Estado guardado corrupto. Se iniciará un formulario nuevo.', 'error');
+                            }
+                            formData = getInitialFormState();
+                            return false;
+                        }
+                        
                         try {
                             formData = JSON.parse(savedState);
                             // Validar que formData sea un objeto válido
-                            if (!formData || typeof formData !== 'object') {
-                                throw new Error('Estado del formulario inválido');
+                            if (!formData || typeof formData !== 'object' || Array.isArray(formData)) {
+                                throw new Error('Estado del formulario inválido: debe ser un objeto');
                             }
                             // Normalizar monedas al cargar
                             formData = normalizeAllMonedas(formData);
@@ -3266,12 +3283,12 @@
                 }
 
                 // Actualizar campos en el DOM
-                const montoCobradoInput = document.querySelector('[name="montoCobrado"]');
-                const cotizacionClienteInput = document.querySelector('[name="cotizacionCliente"]');
-                const montoBaseInput = document.querySelector('[name="montoBase"]');
-                const cotizacionRealInput = document.querySelector('[name="cotizacionReal"]');
-                const costoRealInput = document.querySelector('[name="costoReal"]');
-                const profitInput = document.querySelector('[name="profit"]');
+                const montoCobradoInput = safeQuerySelector('[name="montoCobrado"]');
+                const cotizacionClienteInput = safeQuerySelector('[name="cotizacionCliente"]');
+                const montoBaseInput = safeQuerySelector('[name="montoBase"]');
+                const cotizacionRealInput = safeQuerySelector('[name="cotizacionReal"]');
+                const costoRealInput = safeQuerySelector('[name="costoReal"]');
+                const profitInput = safeQuerySelector('[name="profit"]');
 
                 if (montoCobradoInput) montoCobradoInput.value = formData.montoCobrado || '';
                 if (cotizacionClienteInput) cotizacionClienteInput.value = formData.cotizacionCliente || '';
@@ -6289,7 +6306,12 @@
                 }
                 
                 const wallets = getWallets();
-                const movimientos = getMovimientosCached().filter(m => !m.anulado);
+                const movimientos = getMovimientosCached().filter(m => {
+                    // Validar estructura del movimiento antes de procesar
+                    if (!m || typeof m !== 'object') return false;
+                    if (!m.operacion || !m.subOperacion) return false;
+                    return !m.anulado;
+                });
                 const saldos = {};
 
                 // Inicializar saldos para todas las wallets
