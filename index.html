@@ -2801,50 +2801,148 @@
                 
                 // Generar ID único para el movimiento
                 const id = 'MOV_' + generateUUID();
-                movimientos.unshift({ 
+                const nuevoMovimiento = { 
                     ...movimientoNormalizado, 
                     id, 
                     fechaCreacion: new Date().toISOString(), 
                     anulado: false 
-                });
-                saveMovimientos(movimientos);
+                };
+                
+                // Validar que el movimiento tenga estructura válida antes de guardar
+                if (!nuevoMovimiento.operacion || !nuevoMovimiento.subOperacion) {
+                    console.error('Movimiento sin operación o subOperación válida');
+                    if (typeof showToast === 'function') {
+                        showToast('Error: El movimiento debe tener operación y tipo', 'error');
+                    }
+                    return null;
+                }
+                
+                movimientos.unshift(nuevoMovimiento);
+                const success = saveMovimientos(movimientos);
+                
+                if (!success) {
+                    console.error('Error al guardar movimiento');
+                    if (typeof showToast === 'function') {
+                        showToast('Error al guardar el movimiento', 'error');
+                    }
+                    return null;
+                }
+                
                 return id;
             }
 
             function updateMovimiento(movimientoId, datosActualizados) {
+                // Validar ID del movimiento
+                if (!movimientoId || typeof movimientoId !== 'string') {
+                    console.error('Intento de actualizar movimiento sin ID válido');
+                    if (typeof showToast === 'function') {
+                        showToast('Error: ID de movimiento inválido', 'error');
+                    }
+                    return false;
+                }
+                
                 // Validar que los datos sean válidos
                 if (!datosActualizados || typeof datosActualizados !== 'object') {
                     console.error('Intento de actualizar movimiento con datos inválidos');
                     if (typeof showToast === 'function') {
                         showToast('Error: Datos de actualización inválidos', 'error');
                     }
-                    return;
+                    return false;
                 }
                 
                 // Invalidar cache antes de obtener movimientos
                 invalidateMovimientosCache();
+                invalidateSaldosCache(); // Invalidar cache de saldos al actualizar movimiento
                 let movimientos = getMovimientos();
-                const index = movimientos.findIndex(m => m.id === movimientoId);
-                if (index !== -1) {
-                    // Normalizar monedas antes de actualizar
-                    const datosNormalizados = normalizeAllMonedas({ ...datosActualizados });
-                    
-                    // Validar fecha si se actualiza
-                    if (datosNormalizados.fecha && !isValidDate(datosNormalizados.fecha + 'T00:00:00')) {
-                        console.error('Fecha inválida en actualización de movimiento');
-                        if (typeof showToast === 'function') {
-                            showToast('Error: La fecha no es válida', 'error');
-                        }
-                        return;
+                
+                if (!Array.isArray(movimientos)) {
+                    console.error('Error: movimientos no es un array');
+                    if (typeof showToast === 'function') {
+                        showToast('Error: No se pudieron cargar los movimientos', 'error');
                     }
-                    
-                    movimientos[index] = { ...movimientos[index], ...datosNormalizados, fechaModificacion: new Date().toISOString() };
-                    saveMovimientos(movimientos);
-                } else {
+                    return false;
+                }
+                
+                const index = movimientos.findIndex(m => m && m.id === movimientoId);
+                if (index === -1) {
                     console.error('Movimiento no encontrado para actualizar:', movimientoId);
                     if (typeof showToast === 'function') {
                         showToast('Error: Movimiento no encontrado', 'error');
                     }
+                    return false;
+                }
+                
+                // Validar que el movimiento existente sea válido
+                if (!movimientos[index] || typeof movimientos[index] !== 'object') {
+                    console.error('Movimiento en índice inválido:', index);
+                    if (typeof showToast === 'function') {
+                        showToast('Error: Movimiento corrupto', 'error');
+                    }
+                    return false;
+                }
+                
+                try {
+                    // Normalizar monedas antes de actualizar
+                    const datosNormalizados = normalizeAllMonedas({ ...datosActualizados });
+                    
+                    // Validar fecha si se actualiza
+                    if (datosNormalizados.fecha) {
+                        try {
+                            if (!isValidDate(datosNormalizados.fecha + 'T00:00:00')) {
+                                console.error('Fecha inválida en actualización de movimiento');
+                                if (typeof showToast === 'function') {
+                                    showToast('Error: La fecha no es válida', 'error');
+                                }
+                                return false;
+                            }
+                        } catch (dateError) {
+                            console.error('Error al validar fecha:', dateError);
+                            if (typeof showToast === 'function') {
+                                showToast('Error al validar la fecha', 'error');
+                            }
+                            return false;
+                        }
+                    }
+                    
+                    // Validar estructura de mixedPayments si existe
+                    if (datosNormalizados.mixedPayments !== undefined) {
+                        if (!Array.isArray(datosNormalizados.mixedPayments)) {
+                            datosNormalizados.mixedPayments = [];
+                        } else {
+                            datosNormalizados.mixedPayments = datosNormalizados.mixedPayments.filter(p => {
+                                return p && typeof p === 'object' && p.wallet && p.monto;
+                            }).map(p => ({
+                                wallet: String(p.wallet || ''),
+                                monto: String(p.monto || '0')
+                            }));
+                        }
+                    }
+                    
+                    // Actualizar movimiento preservando campos importantes
+                    movimientos[index] = { 
+                        ...movimientos[index], 
+                        ...datosNormalizados, 
+                        id: movimientoId, // Preservar ID original
+                        fechaModificacion: new Date().toISOString(),
+                        // Preservar fechaCreacion si existe
+                        fechaCreacion: movimientos[index].fechaCreacion || new Date().toISOString()
+                    };
+                    
+                    const success = saveMovimientos(movimientos);
+                    if (!success) {
+                        if (typeof showToast === 'function') {
+                            showToast('Error al guardar los cambios', 'error');
+                        }
+                        return false;
+                    }
+                    
+                    return true;
+                } catch (error) {
+                    console.error('Error al actualizar movimiento:', error);
+                    if (typeof showToast === 'function') {
+                        showToast('Error al actualizar el movimiento', 'error');
+                    }
+                    return false;
                 }
             }
 
@@ -4553,7 +4651,10 @@
                     try {
                         // Si estamos editando, actualizar el movimiento existente
                         if (editingMovimientoId) {
-                            updateMovimiento(editingMovimientoId, movimientoData);
+                            const updateSuccess = updateMovimiento(editingMovimientoId, movimientoData);
+                            if (!updateSuccess) {
+                                throw new Error('No se pudo actualizar el movimiento');
+                            }
                             showToast('Movimiento actualizado con éxito', 'success');
                             editingMovimientoId = null;
                         } else {
