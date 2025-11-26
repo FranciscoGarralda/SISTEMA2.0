@@ -3913,15 +3913,33 @@
                         return;
                     }
                 } else {
-                    // Validar que la comisión fija sea positiva
-                    if (comisionValor < 0) {
-                        showToast('La comisión fija no puede ser negativa', 'error');
+                    // Validar que la comisión fija sea positiva y válida
+                    if (isNaN(comisionValor) || !isFinite(comisionValor) || comisionValor < 0) {
+                        if (comisionValor < 0) {
+                            showToast('La comisión fija no puede ser negativa', 'error');
+                        }
                         formData.montoComision = '';
                         return;
                     }
-                    montoComision = comisionValor;
+                    try {
+                        montoComision = comisionValor;
+                        if (!isFinite(montoComision) || isNaN(montoComision)) {
+                            formData.montoComision = '';
+                            return;
+                        }
+                    } catch (error) {
+                        console.error('Error al calcular comisión fija:', error);
+                        formData.montoComision = '';
+                        return;
+                    }
                 }
-                formData.montoComision = roundToTwo(montoComision).toFixed(2);
+                
+                try {
+                    formData.montoComision = roundToTwo(montoComision).toFixed(2);
+                } catch (error) {
+                    console.error('Error al formatear montoComision:', error);
+                    formData.montoComision = '';
+                }
                 
                 if (formData.operacion === 'CUENTAS_CORRIENTES' && ['INGRESO', 'EGRESO'].includes(formData.subOperacion)) {
                      formData.total = roundToTwo(monto + montoComision).toFixed(2);
