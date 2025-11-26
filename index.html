@@ -4539,24 +4539,51 @@
                     // Normalizar todas las monedas en movimientoData
                     normalizeAllMonedas(movimientoData);
                     
-                    // Si estamos editando, actualizar el movimiento existente
-                    if (editingMovimientoId) {
-                        updateMovimiento(editingMovimientoId, movimientoData);
-                        showToast('Movimiento actualizado con éxito', 'success');
-                        editingMovimientoId = null;
-                    } else {
-                        // Si es nuevo, crear el movimiento
-                        const movimientoId = addMovimiento(movimientoData);
-                        
-                        // Actualizar última operación del cliente si hay uno seleccionado
-                        if (formData.cliente) {
-                            actualizarUltimaOperacionCliente(formData.cliente);
-                        }
-                        
-                        showToast('Operación guardada con éxito', 'success');
+                    // Mostrar indicador de guardado (para UX mejorada)
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    let originalText = '';
+                    let originalDisabled = false;
+                    if (submitBtn) {
+                        originalText = submitBtn.textContent;
+                        originalDisabled = submitBtn.disabled;
+                        submitBtn.disabled = true;
+                        submitBtn.textContent = 'Guardando...';
                     }
                     
-                    clearFormState();
+                    try {
+                        // Si estamos editando, actualizar el movimiento existente
+                        if (editingMovimientoId) {
+                            updateMovimiento(editingMovimientoId, movimientoData);
+                            showToast('Movimiento actualizado con éxito', 'success');
+                            editingMovimientoId = null;
+                        } else {
+                            // Si es nuevo, crear el movimiento
+                            const movimientoId = addMovimiento(movimientoData);
+                            
+                            // Validar que el movimiento se creó correctamente
+                            if (!movimientoId) {
+                                throw new Error('No se pudo crear el movimiento');
+                            }
+                            
+                            // Actualizar última operación del cliente si hay uno seleccionado
+                            if (formData.cliente) {
+                                actualizarUltimaOperacionCliente(formData.cliente);
+                            }
+                            
+                            showToast('Operación guardada con éxito', 'success');
+                        }
+                        
+                        clearFormState();
+                    } catch (error) {
+                        console.error('Error al guardar movimiento:', error);
+                        showToast('Error al guardar la operación. Por favor intenta nuevamente.', 'error');
+                    } finally {
+                        // Restaurar botón en cualquier caso
+                        if (submitBtn) {
+                            submitBtn.disabled = originalDisabled;
+                            submitBtn.textContent = originalText;
+                        }
+                    }
                     loadModule('operaciones');
                 };
                 form.addEventListener('submit', form._submitHandler);
