@@ -3806,7 +3806,7 @@
                 
                 // Calcular interés: (monto * interés anual * días) / (365 * 100)
                 // El interés se calcula pero NO se suma al monto inicial todavía
-                // El total es el monto que prestamos (salida), el interés se pagará cuando se devuelva
+                // Cuando nos prestan dinero: recibimos el monto (INGRESO), el interés se pagará cuando devolvamos el préstamo
                 let interesTotal = 0;
                 try {
                     interesTotal = (monto * interes * lapso) / (365 * 100);
@@ -4210,7 +4210,7 @@
                         </div>
                         <div class="form-group"><label class="form-label">Wallet de donde sale</label><div class="wallet-buttons-container" id="walletCompraButtons"></div></div>
                         <div style="padding: 12px; background: var(--bg-primary); border-radius: 8px; margin-top: 12px; border: 1px solid var(--border-color);">
-                            <p style="font-size: 12px; color: var(--text-secondary); margin: 0 0 8px 0;">💡 <strong>Nota:</strong> Nosotros prestamos el monto. El interés se calculará y se pagará cuando se devuelva el préstamo.</p>
+                            <p style="font-size: 12px; color: var(--text-secondary); margin: 0 0 8px 0;">💡 <strong>Nota:</strong> Nos prestan el monto (recibimos dinero). El interés se calculará y se pagará cuando devolvamos el préstamo.</p>
                             <div class="form-group" style="margin: 0;"><label class="form-label">Monto a Prestar</label><input type="text" inputmode="numeric" class="form-input form-input-readonly" name="total" value="${formData.total || ''}" readonly></div>
                         </div>`,
                     'PRESTAMISTAS_RETIRO': `
@@ -7387,13 +7387,14 @@
                         }
                     }
 
-                    // PRESTAMISTAS - PRESTAMO: resta de walletCompra
+                    // PRESTAMISTAS - PRESTAMO: suma a walletCompra (nos prestan dinero, recibimos el monto)
+                    // El interés se pagará cuando se devuelva el préstamo
                     if (operacion === 'PRESTAMISTAS' && subOperacion === 'PRESTAMO' && mov.walletCompra) {
                         const walletId = getWalletIdOnly(mov.walletCompra);
                         if (walletId) {
                             if (!saldos[walletId]) saldos[walletId] = {};
                             if (!saldos[walletId][moneda]) saldos[walletId][moneda] = 0;
-                            saldos[walletId][moneda] -= total;
+                            saldos[walletId][moneda] += total; // SUMAMOS porque recibimos el dinero prestado
                         }
                     }
 
